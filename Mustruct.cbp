@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Mustruct" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="" />
+			<CompileFile command="" />
+			<Clean command="" />
+			<DistClean command="" />
+			<AskRebuildNeeded command="" />
+			<SilentBuild command=" &gt; $(CMD_NULL)" />
+		</MakeCommands>
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/Mustruct" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/Mustruct" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+				</Compiler>
+				<Linker>
+					<Add option="-O3" />
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="CajaDelimitadora.hpp" />
+		<Unit filename="Config.hpp" />
+		<Unit filename="Globals.hpp" />
+		<Unit filename="Grabber.hpp" />
+		<Unit filename="GroupBox.hpp" />
+		<Unit filename="ICloneable.hpp" />
+		<Unit filename="IDeletable.hpp" />
+		<Unit filename="IDrawable.hpp" />
+		<Unit filename="IDrawingContext.hpp" />
+		<Unit filename="IGrabber.hpp" />
+		<Unit filename="IOffsetBox.hpp" />
+		<Unit filename="ISonglet.hpp" />
+		<Unit filename="ITextable.hpp" />
+		<Unit filename="JsonParse.hpp" />
+		<Unit filename="Line2D.hpp" />
+		<Unit filename="MonkeyBox.hpp" />
+		<Unit filename="Point2D.hpp" />
+		<Unit filename="Splines.hpp" />
+		<Unit filename="Voice.hpp" />
+		<Unit filename="VoicePoint.hpp" />
+		<Unit filename="Wave.hpp" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
