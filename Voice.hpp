@@ -66,7 +66,6 @@ public:
     } else {
       //std::cout << "Element not found in CPoints\n";
     }
-    // this->CPoints.remove(pnt);
   }
   /* ************************************************************************************************************************ */
   int Tree_Search(double Time, int minloc, int maxloc) {// finds place where time would be inserted or replaced

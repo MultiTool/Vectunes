@@ -21,7 +21,7 @@ public:
   double x, y;
   //Point2D* Zero;
   Point2D() {}
-  Point2D(Point2D& donor) : Point2D(donor.x, donor.y) {
+  Point2D(const Point2D& donor) : Point2D(donor.x, donor.y) {
   }
   Point2D(double XLoc, double YLoc) {
     this->Assign(XLoc, YLoc);

@@ -35,23 +35,58 @@ public:
   ArrayList<Point2D> SplinePoints;
   //Point2D[] SplinePoints = new Splines.PointX[0];
   /* ********************************************************************************* */
-  GroupBox() {}
+  GroupBox() {
+    MyBounds = new CajaDelimitadora();
+    RefCount = 0;
+    //this->LineColor = Globals::ToColorWheel(Math::frand());
+  }
   ~GroupBox() {this->Delete_Me();}
   /* ********************************************************************************* */
   IOffsetBox* Add_SubSong(ISonglet& songlet, double TimeOffset, double OctaveOffset, double LoudnessFactor) {
-    return nullptr;
+    IOffsetBox *obox = songlet.Spawn_OffsetBox();
+    this->Add_SubSong(*obox, TimeOffset, OctaveOffset, LoudnessFactor);
+    return obox;
   }
   /* ********************************************************************************* */
-  void Add_SubSong(IOffsetBox& obox, double TimeOffset, double OctaveOffset, double LoudnessFactor) {}
+  void Add_SubSong(IOffsetBox& obox, double TimeOffset, double OctaveOffset, double LoudnessFactor) {// Add a songlet with its offsetbox already created.
+    obox.TimeX = (TimeOffset);
+    obox.OctaveY = (OctaveOffset);
+    obox.LoudnessFactor = (LoudnessFactor);
+    this->Add_SubSong(obox);
+  }
   /* ********************************************************************************* */
-  void Add_SubSong(IOffsetBox& obox) {}
+  void Add_SubSong(IOffsetBox& obox) {// Add a songlet with its offsetbox already created and filled out.
+    obox.GetContent()->Set_Project(this->MyProject);// child inherits project from me
+    obox.MyParentSong = this;
+    SubSongs.push_back(&obox);
+
+    if (UsingSplines) {
+      int SplineSize = (this->SubSongs.size()) * NumSubLines + 1;
+      this->SplinePoints.resize(SplineSize);
+//      this->SplinePoints = new Point2D[SplineSize];
+//      for (int pcnt = 0; pcnt < this->SplinePoints.length; pcnt++) {
+//        this->SplinePoints[pcnt] = new Point2D();
+//      }
+      //Cubic_Spline_Boxes(ArrayList<IOffsetBox>& raw, int NumSubLines, ArrayList<Point2D>& SplinePoints)
+      Splines::Cubic_Spline_Boxes(this->SubSongs, NumSubLines, SplinePoints);
+    }
+  }
   /* ********************************************************************************* */
-  void Remove_SubSong(IOffsetBox& obox) {}
+  void Remove_SubSong(IOffsetBox& obox) {
+    std::vector<IOffsetBox*>::iterator it;
+    it = std::find(this->SubSongs.begin(), this->SubSongs.end(), &obox);
+    if (it != this->SubSongs.end()){
+      //std::cout << "Element found in SubSongs: " << *it << '\n';
+      this->SubSongs.erase(it);
+    } else {
+      std::cout << "Element not found in SubSongs\n";
+    }
+  }
   /* ********************************************************************************* */
   void Refresh_Splines() {}
   /* ********************************************************************************* */
   double Get_Duration() override {
-    return 0;
+    return this->Duration;
   }
   /* ********************************************************************************* */
   double Get_Max_Amplitude() {
