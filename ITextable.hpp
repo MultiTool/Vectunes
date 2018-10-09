@@ -51,7 +51,7 @@ public:
 //    ci.JsonPhrase = Item;
 //    this.Items.put(KeyTxt, ci);// string is key
   }
-  CollisionItem* GetItem(ITextable& KeyObj) {// for serialization
+  CollisionItem* GetItem(ITextable* KeyObj) {// for serialization
     return nullptr;
     //return this.Instances.get(KeyObj);
   }

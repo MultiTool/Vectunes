@@ -57,15 +57,8 @@ public:
     return pnt;
   }
   /* ********************************************************************************* */
-  void Remove_Note(VoicePoint& pnt) {
-    std::vector<VoicePoint*>::iterator it;
-    it = std::find(this->CPoints.begin(), this->CPoints.end(), &pnt);
-    if (it != this->CPoints.end()){
-      //std::cout << "Element found in CPoints: " << *it << '\n';
-      this->CPoints.erase(it);
-    } else {
-      //std::cout << "Element not found in CPoints\n";
-    }
+  void Remove_Note(VoicePoint *pnt) {
+    this->CPoints.remove(pnt);
   }
   /* ************************************************************************************************************************ */
   int Tree_Search(double Time, int minloc, int maxloc) {// finds place where time would be inserted or replaced
@@ -235,7 +228,7 @@ public:
      the idea is for hit table to be keyed by my actual identity (me), while the value
      is my first and only clone.
      */
-    CollisionItem *ci = HitTable.GetItem(*this);
+    CollisionItem *ci = HitTable.GetItem(this);
     if (ci == null) {// not seen before, create a new instance
       child = new Voice();
       ci = HitTable.InsertUniqueInstance(this);

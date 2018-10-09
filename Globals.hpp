@@ -12,6 +12,8 @@
 #include <vector>
 #include <map>
 
+#include "ArrayList.hpp"
+
 #define boolean bool
 #define jpublic
 #define jprivate
@@ -23,7 +25,7 @@
 #define Object void*
 #define null nullptr
 #define String std::string
-#define ArrayList std::vector
+//#define ArrayList std::vector
 //#define HashMap std::unordered_map
 #define HashMap std::map
 
