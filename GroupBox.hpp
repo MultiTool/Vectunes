@@ -549,7 +549,6 @@ public:
     ArrayList<ISinger*> NowPlaying;// pool of currently playing voices
     int Current_Dex = 0;
     double Prev_Time = 0;
-    IOffsetBox MyOffsetBox;// private
     /* ********************************************************************************* */
     Group_Singer(){}
     ~Group_Singer(){ this->Delete_Me(); }
@@ -562,10 +561,8 @@ public:
     }
     /* ********************************************************************************* */
     void Skip_To(double EndTime) override {
-      if (this->IsFinished) {
-        return;
-      }
-      EndTime = this->MyOffsetBox.MapTime(EndTime);// EndTime is now time internal to GroupBox's own coordinate system
+      if (this->IsFinished) { return; }
+      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupBox's own coordinate system
       if (this->MySonglet->SubSongs.size() <= 0) {
         this->IsFinished = true;
         this->Prev_Time = EndTime;
@@ -596,10 +593,8 @@ public:
     /* ********************************************************************************* */
     void Render_To(double EndTime, Wave& wave) override {
       if (this->IsFinished) { return; }
-      if (this->InheritedMap.LoudnessFactor == 0.0) {// muted, so don't waste time rendering
-        return;
-      }
-      EndTime = this->MyOffsetBox.MapTime(EndTime);// EndTime is now time internal to GroupBox's own coordinate system
+      if (this->InheritedMap.LoudnessFactor == 0.0) { return; }// muted, so don't waste time rendering
+      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupBox's own coordinate system
       double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in parent coordinates
       if (this->MySonglet->SubSongs.size() <= 0) {
         this->IsFinished = true;
@@ -629,7 +624,7 @@ public:
           delete player;
         } else { cnt++; }
       }
-      wave.Amplify(this->MyOffsetBox.LoudnessFactor);
+      wave.Amplify(this->MyOffsetBox->LoudnessFactor);
       this->Prev_Time = EndTime;
     }
     /* ********************************************************************************* */
@@ -640,7 +635,7 @@ public:
     void Compound(MonkeyBox& donor) override {}
     /* ********************************************************************************* */
     IOffsetBox* Get_OffsetBox() override {
-      return &(this->MyOffsetBox);
+      return this->MyOffsetBox;
     }
     /* ********************************************************************************* */
     boolean Create_Me() override {// IDeletable
@@ -692,38 +687,83 @@ public:
     String GroupScaleXName = "GroupScaleX";// for serialization
     String ObjectTypeName = "Group_OffsetBox";
     /* ********************************************************************************* */
-    Group_OffsetBox() {}
+    Group_OffsetBox() {
+      IOffsetBox();
+      this->Clear();
+      this->Create_Me();
+    }
     /* ********************************************************************************* */
     GroupBox* GetContent() {
-      return nullptr;
+      return Content;
     }
     /* ********************************************************************************* */
-    void Attach_Songlet(GroupBox& songlet) {}
-    /* ********************************************************************************* */
-    void RescaleGroupTimeX(double Factor) {}
-    /* ********************************************************************************* */
-    void Draw_Me(IDrawingContext& ParentDC) override {}
-    /* ********************************************************************************* */
-    Group_Singer* Spawn_Singer() override {
-      return nullptr;
+    void Attach_Songlet(GroupBox* songlet) {// for serialization
+      this->Content = songlet;
+      songlet->Ref_Songlet();
     }
     /* ********************************************************************************* */
-    Group_OffsetBox* Clone_Me() override {
-      return nullptr;
+    void RescaleGroupTimeX(double Factor) {
+      this->Content->RescaleGroupTimeX(Factor);
     }
     /* ********************************************************************************* */
-    Group_OffsetBox* Deep_Clone_Me(CollisionLibrary& HitTable) override {
-      return nullptr;
+    void Draw_Me(IDrawingContext& ParentDC) override {// IDrawable
+      IOffsetBox::Draw_Me(ParentDC);
+      // here draw the Rescale_TimeX handle
     }
     /* ********************************************************************************* */
-    void BreakFromHerd(CollisionLibrary& HitTable) {}
-    /* ********************************************************************************* */
-    void BreakFromHerd_Shallow() {}
-    /* ********************************************************************************* */
-    boolean Create_Me() {
-      return 0;
+    Group_Singer* Spawn_Singer() override {// always always always override this
+      Group_Singer *Singer = this->Content->Spawn_Singer();// for render time
+      Singer->MyOffsetBox = this;// Transfer all of this box's offsets to singer.
+      return Singer;
     }
-    void Delete_Me() {}
+    /* ********************************************************************************* */
+    Group_OffsetBox* Clone_Me() override {// ICloneable, always override this thusly
+      Group_OffsetBox *child = new Group_OffsetBox();
+      child->Copy_From(*this);
+      child->Content = this->Content;
+      return child;
+    }
+    /* ********************************************************************************* */
+    Group_OffsetBox* Deep_Clone_Me(CollisionLibrary& HitTable) override {// ICloneable
+      Group_OffsetBox *child = new Group_OffsetBox();
+      child->Copy_From(*this);
+      child->Attach_Songlet(this->Content->Deep_Clone_Me(HitTable));
+      return child;
+    }
+    /* ********************************************************************************* */
+    void BreakFromHerd(CollisionLibrary& HitTable) {// for compose time. detach from my songlet and attach to an identical but unlinked songlet
+      GroupBox *clone = this->Content->Deep_Clone_Me(HitTable);
+      if (this->Content->UnRef_Songlet() <= 0) {
+        this->Content->Delete_Me();
+        delete this->Content;
+      }
+      this->Attach_Songlet(clone);
+    }
+    /* ********************************************************************************* */
+    void BreakFromHerd_Shallow() {// for compose time. detach from my songlet and attach to an identical but unlinked songlet
+      GroupBox *clone = this->Content->Shallow_Clone_Me();
+      if (this->Content->UnRef_Songlet() <= 0) {
+        this->Content->Delete_Me();
+        delete this->Content;
+      }
+      this->Content = clone;
+      this->Content->Ref_Songlet();
+    }
+    /* ********************************************************************************* */
+    boolean Create_Me() {// IDeletable
+      return true;
+    }
+    void Delete_Me() {// IDeletable
+      IOffsetBox::Delete_Me();
+      this->GroupScaleX = Double_NEGATIVE_INFINITY;
+      if (this->Content != null) {
+        if (this->Content->UnRef_Songlet() <= 0) {
+          this->Content->Delete_Me();// redundant
+          delete this->Content;
+          this->Content = null;
+        }
+      }
+    }
     /* ********************************************************************************* */
     JsonParse::Node* Export(CollisionLibrary& HitTable) {
       return nullptr;
@@ -744,7 +784,7 @@ public:
   /* ********************************************************************************* */
   Group_OffsetBox* Spawn_OffsetBox() override {
     Group_OffsetBox *lbox = new Group_OffsetBox();// Deliver an OffsetBox specific to this type of songlet.
-    lbox->Attach_Songlet(*this);
+    lbox->Attach_Songlet(this);
     return lbox;
   }
   /* ********************************************************************************* */

@@ -101,3 +101,19 @@ public:// Cantante
 
 #endif // ISonglet_hpp
 
+#if false  // to do: put these in ISinger, and make ISinger NOT pure virtual
+    /* ********************************************************************************* */
+    public void Inherit(Singer parent) {// accumulate transformations
+      this.ParentSinger = parent;
+      this.InheritedMap.Copy_From(parent.InheritedMap);
+      this.Compound();
+    }
+    /* ********************************************************************************* */
+    public void Compound() {// accumulate my own transformation
+      this.Compound(this.Get_OffsetBox());
+    }
+    /* ********************************************************************************* */
+    public void Compound(MonkeyBox donor) {// accumulate my own transformation
+      this.InheritedMap.Compound(donor);// to do: combine matrices here.
+    }
+#endif // false

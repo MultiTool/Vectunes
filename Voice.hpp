@@ -439,6 +439,17 @@ public:
       }
       wave.NumSamples = this->Render_Sample_Count;
     }
+
+    /* ********************************************************************************* */
+    void Inherit(ISinger& parent) override {// ISinger
+    }
+    /* ********************************************************************************* */
+    void Compound() override {// ISinger
+    }
+    /* ********************************************************************************* */
+    void Compound(MonkeyBox& donor) override {// ISinger
+    }
+
     /* ********************************************************************************* */
     double GetWaveForm(double SubTimeAbsolute) {// not used currently
       return Math::sin(SubTimeAbsolute * this->MyVoice->BaseFreq * Globals::TwoPi);
@@ -667,12 +678,20 @@ public:
     };
   };
   /* ********************************************************************************* */
-  Voice_OffsetBox* Spawn_OffsetBox() {
-    return nullptr;
+  Voice_OffsetBox* Spawn_OffsetBox() override {// for compose time
+    Voice_OffsetBox *vbox = new Voice_OffsetBox();// Deliver an OffsetBox specific to this type of phrase.
+    vbox->Attach_Songlet(this);
+    return vbox;
   }
   /* ********************************************************************************* */
-  Voice_Singer* Spawn_Singer() {
-    return nullptr;
+  Voice_Singer* Spawn_Singer() override {// for render time
+    // Deliver one of my singers while exposing specific object class.
+    // Handy if my parent's singers know what class I am and want special access to my particular type of singer.
+    Voice_Singer *singer = new Voice_Singer();
+    singer->MyVoice = this;
+    singer->MyProject = this->MyProject;// inherit project
+    singer->BaseFreq = this->BaseFreq;
+    return singer;
   }
 };
 
