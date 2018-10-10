@@ -18,7 +18,7 @@ public:
   /* ********************************************************************************* */
   virtual boolean KeepDigging(IMoveable& Candidate) = 0;
   /* ********************************************************************************* */
-  virtual void AddBoxToStack(IOffsetBox& child) = 0;
+  virtual void AddBoxToStack(OffsetBoxBase& child) = 0;
   virtual void DecrementStack() = 0;
   /* ********************************************************************************* */
   virtual bool Intersects(CajaDelimitadora& OtherBounds) = 0;

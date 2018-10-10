@@ -6,7 +6,7 @@
 
 #include "IDrawable.hpp"
 #include "MonkeyBox.hpp"
-#include "IOffsetBox.hpp"
+#include "OffsetBoxBase.hpp"
 #include "Voice.hpp"
 
 #include "Line2D.hpp"
@@ -55,20 +55,49 @@ int main() {
   }
 
   cout << Math::PI << endl;
+  {
+    Voice *voz;
+    voz = new Voice();
+    Config conf;
+    voz->Set_Project(&conf);
 
-  Voice *voz;
-  voz = new Voice();
-  Voice::Voice_Singer *vs = voz->Spawn_Singer();
-  delete vs;
+    VoicePoint *vp0 = new VoicePoint();
+    vp0->OctaveY = 5.0; vp0->TimeX = 0;
+    voz->Add_Note(vp0);
 
-  Voice::Voice_OffsetBox *vobox = voz->Spawn_OffsetBox();
-  delete vobox;
+    VoicePoint *vp1 = new VoicePoint();
+    vp1->OctaveY = 5.0; vp1->TimeX = 1.0;
+    voz->Add_Note(vp1);
 
-  delete voz;
+    Voice::Voice_OffsetBox *vobox = voz->Spawn_OffsetBox();
+    Voice::Voice_Singer *vsing = vobox->Spawn_Singer();
 
-  IOffsetBox *obox = new IOffsetBox();
+    //Voice::Voice_Singer *vsing = voz->Spawn_Singer();
+    cout << "Current_Frequency:" << vsing->Current_Frequency << endl;
+    vsing->Start();
 
-  IOffsetBox *oboxkid = obox->Clone_Me();
+    Wave wave;
+
+    vsing->Render_To(1.0, wave);
+
+    double *wav = wave.GetWave();
+
+    delete vobox;
+
+    delete vsing;
+
+    delete voz;
+  }
+  {
+      GroupBox *gb = new GroupBox();
+      GroupBox::Group_OffsetBox *grobox = gb->Spawn_OffsetBox();
+      delete grobox;
+      delete gb;
+  }
+
+  OffsetBoxBase *obox = new OffsetBoxBase();
+
+  OffsetBoxBase *oboxkid = obox->Clone_Me();
 
   Wave *wav = new Wave();
   cout << "Hello world!" << endl;

@@ -12,7 +12,7 @@
 #include "ISonglet.hpp"
 #include "IDrawable.hpp"
 #include "VoicePoint.hpp"
-#include "IOffsetBox.hpp"
+#include "OffsetBoxBase.hpp"
 #include "Config.hpp"
 #include "IGrabber.hpp"
 
@@ -309,7 +309,7 @@ public:
     return nullptr;
   }
   /* ********************************************************************************* */
-  class Voice_Singer: public ISinger {
+  class Voice_Singer: public SingerBase {
   public:
     Voice* MyVoice;
     double Phase, Cycles;// Cycles is the number of cycles we've rotated since the start of this voice. The fractional part is the phase information.
@@ -321,7 +321,7 @@ public:
     int Bone_Sample_Mark = 0;// number of samples since time 0
     double BaseFreq;
     /* ********************************************************************************* */
-    Voice_Singer() {}
+    Voice_Singer() { this->Current_Frequency = 440; }
     /* ********************************************************************************* */
     ~Voice_Singer() {
       Delete_Me();
@@ -333,14 +333,16 @@ public:
       this->Next_Point_Dex = 1;
       this->Render_Sample_Count = 0;
       this->Bone_Sample_Mark = 0;
-      this->IsFinished = false;
-      if (this->MyVoice->CPoints.size() > 0) {
+      if (this->MyVoice->CPoints.size() <= 1) {
+        this->IsFinished = true; return;
+      } else {
+        this->IsFinished = false;
         VoicePoint* pnt = this->MyVoice->CPoints.at(0);
         this->Bone_Sample_Mark = (int) ((pnt->TimeX * this->InheritedMap.ScaleX) * this->MyProject->SampleRate);
+        //if (this->Parent != null) {
+        VoicePoint *ppnt = this->MyVoice->CPoints.at(this->Prev_Point_Dex);
+        this->Cursor_Point.CopyFrom(*ppnt);
       }
-      //if (this->Parent != null) {
-      VoicePoint *ppnt = this->MyVoice->CPoints.at(this->Prev_Point_Dex);
-      this->Cursor_Point.CopyFrom(*ppnt);
     }
     /* ********************************************************************************* */
     void Skip_To(double EndTime) override {      // ready for test
@@ -440,16 +442,18 @@ public:
       wave.NumSamples = this->Render_Sample_Count;
     }
 
-    /* ********************************************************************************* */
-    void Inherit(ISinger& parent) override {// ISinger
-    }
-    /* ********************************************************************************* */
-    void Compound() override {// ISinger
-    }
-    /* ********************************************************************************* */
-    void Compound(MonkeyBox& donor) override {// ISinger
-    }
+#if false
 
+    /* ********************************************************************************* */
+    void Inherit(SingerBase& parent) override {// SingerBase
+    }
+    /* ********************************************************************************* */
+    void Compound() override {// SingerBase
+    }
+    /* ********************************************************************************* */
+    void Compound(MonkeyBox& donor) override {// SingerBase
+    }
+#endif // false
     /* ********************************************************************************* */
     double GetWaveForm(double SubTimeAbsolute) {// not used currently
       return Math::sin(SubTimeAbsolute * this->MyVoice->BaseFreq * Globals::TwoPi);
@@ -476,7 +480,7 @@ public:
       return EndTime;
     }
     /* ********************************************************************************* */
-    IOffsetBox* Get_OffsetBox() {
+    OffsetBoxBase* Get_OffsetBox() {
       return this->MyOffsetBox;
     }
     /* ********************************************************************************* */
@@ -590,7 +594,7 @@ public:
       return 0;
     }
     void Delete_Me() override {// IDeletable
-      //ISinger::Delete_Me();
+      SingerBase::Delete_Me();
       this->Cursor_Point.Delete_Me();
       this->MyVoice = null;// wreck everything so we crash if we try to use a dead object
       this->Phase = this->Cycles = this->SubTime = Double_NEGATIVE_INFINITY;
@@ -601,13 +605,13 @@ public:
     }
   };
   /* ********************************************************************************* */
-  class Voice_OffsetBox: public IOffsetBox {// location box to transpose in pitch, move in time, etc.
+  class Voice_OffsetBox: public OffsetBoxBase {// location box to transpose in pitch, move in time, etc.
   public:
     Voice* VoiceContent;
     String ObjectTypeName = {"Voice_OffsetBox"};// for serialization
     /* ********************************************************************************* */
     Voice_OffsetBox() {
-      IOffsetBox();
+      OffsetBoxBase();
       this->Clear();
     }
     ~Voice_OffsetBox(){this->Delete_Me();}
@@ -652,7 +656,7 @@ public:
       return true;
     }
     void Delete_Me() override {// IDeletable
-      IOffsetBox::Delete_Me();
+      OffsetBoxBase::Delete_Me();
       if (this->VoiceContent != null) {
         if (this->VoiceContent->UnRef_Songlet() <= 0) {
           this->VoiceContent->Delete_Me();

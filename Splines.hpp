@@ -31,7 +31,7 @@ public:
     result.Assign(XLoc, YLoc);
   }
   /* ********************************************************************************* */
-  static void Cubic_Spline_Boxes(ArrayList<IOffsetBox*>& raw, int NumSubLines, ArrayList<Point2D>& SplinePoints) {// Splines that only go forward in time
+  static void Cubic_Spline_Boxes(ArrayList<OffsetBoxBase*>& raw, int NumSubLines, ArrayList<Point2D>& SplinePoints) {// Splines that only go forward in time
     double CtrlPntLength = 1.0 / 2.0;
     Point2D Prev(0, 0), Next(0, 0);
     Point2D CtrlPrev, CtrlNext;
@@ -39,14 +39,14 @@ public:
     int len = raw.size();
     double FractAlong;
     double XDist;
-    IOffsetBox *NowBox;
+    OffsetBoxBase *NowBox;
 
     int pcnt = 0;
     int rescnt = 0;
     while (pcnt < len) {
       Prev.CopyFrom(Next);// rollover
       NowBox = raw.at(pcnt);
-      NowBox->CopyTo_PointX(Next);
+      NowBox->CopyTo_Point2D(Next);
       XDist = Next.x - Prev.x;
 
       CtrlPrev.CopyFrom(Prev);

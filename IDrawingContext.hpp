@@ -8,14 +8,14 @@
 #include "Globals.hpp"
 #include "IDeletable.hpp"
 #include "CajaDelimitadora.hpp"
-#include "IOffsetBox.hpp"
+#include "OffsetBoxBase.hpp"
 /**
  *
  * @author MultiTool
  */
 // Every IDrawable has a bounding box, and every IDrawingContext also has a bounding box for clipping.
 // Drawing will always be called from the top, and the bounding box will define what to draw.
-class IOffsetBox;// forward
+class OffsetBoxBase;// forward
 /* ********************************************************************************* */
 class IDrawingContext: public IDeletable {
 private:
@@ -23,7 +23,7 @@ private:
 public:
   //public Graphics2D gr;
   CajaDelimitadora ClipBounds;
-  IOffsetBox *Offset, *GlobalOffset;// = new OffsetBox();// Global Offset is transformation to and from pixels
+  OffsetBoxBase *Offset, *GlobalOffset;// = new OffsetBox();// Global Offset is transformation to and from pixels
   int RecurseDepth;
   /* ********************************************************************************* */
   // IDrawingContext() = 0;
@@ -32,7 +32,7 @@ public:
   /* ********************************************************************************* */
   virtual Point2D* To_Screen(double XLoc, double YLoc) = 0;
   /* ********************************************************************************* */
-  virtual void Compound(IOffsetBox& other) = 0;
+  virtual void Compound(OffsetBoxBase& other) = 0;
   /* ********************************************************************************* */
   virtual boolean Create_Me() = 0;
   virtual void Delete_Me() = 0;

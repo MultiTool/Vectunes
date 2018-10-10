@@ -17,7 +17,7 @@
 
 class GroupBox: public ISonglet {
 public:
-  ArrayList<IOffsetBox*> SubSongs;
+  ArrayList<OffsetBoxBase*> SubSongs;
   String SubSongsName = "SubSongs";
   double Duration = 0.0;
   Config* MyProject;
@@ -41,20 +41,20 @@ public:
   }
   ~GroupBox() {this->Delete_Me();}
   /* ********************************************************************************* */
-  IOffsetBox* Add_SubSong(ISonglet& songlet, double TimeOffset, double OctaveOffset, double LoudnessFactor) {
-    IOffsetBox *obox = songlet.Spawn_OffsetBox();
+  OffsetBoxBase* Add_SubSong(ISonglet& songlet, double TimeOffset, double OctaveOffset, double LoudnessFactor) {
+    OffsetBoxBase *obox = songlet.Spawn_OffsetBox();
     this->Add_SubSong(obox, TimeOffset, OctaveOffset, LoudnessFactor);
     return obox;
   }
   /* ********************************************************************************* */
-  void Add_SubSong(IOffsetBox* obox, double TimeOffset, double OctaveOffset, double LoudnessFactor) {// Add a songlet with its offsetbox already created.
+  void Add_SubSong(OffsetBoxBase* obox, double TimeOffset, double OctaveOffset, double LoudnessFactor) {// Add a songlet with its offsetbox already created.
     obox->TimeX = (TimeOffset);
     obox->OctaveY = (OctaveOffset);
     obox->LoudnessFactor = (LoudnessFactor);
     this->Add_SubSong(obox);
   }
   /* ********************************************************************************* */
-  void Add_SubSong(IOffsetBox* obox) {// Add a songlet with its offsetbox already created and filled out.
+  void Add_SubSong(OffsetBoxBase* obox) {// Add a songlet with its offsetbox already created and filled out.
     obox->GetContent()->Set_Project(this->MyProject);// child inherits project from me
     obox->MyParentSong = this;
     int dex = this->Tree_Search(obox->TimeX, 0, SubSongs.size());
@@ -63,8 +63,8 @@ public:
     Refresh_Splines();// maybe sort_me and refresh_splines should be in update_guts instead?
   }
   /* ********************************************************************************* */
-  void Remove_SubSong(IOffsetBox& obox) {
-    std::vector<IOffsetBox*>::iterator iter;
+  void Remove_SubSong(OffsetBoxBase& obox) {
+    std::vector<OffsetBoxBase*>::iterator iter;
     iter = std::find(this->SubSongs.begin(), this->SubSongs.end(), &obox);
     if (iter != this->SubSongs.end()){
       std::cout << "Element found in SubSongs: " << *iter << '\n';
@@ -98,7 +98,7 @@ public:
   /* ********************************************************************************* */
   void Update_Max_Amplitude() {
     int len = this->SubSongs.size();
-    IOffsetBox *pnt;
+    OffsetBoxBase *pnt;
     double MaxAmp = 0.0;
     for (int pcnt = 0; pcnt < len; pcnt++) {
       pnt = this->SubSongs.at(pcnt);
@@ -113,7 +113,7 @@ public:
     double DurBuf = 0.0;
     int NumSubSongs = this->SubSongs.size();
     for (int cnt = 0; cnt < NumSubSongs; cnt++) {
-      IOffsetBox *obox = this->SubSongs.at(cnt);
+      OffsetBoxBase *obox = this->SubSongs.at(cnt);
       ISonglet *child = obox->GetContent();
       //if (MaxDuration < (DurBuf = (ob.UnMapTime(vb.Update_Durations())))) {
       if (MaxDuration < (DurBuf = (obox->TimeX + child->Update_Durations()))) {
@@ -134,7 +134,7 @@ public:
       double DurBuf = 0.0;
       int NumSubSongs = this->SubSongs.size();
       for (int cnt = 0; cnt < NumSubSongs; cnt++) {
-        IOffsetBox *obx = this->SubSongs.at(cnt);
+        OffsetBoxBase *obx = this->SubSongs.at(cnt);
         ISonglet *songlet = obx->GetContent();
         metrics.MaxDuration = 0.0;
         songlet->Update_Guts(metrics);
@@ -160,8 +160,8 @@ public:
   /* ********************************************************************************* */
   void Bubble_Right(int Dex) {// when a point moves right in space, move it to the correct place in the collection.
     int len = this->SubSongs.size();
-    IOffsetBox *mov = this->SubSongs.at(Dex);
-    IOffsetBox *next;
+    OffsetBoxBase *mov = this->SubSongs.at(Dex);
+    OffsetBoxBase *next;
     int PrevDex = Dex++;
     while (Dex < len) {
       next = this->SubSongs.at(Dex);
@@ -175,8 +175,8 @@ public:
   }
   /* ********************************************************************************* */
   void Sort_Me() {// sorting by RealTime
-//    Collections.sort(this->SubSongs, new Comparator<IOffsetBox>() {
-//      @Override public int compare(IOffsetBox voice0, IOffsetBox voice1) {
+//    Collections.sort(this->SubSongs, new Comparator<OffsetBoxBase>() {
+//      @Override public int compare(OffsetBoxBase voice0, OffsetBoxBase voice1) {
 //        return Double.compare(voice0.TimeX, voice1.TimeX);
 //      }
 //    });
@@ -206,7 +206,7 @@ public:
     return this->MyBounds;
   }
   void UpdateBoundingBox() override {// IDrawable
-    IOffsetBox *ChildOffsetBox;
+    OffsetBoxBase *ChildOffsetBox;
 //    CajaDelimitadora ChildBBoxUnMapped;
 //    this->MyBounds.Reset();
     int len = this->SubSongs.size();
@@ -219,7 +219,7 @@ public:
     this->UpdateBoundingBoxLocal();
   }
   void UpdateBoundingBoxLocal() override {// IDrawable
-    IOffsetBox *ChildOffsetBox;
+    OffsetBoxBase *ChildOffsetBox;
     CajaDelimitadora *ChildBBoxUnMapped;
     this->MyBounds->Reset();
     int len = this->SubSongs.size();
@@ -237,7 +237,7 @@ public:
   void GoFishing(IGrabber& Scoop) override {// IDrawable
     if (Scoop.Intersects(*MyBounds)) {// current search bounds are in parent coords
       int len = this->SubSongs.size();
-      IOffsetBox *child;
+      OffsetBoxBase *child;
       for (int pcnt = 0; pcnt < len; pcnt++) {
         child = this->SubSongs.at(pcnt);
         child->GoFishing(Scoop);
@@ -259,11 +259,11 @@ public:
       ci = HitTable.InsertUniqueInstance(this);
       ci->Item = child;
       child->Copy_From(*this);
-      IOffsetBox *SubSongHandle;
+      OffsetBoxBase *SubSongHandle;
       int len = this->SubSongs.size();
       for (int cnt = 0; cnt < len; cnt++) {
         SubSongHandle = this->SubSongs.at(cnt);
-        IOffsetBox *obox = SubSongHandle->Deep_Clone_Me(HitTable);
+        OffsetBoxBase *obox = SubSongHandle->Deep_Clone_Me(HitTable);
         child->Add_SubSong(obox);
       }
     } else {// pre exists
@@ -280,7 +280,7 @@ public:
     child = new GroupBox();
     //child->TraceText = "I am a shallow clone";
     child->Copy_From(*this);
-    IOffsetBox *SubSongHandle, *ChildSubSongHandle;
+    OffsetBoxBase *SubSongHandle, *ChildSubSongHandle;
     ISonglet *songlet;
     int len = this->SubSongs.size();
     for (int cnt = 0; cnt < len; cnt++) {
@@ -305,7 +305,7 @@ public:
   void RescaleGroupTimeX(double Factor) {
     int len = this->SubSongs.size();
     for (int cnt = 0; cnt < len; cnt++) {
-      IOffsetBox *obox = this->SubSongs.at(cnt);
+      OffsetBoxBase *obox = this->SubSongs.at(cnt);
       obox->TimeX *= Factor;
     }
   }
@@ -389,7 +389,7 @@ public:
     double Limit = 0.1;// octaves.  hardcoded hack, need something better
     int len = this->SubSongs.size();
     double Dist;
-    IOffsetBox *LastBox = this->SubSongs.at(len - 1);
+    OffsetBoxBase *LastBox = this->SubSongs.at(len - 1);
     Point2D Intersection;// = new Point2D();
     if (0.0 <= XPnt && XPnt <= LastBox->TimeX) {// or this->MyBounds.Max.x) {
       int FoundDex = Tree_Search(XPnt, 0, len);// to do: tree search with buffer around click point
@@ -423,9 +423,9 @@ public:
   double HitsMyVine(double XPnt, double YPnt) {// work in progress for drag and drop support
     double Limit = 0.1;// octaves.  hardcoded hack, need something better
     int len = this->SubSongs.size();
-    IOffsetBox *OBox, *ClosestPoint = null;
+    OffsetBoxBase *OBox, *ClosestPoint = null;
     double XPrev = 0, YPrev = 0, YCross, YDist, Dist;
-    IOffsetBox *LastBox = this->SubSongs.at(len - 1);
+    OffsetBoxBase *LastBox = this->SubSongs.at(len - 1);
     Point2D Intersection;// = new Point2D();
     if (0.0 <= XPnt && XPnt <= LastBox->TimeX) {// or this->MyBounds.Max.x) {
 //      int FoundDex = Tree_Search(XPnt - Limit, 0, len);
@@ -433,7 +433,7 @@ public:
       if (FoundDex == 0) {// X point equals first element in subsong array
         XPrev = YPrev = 0;
       } else {
-        IOffsetBox *PrevBox = this->SubSongs.at(FoundDex - 1);
+        OffsetBoxBase *PrevBox = this->SubSongs.at(FoundDex - 1);
         XPrev = PrevBox->TimeX;
         YPrev = PrevBox->OctaveY;
       }
@@ -479,7 +479,7 @@ public:
       return;
     }
     int FinalKid = NumKids - 1;
-    IOffsetBox *obox = this->SubSongs.at(FinalKid);
+    OffsetBoxBase *obox = this->SubSongs.at(FinalKid);
     double XLimit = obox->TimeX;
     double Spacing = XLimit / NumKids;
     double FractAlong;
@@ -504,7 +504,7 @@ public:
   }
   void Wipe_SubSongs() {
     int len = this->SubSongs.size();
-    IOffsetBox *obox;
+    OffsetBoxBase *obox;
     for (int cnt = 0; cnt < len; cnt++) {
       obox = this->SubSongs.at(cnt);
       obox->Delete_Me();
@@ -543,10 +543,10 @@ public:
   void ShallowLoad(JsonParse::Node& phrase) {}
   void Consume(JsonParse::Node& phrase, CollisionLibrary& ExistingInstances) {}
   /* ********************************************************************************* */
-  class Group_Singer: public ISinger {
+  class Group_Singer: public SingerBase {
   public:
     GroupBox* MySonglet;
-    ArrayList<ISinger*> NowPlaying;// pool of currently playing voices
+    ArrayList<SingerBase*> NowPlaying;// pool of currently playing voices
     int Current_Dex = 0;
     double Prev_Time = 0;
     /* ********************************************************************************* */
@@ -570,7 +570,7 @@ public:
       }
       double Clipped_EndTime = this->Tee_Up(EndTime);
       int NumPlaying = NowPlaying.size();
-      ISinger *player = null;
+      SingerBase *player = null;
       int cnt = 0;
       while (cnt < NumPlaying) {// then play the whole pool
         player = this->NowPlaying.at(cnt);
@@ -607,7 +607,7 @@ public:
       wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->MyProject->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
       Wave ChildWave;
       int NumPlaying = NowPlaying.size();
-      ISinger *player = null;
+      SingerBase *player = null;
       int cnt = 0;
       while (cnt < NumPlaying) {// then play the whole pool
         player = this->NowPlaying.at(cnt);
@@ -628,23 +628,13 @@ public:
       this->Prev_Time = EndTime;
     }
     /* ********************************************************************************* */
-    void Inherit(ISinger& parent) override {}
-    /* ********************************************************************************* */
-    void Compound() override {}
-    /* ********************************************************************************* */
-    void Compound(MonkeyBox& donor) override {}
-    /* ********************************************************************************* */
-    IOffsetBox* Get_OffsetBox() override {
-      return this->MyOffsetBox;
-    }
-    /* ********************************************************************************* */
     boolean Create_Me() override {// IDeletable
-      return ISinger::Create_Me();
+      return SingerBase::Create_Me();
     }
     void Delete_Me() override {// IDeletable
-      ISinger::Delete_Me();
+      SingerBase::Delete_Me();
       int len = this->NowPlaying.size();
-      ISinger *singer;
+      SingerBase *singer;
       for (int cnt = 0; cnt < len; cnt++) {
         singer = this->NowPlaying.at(cnt);
         //singer->Delete_Me();// redundant
@@ -666,11 +656,11 @@ public:
         this->IsFinished = true;
         EndTime = Final_Time;// clip time
       }
-      IOffsetBox *obox;
+      OffsetBoxBase *obox;
       while (this->Current_Dex < NumSonglets) {// first find new songlets in this time range and add them to pool
         obox = MySonglet->SubSongs.at(this->Current_Dex);
         if (Final_Start < obox->TimeX) { break; }// repeat until obox start time overtakes EndTime
-        ISinger *singer = obox->Spawn_Singer();
+        SingerBase *singer = obox->Spawn_Singer();
         singer->Inherit(*this);
         this->NowPlaying.add(singer);
         singer->Start();
@@ -680,7 +670,7 @@ public:
     }
   };
   /* ********************************************************************************* */
-  class Group_OffsetBox: public IOffsetBox {// location box to transpose in pitch, move in time, etc.
+  class Group_OffsetBox: public OffsetBoxBase {// location box to transpose in pitch, move in time, etc.
   public:
     GroupBox* Content = null;
     double GroupScaleX = 1.0;
@@ -688,7 +678,7 @@ public:
     String ObjectTypeName = "Group_OffsetBox";
     /* ********************************************************************************* */
     Group_OffsetBox() {
-      IOffsetBox();
+      OffsetBoxBase();
       this->Clear();
       this->Create_Me();
     }
@@ -707,7 +697,7 @@ public:
     }
     /* ********************************************************************************* */
     void Draw_Me(IDrawingContext& ParentDC) override {// IDrawable
-      IOffsetBox::Draw_Me(ParentDC);
+      OffsetBoxBase::Draw_Me(ParentDC);
       // here draw the Rescale_TimeX handle
     }
     /* ********************************************************************************* */
@@ -754,7 +744,7 @@ public:
       return true;
     }
     void Delete_Me() {// IDeletable
-      IOffsetBox::Delete_Me();
+      OffsetBoxBase::Delete_Me();
       this->GroupScaleX = Double_NEGATIVE_INFINITY;
       if (this->Content != null) {
         if (this->Content->UnRef_Songlet() <= 0) {

@@ -2,20 +2,20 @@
 #define ISonglet_hpp
 
 #include "Wave.hpp"
-#include "IOffsetBox.hpp"
+#include "OffsetBoxBase.hpp"
 #include "IDeletable.hpp"
 #include "ITextable.hpp"
 #include "IDrawable.hpp"
 #include "Config.hpp"
 
-class ISinger; // forward
+class SingerBase; // forward
 //class AudProject;// forward
 class MetricsPacket;// forward
 class MonkeyBox;// forward
 
 class ISonglet: public IDrawable, IDeletable, public ITextable {// Cancionita
 protected:
-  IOffsetBox *MyOffsetBox = null;
+  OffsetBoxBase *MyOffsetBox = null;
 public:
   Config *MyProject;
   double Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
@@ -27,12 +27,12 @@ public:
   Inherited_ScaleY = 1.0;// 'temper' context, which we will NEVER use unless we want to make ugly anharmonic noise.
   */
   boolean IsFinished = false;
-  ISinger *ParentSinger;
+  SingerBase *ParentSinger;
 
   /* ********************************************************************************* */
-  virtual IOffsetBox* Spawn_OffsetBox() = 0;// for compose time
+  virtual OffsetBoxBase* Spawn_OffsetBox() = 0;// for compose time
   /* ********************************************************************************* */
-  virtual ISinger* Spawn_Singer() = 0;// for render time
+  virtual SingerBase* Spawn_Singer() = 0;// for render time
 
   /* ********************************************************************************* */
   virtual int Get_Sample_Count(int SampleRate) = 0;
@@ -70,38 +70,57 @@ public:
   };
 
 /* ********************************************************************************* */
-class ISinger{//: public IDeletable {// Cantante
+class SingerBase: public IDeletable {// Cantante
 public:// Cantante
   Config *MyProject;
   double Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
   MonkeyBox InheritedMap;// InheritedMap is transformation to and from samples. Replacement for Inherited_*
 
   boolean IsFinished = false;
-  ISinger* ParentSinger;
-  IOffsetBox* MyOffsetBox = nullptr;
+  SingerBase* ParentSinger;
+  OffsetBoxBase* MyOffsetBox = nullptr;
   //MonkeyBox* MyOffsetBox = nullptr;
   /* ********************************************************************************* */
-  virtual void Start() = 0;
+  virtual void Start() {};
   /* ********************************************************************************* */
-  virtual void Skip_To(double EndTime) = 0;
+  virtual void Skip_To(double EndTime) {};
   /* ********************************************************************************* */
-  virtual void Render_To(double EndTime, Wave& wave) = 0;
+  virtual void Render_To(double EndTime, Wave& wave) {};
   /* ********************************************************************************* */
-  virtual void Inherit(ISinger& parent) = 0;
+  virtual void Inherit(SingerBase& parent) {// accumulate transformations
+    this->ParentSinger = &parent;
+    this->InheritedMap.Copy_From(parent.InheritedMap);
+    this->Compound();
+  };
   /* ********************************************************************************* */
-  virtual void Compound() = 0;
+  virtual void Compound() {// accumulate my own transformation
+    this->Compound(*(this->Get_OffsetBox()));
+  };
   /* ********************************************************************************* */
-  virtual void Compound(MonkeyBox& donor) = 0;
+  virtual void Compound(MonkeyBox& donor) {// accumulate my own transformation
+    this->InheritedMap.Compound(donor);// to do: combine matrices here.
+  };
   /* ********************************************************************************* */
-  virtual  IOffsetBox* Get_OffsetBox() = 0;
+  virtual OffsetBoxBase* Get_OffsetBox() {
+    return this->MyOffsetBox;
+  };
   /* ********************************************************************************* */
-  virtual bool Create_Me() = 0;
-  virtual void Delete_Me() = 0;
+  bool Create_Me() override {// IDeletable
+    return true;
+  };
+  void Delete_Me() override {// IDeletable
+    this->MyProject = null;// wreck everything
+    this->Inherited_OctaveRate = Double_NEGATIVE_INFINITY;
+    this->InheritedMap.Delete_Me();// should be redundant
+    this->IsFinished = true;
+    this->ParentSinger = null;
+    this->MyOffsetBox = null;
+  };
 };
 
 #endif // ISonglet_hpp
 
-#if false  // to do: put these in ISinger, and make ISinger NOT pure virtual
+#if false  // to do: put these in SingerBase, and make SingerBase NOT pure virtual
     /* ********************************************************************************* */
     public void Inherit(Singer parent) {// accumulate transformations
       this.ParentSinger = parent;

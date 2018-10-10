@@ -41,7 +41,7 @@ public:
 #if false
 from GroupBox.hpp:
 {// to do: create an ArrayList with remove()
-  std::vector<ISinger*>::iterator it;
+  std::vector<SingerBase*>::iterator it;
   it = std::find(this->NowPlaying.begin(), this->NowPlaying.end(), player);
   if (it != this->NowPlaying.end()){
     this->NowPlaying.erase(it);

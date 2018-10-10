@@ -72,13 +72,13 @@ public:
     ScaleX = ScaleY = 1.0;
   }
   /* ********************************************************************************* */
-  void CopyTo_PointX(Point2D& pnt) {
+  void CopyTo_Point2D(Point2D& pnt) {
     pnt.x = TimeX; pnt.y = OctaveY;
   }
   /* ********************************************************************************* */
-  double Get_Max_Amplitude() {
-    return this->LoudnessFactor;
-  }
+//  virtual double Get_Max_Amplitude() {// always override this
+//    return this->LoudnessFactor;
+//  }
   /* ********************************************************************************* */
   void Compound(MonkeyBox& donor) {
     this->TimeX += (this->ScaleX * donor.TimeX);// to do: combine matrices here.
@@ -152,7 +152,7 @@ public:
   void Draw_Dot2(IDrawingContext& DC, double XCtr, double YCtr, double OctavesPerRadius, boolean Selected, Color& col) {}
   /* ********************************************************************************* */
   CajaDelimitadora* GetBoundingBox() override {// IDrawable
-    return nullptr;
+    return &(this->MyBounds);
   }
   void UpdateBoundingBox() override {// IDrawable
   }

@@ -21,7 +21,7 @@ class GroupBox;// forward
 class StackItem: public IDeletable {
 public:
   CajaDelimitadora SearchBounds;
-  IOffsetBox* OBox;
+  OffsetBoxBase* OBox;
   int HitDex;
   Point2D Loc;
  /* so do we pass HitDex to all songlets, or to all oboxes? only songlets can use it directly.
@@ -78,8 +78,8 @@ public:
     return (this->CurrentContext->SearchBounds.Intersects(*Candidate.GetBoundingBox()));
   }
   /* ********************************************************************************* */
-  void Init(IOffsetBox& starter, double XLoc, double YLoc) {// add first space map at start of search
-//    IOffsetBox child = new IOffsetBox();// first layer place holder.  not a great solution.
+  void Init(OffsetBoxBase& starter, double XLoc, double YLoc) {// add first space map at start of search
+//    OffsetBoxBase child = new OffsetBoxBase();// first layer place holder.  not a great solution.
 //    child.MyBounds.Assign(Double_NEGATIVE_INFINITY, Double_NEGATIVE_INFINITY, Double_POSITIVE_INFINITY, Double_POSITIVE_INFINITY);
 //    StackItem next = new StackItem();
 //    next.OBox = child;
@@ -91,7 +91,7 @@ public:
 //    Stack_Depth = 1;// Now we have one element, whee!
   }
   /* ********************************************************************************* */
-  virtual void AddFirstBox(IOffsetBox& starter, double XLoc, double YLoc) {// add first space map at start of search
+  virtual void AddFirstBox(OffsetBoxBase& starter, double XLoc, double YLoc) {// add first space map at start of search
 //    this->Leaf = null;
 //    this->Stack_Depth_Best = 0;
 //    this->Stack_Depth = 0;
@@ -114,7 +114,7 @@ public:
 //    Stack_Depth = 1;// Now we have one element, whee!
   }
   /* ********************************************************************************* */
-  void AddBoxToStack(IOffsetBox& child) {}
+  void AddBoxToStack(OffsetBoxBase& child) {}
   void DecrementStack() {}
   void TruncateStack(ArrayList<StackItem>& Stack, int resize) {}
   /* ********************************************************************************* */
@@ -140,10 +140,10 @@ public:
 /* ********************************************************************************* */
 class DestinationGrabber: public Grabber {// this class searches for containers in which to drop a floating, copied songlet
 public:
-  IOffsetBox* Floater = null;
+  OffsetBoxBase* Floater = null;
   GroupBox* PossibleDestination = null;
   double ClosestDistance = Double_POSITIVE_INFINITY;
-  void AddFirstBox(IOffsetBox& starter, double XLoc, double YLoc) override {}
+  void AddFirstBox(OffsetBoxBase& starter, double XLoc, double YLoc) override {}
   /* ********************************************************************************* */
   void ConsiderLeaf(IMoveable& CandidateLeaf) override {}
   /* ********************************************************************************* */
