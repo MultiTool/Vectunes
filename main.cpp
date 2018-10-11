@@ -66,7 +66,7 @@ int main() {
     voz->Add_Note(vp0);
 
     VoicePoint *vp1 = new VoicePoint();
-    vp1->OctaveY = 5.0; vp1->TimeX = 1.0;
+    vp1->OctaveY = 8.0; vp1->TimeX = 0.1;
     voz->Add_Note(vp1);
 
     Voice::Voice_OffsetBox *vobox = voz->Spawn_OffsetBox();
@@ -81,6 +81,11 @@ int main() {
     vsing->Render_To(1.0, wave);
 
     double *wav = wave.GetWave();
+
+    for (int wcnt=0;wcnt<wave.NumSamples;wcnt++){
+       double amp = wav[wcnt];
+       printf("amp:%f\n", amp);
+    }
 
     delete vobox;
 

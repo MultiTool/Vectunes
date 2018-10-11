@@ -43,7 +43,7 @@ public:
   ~Voice(){this->Delete_Me();}
   /* ********************************************************************************* */
   void Add_Note(VoicePoint* pnt) {
-    pnt->RefParent(*this);
+    pnt->RefParent(this);
     this->CPoints.push_back(pnt);
   }
   /* ********************************************************************************* */
