@@ -26,7 +26,7 @@
 //class IDrawable::IMoveable; // forward
 class CollisionLibrary;// forward
 class ISonglet;// forward
-class MonkeyBox: public IMoveable, IDeletable, ITextable {// location box to transpose in pitch, move in time, etc.  //IMonkeyBox,
+class MonkeyBox: public IMoveable, public IDeletable, public ITextable {// location box to transpose in pitch, move in time, etc.  //IMonkeyBox,
 public:
   double TimeX = 0, OctaveY = 0, LoudnessFactor = 1.0;// all of these are in parent coordinates
   double ScaleX = 1.0, ScaleY = 1.0; // to be used for pixels per second, pixels per octave

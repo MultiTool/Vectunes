@@ -38,7 +38,7 @@ public:
   /* ********************************************************************************* */
   ~VoicePoint() { this->Delete_Me(); }
   /* ********************************************************************************* */
-  class LoudnessHandle: public IMoveable {//, public IDeletable {//, ITextable {// probably should not be ITextable
+  class LoudnessHandle: public IMoveable, public IDeletable {//, ITextable {// probably should not be ITextable
   public:
     CajaDelimitadora MyBounds;
     VoicePoint* ParentPoint;
@@ -152,10 +152,10 @@ public:
       return child;
     }
     /* ********************************************************************************* */
-    boolean Create_Me() {//override {// IDeletable
+    boolean Create_Me() override {// IDeletable
       return true;
     }
-    void Delete_Me() {//override {// IDeletable
+    void Delete_Me() override {// IDeletable
       this->MyBounds.Delete_Me();// wreck everything
       this->OctavesPerRadius = Double_NEGATIVE_INFINITY;
       this->ParentPoint = null;
