@@ -76,9 +76,8 @@ public:
   /* ********************************************************************************************************* */
   class HashPhrase: public PhraseBase {// a value that is a hashtable, an array, a literal, or a pointer to a multiply-used item
   public:
-    HashMap<String, PhraseBase>* ChildrenHash = new HashMap<String, PhraseBase>();
-    void AddSubPhrase(String& Name, PhraseBase& ChildPhrase)
-    {}
+    HashMap<String, PhraseBase> ChildrenHash;
+    void AddSubPhrase(String& Name, PhraseBase& ChildPhrase){}
     PhraseBase* Get(String& Name) {
       return nullptr;
     }
@@ -92,7 +91,7 @@ public:
   /* ********************************************************************************************************* */
   class ArrayPhrase: public PhraseBase {// a value that is an array
   public:
-    ArrayList<PhraseBase> ChildrenArray;// = new ArrayList<PhraseBase>();
+    ArrayList<PhraseBase> ChildrenArray;
     void AddSubPhrase(PhraseBase& ChildPhrase) {}
     PhraseBase* Get(int Dex) {
       return nullptr;

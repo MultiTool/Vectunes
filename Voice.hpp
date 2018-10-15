@@ -27,14 +27,14 @@
 typedef Voice* VoicePtr;
 class Voice: public ISonglet{//, IDrawable {// collection of control points, each one having a pitch and a volume. rendering morphs from one cp to another.
 public:
-  ArrayList<VoicePoint*> CPoints;// = new ArrayList<VoicePoint>();
+  ArrayList<VoicePoint*> CPoints;
   String CPointsName = "ControlPoints";// for serialization
   Config* MyProject;
   double MaxAmplitude;
   int FreshnessTimeStamp;
   double BaseFreq = Globals::BaseFreqC0;
   double ReverbDelay = 0.125 / 4.0;// delay in seconds
-  int RefCount = 0;
+  //int RefCount = 0;
   // graphics support
   CajaDelimitadora MyBounds;
   Color* FillColor;
@@ -48,9 +48,9 @@ public:
   }
   /* ********************************************************************************* */
   VoicePoint* Add_Note(double RealTime, double Octave, double Loudness) {
-    VoicePoint *pnt = new VoicePoint();
-    pnt->OctaveY = Octave;
+    VoicePoint *pnt = new VoicePoint();// decide whether vp is created/deleted by the voice, or someone else.
     pnt->TimeX = RealTime;
+    pnt->OctaveY = Octave;
     pnt->SubTime = 0.0;
     pnt->LoudnessFactor = Loudness;
     this->Add_Note(pnt);
@@ -58,7 +58,7 @@ public:
   }
   /* ********************************************************************************* */
   void Remove_Note(VoicePoint *pnt) {
-    this->CPoints.remove(pnt);
+    this->CPoints.remove(pnt);// decide whether vp is created/deleted by the voice, or someone else.
   }
   /* ************************************************************************************************************************ */
   int Tree_Search(double Time, int minloc, int maxloc) {// finds place where time would be inserted or replaced
@@ -127,11 +127,11 @@ public:
   void Refresh_From_Beneath(IMoveable& mbox) override {}
   /* ********************************************************************************* */
   void Sort_Me() override {// sorting by TimeX
-//    Collections.sort(this->CPoints, new Comparator<VoicePoint>() {
-//      @Override public int compare(VoicePoint note0, VoicePoint note1) {
-//        return Double_compare(note0.TimeX, note1.TimeX);
-//      }
-//    });
+    std::sort(this->CPoints.begin(), this->CPoints.end(), ComparePoints);
+  }
+  /* ********************************************************************** */
+  static bool ComparePoints(VoicePoint* vp0, VoicePoint* vp1) {
+    return vp0->TimeX < vp1->TimeX;
   }
   /* ********************************************************************************* */
   Config* Get_Project() override { return this->MyProject; }
@@ -143,7 +143,7 @@ public:
     int len = this->CPoints.size();
     if (len < 1) { return; }
     this->Sort_Me();
-    VoicePoint *Prev_Point, *Next_Point, Dummy_First;
+    VoicePoint Dummy_First, *Prev_Point, *Next_Point;
     Next_Point = this->CPoints.at(0);
     Dummy_First.CopyFrom(*Next_Point);
     Dummy_First.SubTime = Dummy_First.TimeX = 0.0;// Times must both start at 0, even though user may have put the first audible point at T greater than 0.
@@ -217,7 +217,7 @@ public:
   }
   /* ********************************************************************************* */
   Voice* Clone_Me() override {// ICloneable
-    Voice *child = new Voice();
+    Voice *child = new Voice();// clones
     child->Copy_From(*this);
     return child;
   }
@@ -229,8 +229,8 @@ public:
      is my first and only clone.
      */
     CollisionItem *ci = HitTable.GetItem(this);
-    if (ci == null) {// not seen before, create a new instance
-      child = new Voice();
+    if (ci == null) {// not seen before, create a neuvo instance
+      child = new Voice();// clone
       ci = HitTable.InsertUniqueInstance(this);
       ci->Item = child;
       child->Copy_From(*this);
@@ -255,7 +255,7 @@ public:
     this->MyProject = donor.MyProject;
     this->MaxAmplitude = donor.MaxAmplitude;
     this->FreshnessTimeStamp = 0;
-    this->MyBounds.Copy_From(donor.MyBounds); //this->CPoints = new ArrayList<>();
+    this->MyBounds.Copy_From(donor.MyBounds);
   }
   /* ********************************************************************************* */
   boolean Create_Me() override {// IDeletable
@@ -285,12 +285,11 @@ public:
     this->CPoints.clear();
   }
   /* ********************************************************************************* */
-  int Ref_Songlet() override {// ISonglet Reference Counting: increment ref counter and return new value just for kicks
+  int Ref_Songlet() override {// ISonglet Reference Counting: increment ref counter and return neuvo value just for kicks
     return ++this->RefCount;
   }
-  int UnRef_Songlet() override {// ISonglet Reference Counting: decrement ref counter and return new value just for kicks
+  int UnRef_Songlet() override {// ISonglet Reference Counting: decrement ref counter and return neuvo value just for kicks
     if (this->RefCount < 0) {
-      //throw new RuntimeException("Voice: Negative RefCount:" + this->RefCount);
       throw std::runtime_error("Voice: Negative RefCount:" + this->RefCount);
     }
     return --this->RefCount;
@@ -317,7 +316,7 @@ public:
     double Current_Octave, Current_Frequency;
     int Prev_Point_Dex, Next_Point_Dex;
     int Render_Sample_Count;
-    VoicePoint Cursor_Point;// = new VoicePoint();
+    VoicePoint Cursor_Point;
     int Bone_Sample_Mark = 0;// number of samples since time 0
     double BaseFreq;
     /* ********************************************************************************* */
@@ -426,7 +425,7 @@ public:
       // render loose end.
       if (EndTime <= Next_Point->TimeX) {
         if (Prev_Point->TimeX <= EndTime) {// EndTime is inside this box.
-          VoicePoint End_Cursor;// = new VoicePoint();// this section should always be executed, due to time clipping
+          VoicePoint End_Cursor;// this section should always be executed, due to time clipping
           End_Cursor.CopyFrom(*Prev_Point);
           Interpolate_ControlPoint(*Prev_Point, *Next_Point, EndTime, End_Cursor);
           Render_Segment_Integral(*Prev_Point, End_Cursor, wave);
@@ -632,7 +631,7 @@ public:
     }
     /* ********************************************************************************* */
     Voice_OffsetBox* Clone_Me() override {// always override this thusly
-      Voice_OffsetBox *child = new Voice_OffsetBox();
+      Voice_OffsetBox *child = new Voice_OffsetBox();// clone
       child->Copy_From(*this);
       child->VoiceContent = this->VoiceContent;// iffy
       return child;
@@ -683,7 +682,7 @@ public:
   };
   /* ********************************************************************************* */
   Voice_OffsetBox* Spawn_OffsetBox() override {// for compose time
-    Voice_OffsetBox *vbox = new Voice_OffsetBox();// Deliver an OffsetBox specific to this type of phrase.
+    Voice_OffsetBox *vbox = new Voice_OffsetBox();// Spawn an OffsetBox specific to this type of phrase.
     vbox->Attach_Songlet(this);
     return vbox;
   }
@@ -691,7 +690,7 @@ public:
   Voice_Singer* Spawn_Singer() override {// for render time
     // Deliver one of my singers while exposing specific object class.
     // Handy if my parent's singers know what class I am and want special access to my particular type of singer.
-    Voice_Singer *singer = new Voice_Singer();
+    Voice_Singer *singer = new Voice_Singer();// Spawn a singer specific to this type of phrase.
     singer->MyVoice = this;
     singer->MyProject = this->MyProject;// inherit project
     singer->BaseFreq = this->BaseFreq;

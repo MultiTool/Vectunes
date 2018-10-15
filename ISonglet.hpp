@@ -28,6 +28,7 @@ public:
   */
   boolean IsFinished = false;
   SingerBase *ParentSinger;
+  int RefCount = 0;
 
   /* ********************************************************************************* */
   virtual OffsetBoxBase* Spawn_OffsetBox() = 0;// for compose time
@@ -56,9 +57,16 @@ public:
   //@Override ISonglet Deep_Clone_Me(ITextable.CollisionLibrary HitTable) = 0;
 
   /* ********************************************************************************* */
-  virtual int Ref_Songlet() = 0;// Reference Counting: increment ref counter and return new value just for kicks
-  virtual int UnRef_Songlet() = 0;// Reference Counting: decrement ref counter and return new value just for kicks
+  virtual int Ref_Songlet() = 0;// Reference Counting: increment ref counter and return neuvo value just for kicks
+  virtual int UnRef_Songlet() = 0;// Reference Counting: decrement ref counter and return neuvo value just for kicks
   virtual int GetRefCount() = 0;// Reference Counting: get number of references for serialization
+  static int Unref(ISonglet* songlet){
+     int NumLeft = songlet->UnRef_Songlet();
+     if (NumLeft<=0){
+        delete songlet;
+     }
+     return NumLeft;
+  }
 };
 
   /* ********************************************************************************* */
@@ -80,6 +88,10 @@ public:// Cantante
   SingerBase* ParentSinger;
   OffsetBoxBase* MyOffsetBox = nullptr;
   //MonkeyBox* MyOffsetBox = nullptr;
+  /* ********************************************************************************* */
+  SingerBase(){ this->Create_Me(); }
+  /* ********************************************************************************* */
+  ~SingerBase(){ this->Delete_Me(); }
   /* ********************************************************************************* */
   virtual void Start() {};
   /* ********************************************************************************* */
@@ -120,19 +132,3 @@ public:// Cantante
 
 #endif // ISonglet_hpp
 
-#if false  // to do: put these in SingerBase, and make SingerBase NOT pure virtual
-    /* ********************************************************************************* */
-    public void Inherit(Singer parent) {// accumulate transformations
-      this.ParentSinger = parent;
-      this.InheritedMap.Copy_From(parent.InheritedMap);
-      this.Compound();
-    }
-    /* ********************************************************************************* */
-    public void Compound() {// accumulate my own transformation
-      this.Compound(this.Get_OffsetBox());
-    }
-    /* ********************************************************************************* */
-    public void Compound(MonkeyBox donor) {// accumulate my own transformation
-      this.InheritedMap.Compound(donor);// to do: combine matrices here.
-    }
-#endif // false

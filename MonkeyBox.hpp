@@ -41,11 +41,11 @@ public:
   boolean IsSelected = false;
 
   /* ********************************************************************************* */
-  MonkeyBox() {}
+  MonkeyBox() {this->Create_Me();}
   ~MonkeyBox(){this->Delete_Me();}
   /* ********************************************************************************* */
   MonkeyBox* Clone_Me() override {
-    MonkeyBox *child = new MonkeyBox();
+    MonkeyBox *child = new MonkeyBox();// clone
     child->Copy_From(*this);
     return child;
   }
@@ -76,9 +76,9 @@ public:
     pnt.x = TimeX; pnt.y = OctaveY;
   }
   /* ********************************************************************************* */
-//  virtual double Get_Max_Amplitude() {// always override this
-//    return this->LoudnessFactor;
-//  }
+  virtual double Get_Max_Amplitude() {// always override this
+    return this->LoudnessFactor;
+  }
   /* ********************************************************************************* */
   void Compound(MonkeyBox& donor) {
     this->TimeX += (this->ScaleX * donor.TimeX);// to do: combine matrices here.
@@ -188,6 +188,9 @@ public:
     return 0;
   }
   void Delete_Me() override {// IDeletable
+    this->TimeX = Double_NEGATIVE_INFINITY; this->OctaveY = Double_NEGATIVE_INFINITY;
+    this->LoudnessFactor = Double_NEGATIVE_INFINITY;
+    this->ScaleX = ScaleY = Double_NEGATIVE_INFINITY;
   }
   /* ********************************************************************************* */
   JsonParse::Node* Export(CollisionLibrary& HitTable) override {// ITextable

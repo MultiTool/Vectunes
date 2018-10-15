@@ -83,10 +83,9 @@ public:
       return ((double)rand()) / (double)RAND_MAX;
     }
   };
-  const static Random RandomGenerator();// = new Random();
+  const static Random RandomGenerator();
   //* ********************************************************************************* *
   static Color* ToAlpha(Color& col, int Alpha) {
-    //return new Color();
     return new Color(col.getRed(), col.getGreen(), col.getBlue(), Alpha);// rgba
   }
   //* ********************************************************************************* *

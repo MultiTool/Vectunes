@@ -2,10 +2,16 @@
 #define Wave_hpp
 
 #include <iostream>
+#include <fstream>
+#include <iostream>
+#include <cmath>
+#include <iomanip>  // std::setprecision
 #include <sstream>  // Required for stringstreams
 #include <string>
 #include <vector>
 #include "Globals.hpp"
+
+//using namespace std;
 
 /**
  *
@@ -26,7 +32,7 @@ public:
   /* ********************************************************************************* */
   Wave() {
     this->NumSamples = 0;
-    //wave = new double[this->NumSamples];
+    this->wave.resize(this->NumSamples);
     this->StartTime = 0.0;
     this->StartDex = 0;
     this->Current_Index = 0;
@@ -50,7 +56,7 @@ public:
   void Init(int SizeInit, int SampleRate0) {
     this->NumSamples = SizeInit;
     this->SampleRate = SampleRate0;
-    //wave = new double[SizeInit];
+    this->wave.resize(SizeInit);
     this->StartTime = 0.0;
     this->StartDex = 0;
     this->Current_Index = 0;
@@ -66,7 +72,6 @@ public:
     int nsamps = (int) Math::ceil(TimeSpan * SampleRate0);
     this->StartDex = (int) (this->StartTime * SampleRate0);// StartDex is the number of empty samples from Time=0 to wave[0]
     this->NumSamples = nsamps;
-    //wave = new double[nsamps + 1];// plus 1 because converting from double to int truncates.
     wave.resize(nsamps + 1);// plus 1 because converting from double to int truncates.
     this->Current_Index = 0;
   }
@@ -149,7 +154,7 @@ public:
     this->Amplify(1.0 / MaxAmp);
   }
   /* ********************************************************************************* */
-  void Center() {
+  void Center() {// Make sure integral of wave is 0.
     double Avg = 0.0, Sum = 0.0;
     int len = this->wave.size();
     for (int cnt = 0; cnt < len; cnt++) {
@@ -217,7 +222,6 @@ public:
   void WhiteNoise_Fill() {
     double val;
     for (int SampCnt = 0; SampCnt < this->NumSamples; SampCnt++) {
-      //val = Globals::RandomGenerator->NextDouble() * 2.0 - 1.0;// white noise
       val = Math::frand() * 2.0 - 1.0;// white noise
       this->wave[SampCnt] = val;
     }
@@ -242,18 +246,77 @@ public:
   /* ********************************************************************************* */
   void SaveWaveToCsv(String& filename, Wave& wave) {
     double val;
-//    DecimalFormat df = new DecimalFormat("#.######");
-//
-//    FileWriter writer = new FileWriter(filename, true);
-//    for (int SampCnt = 0; SampCnt < wave.NumSamples; SampCnt++) {
-//      val = wave.wave[SampCnt];
-//      writer.write(df.format(val) + ", ");
-//      //writer.write(String.format("%.06f", val) + ", ");
-//      if ((SampCnt + 1) % 20 == 0) {
-//        writer.write("\r\n");   // write new line
-//      }
-//    }
-//    writer.close();
+    std::ofstream outfile;
+    outfile.open(filename);
+    outfile << std::fixed << std::setprecision(6);// DecimalFormat("#.######");
+    for (int SampCnt = 0; SampCnt < wave.NumSamples; SampCnt++) {
+      val = wave.wave[SampCnt];
+      outfile << val << ", ";
+      if ((SampCnt + 1) % 20 == 0) {
+        outfile << std::endl;  // write newline
+      }
+    }
+    outfile.close();
+  }
+  /* ********************************************************************************* */
+  template <typename Word> // from http://www.cplusplus.com/forum/beginner/166954/
+  std::ostream& write_word( std::ostream& outs, Word value, unsigned size = sizeof( Word ) )  {
+    for (; size; --size, value >>= 8)
+      outs.put( static_cast <char> (value & 0xFF) );
+    return outs;
+  }
+  int SaveToWav(const String& FileName){// from http://www.cplusplus.com/forum/beginner/166954/
+    std::ofstream f(FileName, std::ios::binary );
+
+    // Write the file headers
+    f << "RIFF----WAVEfmt ";     // (chunk size to be filled in later)
+    write_word( f,     16, 4 );  // no extension data
+    write_word( f,      1, 2 );  // PCM - integer samples
+    write_word( f,      2, 2 );  // two channels (stereo file)
+    write_word( f,  44100, 4 );  // samples per second (Hz)
+    write_word( f, 176400, 4 );  // (Sample Rate * BitsPerSample * Channels) / 8
+    write_word( f,      4, 2 );  // data block size (size of two integer samples, one for each channel, in bytes)
+    write_word( f,     16, 2 );  // number of bits per sample (use a multiple of 8)
+
+    // Write the data chunk header
+    size_t data_chunk_pos = f.tellp();
+    f << "data----";  // (chunk size to be filled in later)
+
+    if (true){
+      double amplitude = 32000;// whatever
+      for (int n = 0; n < this->wave.size(); n++){
+        double value     = this->wave.at(n);
+        write_word( f, (int)(amplitude * value), 2 );// stereo
+        write_word( f, (int)(amplitude * value), 2 );
+      }
+    }else{
+      // Write the audio samples
+      // (We'll generate a single C4 note with a sine wave, fading from left to right)
+      constexpr double two_pi = 6.283185307179586476925286766559;
+      constexpr double max_amplitude = 32760;  // "volume"
+
+      double hz        = 44100;    // samples per second
+      double frequency = 261.626;  // middle C
+      double seconds   = 2.5;      // time
+
+      int N = hz * seconds;  // total number of samples
+      for (int n = 0; n < N; n++){
+        double amplitude = (double)n / N * max_amplitude;
+        double value     = sin( (two_pi * n * frequency) / hz );
+        write_word( f, (int)(                 amplitude  * value), 2 );
+        write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
+      }
+    }
+    // (We'll need the final file size to fix the chunk sizes above)
+    size_t file_length = f.tellp();
+
+    // Fix the data chunk header to contain the data size
+    f.seekp( data_chunk_pos + 4 );
+    write_word( f, file_length - data_chunk_pos + 8 );
+
+    // Fix the file header to contain the proper RIFF chunk size, which is (file size - 8) bytes
+    f.seekp( 0 + 4 );
+    write_word( f, file_length - 8, 4 );
   }
   /* ********************************************************************************* */
   boolean Create_Me() {

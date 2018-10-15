@@ -23,9 +23,8 @@ public:
   Config* MyProject;
   String MyName;// for debugging
   double MaxAmplitude = 0.0;
-  CajaDelimitadora* MyBounds;
+  CajaDelimitadora MyBounds;
   int FreshnessTimeStamp;
-  int RefCount = 0;
 
   // to do: These will belong to the Artist object after we code for that separation
   boolean HighlightSpine = false;
@@ -35,7 +34,6 @@ public:
   ArrayList<Point2D> SplinePoints;
   /* ********************************************************************************* */
   GroupBox() {
-    MyBounds = new CajaDelimitadora();
     RefCount = 0;
     //this->LineColor = Globals::ToColorWheel(Math::frand());
   }
@@ -71,7 +69,7 @@ public:
       this->SubSongs.erase(iter);
       if (false){// to do: put this in calling code
         ISonglet *song = obox.GetContent();
-        int RefCnt = song->UnRef_Songlet();
+        int RefCnt = ISonglet::Unref(song);// song->UnRef_Songlet();
         if (RefCnt<=0){
           delete song;
         }
@@ -174,12 +172,12 @@ public:
     this->SubSongs.at(PrevDex) = mov;
   }
   /* ********************************************************************************* */
-  void Sort_Me() {// sorting by RealTime
-//    Collections.sort(this->SubSongs, new Comparator<OffsetBoxBase>() {
-//      @Override public int compare(OffsetBoxBase voice0, OffsetBoxBase voice1) {
-//        return Double.compare(voice0.TimeX, voice1.TimeX);
-//      }
-//    });
+  void Sort_Me() {// sorting by RealTime, TimeX
+    std::sort(this->SubSongs.begin(), this->SubSongs.end(), CompareChildren);
+  }
+  /* ********************************************************************** */
+  static bool CompareChildren(OffsetBoxBase* obox0, OffsetBoxBase* obox1) {
+    return obox0->TimeX < obox1->TimeX;
   }
   /* ********************************************************************************* */
   int Get_Sample_Count(int SampleRate) override {
@@ -203,7 +201,7 @@ public:
   void Draw_Me(IDrawingContext& ParentDC) override {// IDrawable
   }
   CajaDelimitadora* GetBoundingBox() override {// IDrawable
-    return this->MyBounds;
+    return &(this->MyBounds);
   }
   void UpdateBoundingBox() override {// IDrawable
     OffsetBoxBase *ChildOffsetBox;
@@ -221,21 +219,21 @@ public:
   void UpdateBoundingBoxLocal() override {// IDrawable
     OffsetBoxBase *ChildOffsetBox;
     CajaDelimitadora *ChildBBoxUnMapped;
-    this->MyBounds->Reset();
+    this->MyBounds.Reset();
     int len = this->SubSongs.size();
     if (len == 0) {
-      this->MyBounds->ClearZero();
+      this->MyBounds.ClearZero();
     } else {
       for (int pcnt = 0; pcnt < len; pcnt++) {
         ChildOffsetBox = this->SubSongs.at(pcnt);
         ChildBBoxUnMapped = ChildOffsetBox->GetBoundingBox();// project child limits into parent (my) space
-        this->MyBounds->Include(*ChildBBoxUnMapped);
+        this->MyBounds.Include(*ChildBBoxUnMapped);
       }
     }
   }
   /* ********************************************************************************* */
   void GoFishing(IGrabber& Scoop) override {// IDrawable
-    if (Scoop.Intersects(*MyBounds)) {// current search bounds are in parent coords
+    if (Scoop.Intersects(MyBounds)) {// current search bounds are in parent coords
       int len = this->SubSongs.size();
       OffsetBoxBase *child;
       for (int pcnt = 0; pcnt < len; pcnt++) {
@@ -246,7 +244,7 @@ public:
   }
   /* ********************************************************************************* */
   GroupBox* Clone_Me() override {// ICloneable
-    GroupBox *child = new GroupBox();
+    GroupBox *child = new GroupBox();// clone
     child->Copy_From(*this);
     return child;
   }
@@ -255,7 +253,7 @@ public:
     GroupBox *child;
     CollisionItem *ci = HitTable.GetItem(this);
     if (ci == null) {
-      child = new GroupBox();
+      child = new GroupBox();// clone
       ci = HitTable.InsertUniqueInstance(this);
       ci->Item = child;
       child->Copy_From(*this);
@@ -277,7 +275,7 @@ public:
      clone-me clones myself, clones all my children oboxes, but does NOT clone their songlets.
      */
     GroupBox *child;
-    child = new GroupBox();
+    child = new GroupBox();// clone
     //child->TraceText = "I am a shallow clone";
     child->Copy_From(*this);
     OffsetBoxBase *SubSongHandle, *ChildSubSongHandle;
@@ -299,7 +297,7 @@ public:
     this->MyName = donor.MyName;// for debugging
     this->MaxAmplitude = donor.MaxAmplitude;
     this->FreshnessTimeStamp = 0;// donor.FreshnessTimeStamp;
-    this->MyBounds->Copy_From(*(donor.MyBounds));
+    this->MyBounds.Copy_From(donor.MyBounds);
   }
   /* ********************************************************************************* */
   void RescaleGroupTimeX(double Factor) {
@@ -390,7 +388,7 @@ public:
     int len = this->SubSongs.size();
     double Dist;
     OffsetBoxBase *LastBox = this->SubSongs.at(len - 1);
-    Point2D Intersection;// = new Point2D();
+    Point2D Intersection;
     if (0.0 <= XPnt && XPnt <= LastBox->TimeX) {// or this->MyBounds.Max.x) {
       int FoundDex = Tree_Search(XPnt, 0, len);// to do: tree search with buffer around click point
       int LinesPerSubSong = this->SplinePoints.size() / this->SubSongs.size();
@@ -426,7 +424,7 @@ public:
     OffsetBoxBase *OBox, *ClosestPoint = null;
     double XPrev = 0, YPrev = 0, YCross, YDist, Dist;
     OffsetBoxBase *LastBox = this->SubSongs.at(len - 1);
-    Point2D Intersection;// = new Point2D();
+    Point2D Intersection;
     if (0.0 <= XPnt && XPnt <= LastBox->TimeX) {// or this->MyBounds.Max.x) {
 //      int FoundDex = Tree_Search(XPnt - Limit, 0, len);
       int FoundDex = Tree_Search(XPnt, 0, len);
@@ -494,9 +492,7 @@ public:
     return true;
   }
   void Delete_Me() override {// IDeletable
-    this->MyBounds->Delete_Me();
-    delete this->MyBounds; // wreck everything to prevent accidental re-use
-    this->MyBounds = null;
+    this->MyBounds.Delete_Me();// wreck everything to prevent accidental re-use
     this->MyProject = null;
     this->Wipe_SubSongs();
     this->Duration = Double_NEGATIVE_INFINITY;
@@ -513,10 +509,10 @@ public:
     this->SubSongs.clear();
   }
   /* ********************************************************************************* */
-  int Ref_Songlet() override {// ISonglet Reference Counting: increment ref counter and return new value just for kicks
+  int Ref_Songlet() override {// ISonglet Reference Counting: increment ref counter and return neuvo value just for kicks
     return ++this->RefCount;
   }
-  int UnRef_Songlet() override {// ISonglet Reference Counting: decrement ref counter and return new value just for kicks
+  int UnRef_Songlet() override {// ISonglet Reference Counting: decrement ref counter and return neuvo value just for kicks
     return --this->RefCount;
   }
   int GetRefCount() {// ISonglet Reference Counting: get number of references for serialization
@@ -525,7 +521,7 @@ public:
   /* ********************************************************************************* */
   JsonParse::Node* Export(CollisionLibrary& HitTable) override {// ITextable
     JsonParse::Node *phrase = new JsonParse::Node();
-//    phrase->ChildrenHash = new HashMap<String, JsonParse::Node>();
+//    phrase->ChildrenHash = neuvo HashMap<String, JsonParse::Node>();
 //    phrase->AddSubPhrase("MyName", IFactory.Utils.PackField(this->MyName));
 //
 //    if (false) {
@@ -534,7 +530,7 @@ public:
 //    }
 //
 //    // Save my array of songlets.
-//    JsonParse.Node CPointsPhrase = new JsonParse.Node();
+//    JsonParse.Node CPointsPhrase = neuvo JsonParse.Node();
 //    CPointsPhrase.ChildrenArray = IFactory.Utils.MakeArray(HitTable, this->SubSongs);
 //    phrase->AddSubPhrase(this->SubSongsName, CPointsPhrase);
 
@@ -657,7 +653,7 @@ public:
         EndTime = Final_Time;// clip time
       }
       OffsetBoxBase *obox;
-      while (this->Current_Dex < NumSonglets) {// first find new songlets in this time range and add them to pool
+      while (this->Current_Dex < NumSonglets) {// first find neuvo songlets in this time range and add them to pool
         obox = MySonglet->SubSongs.at(this->Current_Dex);
         if (Final_Start < obox->TimeX) { break; }// repeat until obox start time overtakes EndTime
         SingerBase *singer = obox->Spawn_Singer();
@@ -681,6 +677,10 @@ public:
       OffsetBoxBase();
       this->Clear();
       this->Create_Me();
+    }
+    /* ********************************************************************************* */
+    ~Group_OffsetBox() {
+      this->Delete_Me();
     }
     /* ********************************************************************************* */
     GroupBox* GetContent() {
@@ -708,14 +708,14 @@ public:
     }
     /* ********************************************************************************* */
     Group_OffsetBox* Clone_Me() override {// ICloneable, always override this thusly
-      Group_OffsetBox *child = new Group_OffsetBox();
+      Group_OffsetBox *child = new Group_OffsetBox();// clone
       child->Copy_From(*this);
       child->Content = this->Content;
       return child;
     }
     /* ********************************************************************************* */
     Group_OffsetBox* Deep_Clone_Me(CollisionLibrary& HitTable) override {// ICloneable
-      Group_OffsetBox *child = new Group_OffsetBox();
+      Group_OffsetBox *child = new Group_OffsetBox();// clone
       child->Copy_From(*this);
       child->Attach_Songlet(this->Content->Deep_Clone_Me(HitTable));
       return child;
@@ -747,11 +747,11 @@ public:
       OffsetBoxBase::Delete_Me();
       this->GroupScaleX = Double_NEGATIVE_INFINITY;
       if (this->Content != null) {
-        if (this->Content->UnRef_Songlet() <= 0) {
-          this->Content->Delete_Me();// redundant
-          delete this->Content;
-          this->Content = null;
-        }
+        if (ISonglet::Unref(this->Content)<=0){ this->Content = null; }
+//        if (this->Content->UnRef_Songlet() <= 0) {
+//          delete this->Content;
+//          this->Content = null;
+//        }
       }
     }
     /* ********************************************************************************* */
@@ -773,13 +773,13 @@ public:
   };
   /* ********************************************************************************* */
   Group_OffsetBox* Spawn_OffsetBox() override {
-    Group_OffsetBox *lbox = new Group_OffsetBox();// Deliver an OffsetBox specific to this type of songlet.
+    Group_OffsetBox *lbox = new Group_OffsetBox();// Spawn an OffsetBox specific to this type of songlet.
     lbox->Attach_Songlet(this);
     return lbox;
   }
   /* ********************************************************************************* */
   Group_Singer* Spawn_Singer() override {
-    Group_Singer *GroupPlayer = new Group_Singer();
+    Group_Singer *GroupPlayer = new Group_Singer();// Spawn a singer specific to this type of songlet.
     GroupPlayer->MySonglet = this;
     GroupPlayer->MyProject = this->MyProject;// inherit project
     return GroupPlayer;

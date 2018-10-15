@@ -26,25 +26,3 @@ public:
 };
 
 #endif // ArrayList_hpp
-
-
-// from Voice.hpp:
-//    std::vector<VoicePoint*>::iterator it;
-//    it = std::find(this->CPoints.begin(), this->CPoints.end(), &pnt);
-//    if (it != this->CPoints.end()){
-//      //std::cout << "Element found in CPoints: " << *it << '\n';
-//      this->CPoints.erase(it);
-//    } else {
-//      //std::cout << "Element not found in CPoints\n";
-//    }
-
-#if false
-from GroupBox.hpp:
-{// to do: create an ArrayList with remove()
-  std::vector<SingerBase*>::iterator it;
-  it = std::find(this->NowPlaying.begin(), this->NowPlaying.end(), player);
-  if (it != this->NowPlaying.end()){
-    this->NowPlaying.erase(it);
-  }
-}
-#endif // false

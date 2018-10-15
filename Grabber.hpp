@@ -57,8 +57,8 @@ public:
   double XHit, YHit;// exact mouse click point
   StackItem *CurrentContext = null;
   int Stack_Depth = 0, Stack_Depth_Best = 0;
-  ArrayList<StackItem> Explore_Stack;// = new ArrayList<StackItem>();
-  ArrayList<StackItem> Best_Stack;// = new ArrayList<StackItem>();
+  ArrayList<StackItem> Explore_Stack;
+  ArrayList<StackItem> Best_Stack;
   IMoveable *Leaf;// thing we hit and are going to move or copy or whatever
   double Radius = 5;
   /* ********************************************************************************* */
@@ -79,9 +79,9 @@ public:
   }
   /* ********************************************************************************* */
   void Init(OffsetBoxBase& starter, double XLoc, double YLoc) {// add first space map at start of search
-//    OffsetBoxBase child = new OffsetBoxBase();// first layer place holder.  not a great solution.
+//    OffsetBoxBase child = neuvo OffsetBoxBase();// first layer place holder.  not a great solution.
 //    child.MyBounds.Assign(Double_NEGATIVE_INFINITY, Double_NEGATIVE_INFINITY, Double_POSITIVE_INFINITY, Double_POSITIVE_INFINITY);
-//    StackItem next = new StackItem();
+//    StackItem next = neuvo StackItem();
 //    next.OBox = child;
 //    next.Loc.x = XLoc;// Next's location values exist in the space above it. At the top they are mouse coordinates.
 //    next.Loc.y = YLoc;
@@ -96,18 +96,18 @@ public:
 //    this->Stack_Depth_Best = 0;
 //    this->Stack_Depth = 0;
 //    TruncateStack(this->Explore_Stack, 0);
-//    StackItem next = new StackItem();
+//    StackItem next = neuvo StackItem();
 //    next.OBox = starter;
 ////    next.Loc.x = XLoc;// Next's location values exist in the space above it. At the top they are mouse coordinates.
 ////    next.Loc.y = YLoc;
 ////    next.SearchBounds.Assign(XLoc - Radius, YLoc - Radius, XLoc + Radius, YLoc + Radius);
 //
 //    // map to child space
-//    CajaDelimitadora SearchBoundsTemp = new CajaDelimitadora();
+//    CajaDelimitadora SearchBoundsTemp = neuvo CajaDelimitadora();
 //    SearchBoundsTemp.Assign(XLoc - Radius, YLoc - Radius, XLoc + Radius, YLoc + Radius);
 //    starter.MapTo(SearchBoundsTemp, next.SearchBounds);// prev.SearchBounds.Map(child, next.SearchBounds);
 //    SearchBoundsTemp.Delete_Me();
-//    starter.MapTo(new Point2D(XLoc, YLoc), next.Loc);
+//    starter.MapTo(neuvo Point2D(XLoc, YLoc), next.Loc);
 //
 //    this->Explore_Stack.add(next);
 //    this->CurrentContext = next;

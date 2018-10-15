@@ -12,7 +12,7 @@
 #include "ITextable.hpp"
 #include "IGrabber.hpp"
 
-//#include "Voice.hpp"  {//
+//#include "Voice.hpp"
 /**
  *
  * @author MultiTool
@@ -38,7 +38,7 @@ public:
   /* ********************************************************************************* */
   ~VoicePoint() { this->Delete_Me(); }
   /* ********************************************************************************* */
-  class LoudnessHandle: public IMoveable, public IDeletable {//, ITextable {// probably should not be ITextable
+  class LoudnessHandle: public IMoveable, public IDeletable, public ITextable {// probably should not be ITextable
   public:
     CajaDelimitadora MyBounds;
     VoicePoint* ParentPoint;
@@ -95,7 +95,7 @@ public:
 //      double YlocHigh = ParentDC.GlobalOffset.UnMapPitch(this->ParentPoint->OctaveY + LoudnessHgt) - RadiusPixels;// My handle rests *upon* the line I control, so I don't occlude my VoicePoint.
 //
 //      RadiusPixels = Math::ceil(RadiusPixels);
-//      double DiameterPixels = RadiusPixels * 2.0;IDeletable
+//      double DiameterPixels = RadiusPixels * 2.0;
 //
 //      MonkeyBox.Draw_Dot2(ParentDC, pnt.x, YlocHigh, OctavesPerRadius, this->IsSelected, Globals.ToAlpha(Color.lightGray, 100));
 //
@@ -140,12 +140,12 @@ public:
     }
     /* ********************************************************************************* */
     LoudnessHandle* Clone_Me() override {// ICloneable
-      LoudnessHandle *child = new LoudnessHandle();
+      LoudnessHandle *child = new LoudnessHandle();// clone, probably never used
       return child;
     }
     /* ********************************************************************************* */
     LoudnessHandle* Deep_Clone_Me(CollisionLibrary& HitTable) override {// ICloneable
-      LoudnessHandle *child = new LoudnessHandle();
+      LoudnessHandle *child = new LoudnessHandle();// clone, probably never used
       child->OctavesPerRadius = this->OctavesPerRadius;
       child->ParentPoint = this->ParentPoint;
       child->MyBounds.Copy_From(this->MyBounds);
@@ -249,13 +249,13 @@ public:
   }
   /* ********************************************************************************* */
   VoicePoint* Clone_Me() override {// ICloneable
-    VoicePoint *child = new VoicePoint();
+    VoicePoint *child = new VoicePoint();// clone
     child->Copy_From(*this);
     return child;
   }
   /* ********************************************************************************* */
   VoicePoint* Deep_Clone_Me(CollisionLibrary& HitTable) override {// ICloneable
-    VoicePoint *child = new VoicePoint();
+    VoicePoint *child = new VoicePoint();// clone
     child->Copy_From(*this);
     child->UpHandle.Copy_From(this->UpHandle);
     child->UpHandle.ParentPoint = child;
@@ -275,9 +275,7 @@ public:
   }
   /* ********************************************************************************* */
   boolean Create_Me() override {// IDeletable
-    //this->UpHandle = new LoudnessHandle();
     this->UpHandle.ParentPoint = this;
-    //this->DownHandle = new LoudnessHandle();
     this->DownHandle.ParentPoint = this;
     return true;
   }

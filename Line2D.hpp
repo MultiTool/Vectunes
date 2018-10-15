@@ -25,7 +25,6 @@ public:
   }
   void CompDelta() {
     this->delta.Assign(this->pnt[1].x - this->pnt[0].x, this->pnt[1].y - this->pnt[0].y);
-    //this->delta = new Globals.PointX(this->pnt[1].x - this->pnt[0].x, this->pnt[1].y - this->pnt[0].y);
   }
   void FractAlong(double Fract, Point2D& results) {
     double dx = this->delta.x * Fract;

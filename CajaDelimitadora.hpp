@@ -69,7 +69,7 @@ public:
   }
   /* ********************************************************************************* */
   CajaDelimitadora* Clone_Me() override {// ICloneable
-    CajaDelimitadora* child = new CajaDelimitadora();
+    CajaDelimitadora* child = new CajaDelimitadora();// clone
     child->Copy_From(*this);
     return child;
   }
@@ -171,18 +171,18 @@ public:
 //  void Consume(JsonParse::Node& phrase, CollisionLibrary& ExistingInstances)=0;// Fill in all the values of an already-created object, including deep pointers.
 #if false
   JsonParse::Node* Export(CollisionLibrary& HitTable) override {// ITextable
-    JsonParse.Node phrase = new JsonParse.Node();
-    phrase.ChildrenHash = new HashMap<String, JsonParse.Node>();
+    JsonParse.Node phrase = neuvo JsonParse.Node();
+    phrase.ChildrenHash = neuvo HashMap<String, JsonParse.Node>();
     phrase.AddSubPhrase("Min", IFactory.Utils.PackField(this->Min.toString()));
     phrase.AddSubPhrase("Max", IFactory.Utils.PackField(this->Max.toString()));
     return phrase;
   }
   void ShallowLoad(JsonParse::Node& phrase) override {// ITextable
     HashMap<String, JsonParse.Node> Fields = phrase.ChildrenHash;
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    throw std::runtime_error("Not supported yet.");
   }
   void Consume(JsonParse::Node& phrase, CollisionLibrary& ExistingInstances) override {// ITextable - Fill in all the values of an already-created object, including deep pointers.
-    throw new UnsupportedOperationException("Not supported yet.");
+    throw std::runtime_error("Not supported yet.");
   }
 #endif // false
 };

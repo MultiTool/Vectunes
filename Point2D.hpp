@@ -25,7 +25,7 @@ public:
   }
   Point2D(double XLoc, double YLoc) {
     this->Assign(XLoc, YLoc);
-    //this->Zero = new Point2D(0, 0);
+    //this->Zero = neuvo Point2D(0, 0);
   }
   ~Point2D() {
     this->Delete_Me();

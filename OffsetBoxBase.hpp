@@ -8,22 +8,6 @@ class CajaDelimitadora;// forward
 class ISonglet;// forward
 class SingerBase;// forward
 
-#if false
-
-class OffsetBoxBase{//: public MonkeyBox {
-public:
-  double TimeX = 0, OctaveY = 0, LoudnessFactor = 1.0;// all of these are in parent coordinates
-  double ScaleX = 1.0, ScaleY = 1.0;// to be used for pixels per second, pixels per octave
-  double ChildXorg = 0, ChildYorg = 0;// These are only non-zero for graphics. Audio origins are always 0,0.
-  CajaDelimitadora *MyBounds;
-  ISonglet *MyParentSong;// can do this but not used yet
-
-// graphics support, will move to separate object
-  double OctavesPerRadius = 0.03;
-};
-
-#else
-
 class Factory;// forward
 class OffsetBoxBase: public MonkeyBox { // IMoveable, IDeletable {// location box to transpose in pitch, move in time, etc.
 public:
@@ -32,13 +16,12 @@ public:
   /* ********************************************************************************* */
   OffsetBoxBase() {
     this->Create_Me();
-    //MyBounds = new CajaDelimitadora();
     this->MyBounds.Reset();
   }
   ~OffsetBoxBase(){this->Delete_Me();}
   /* ********************************************************************************* */
   OffsetBoxBase* Clone_Me() override {// ICloneable
-    OffsetBoxBase *child = new OffsetBoxBase();
+    OffsetBoxBase *child = new OffsetBoxBase();// clone
     child->Copy_From(*this);
     return child;
   }
@@ -55,7 +38,7 @@ public:
 //  double Get_Max_Amplitude() override {
 //    return 0;
 //  }
-  virtual double Get_Max_Amplitude() {// always override this
+  double Get_Max_Amplitude() override {// always override this
     return this->LoudnessFactor;
   }
   /* ********************************************************************************* */
@@ -134,6 +117,5 @@ public:
 #endif // false
 
 };
-#endif // true
 
 #endif // OffsetBoxBase_hpp

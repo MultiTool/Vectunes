@@ -23,7 +23,7 @@ private:
 public:
   //public Graphics2D gr;
   CajaDelimitadora ClipBounds;
-  OffsetBoxBase *Offset, *GlobalOffset;// = new OffsetBox();// Global Offset is transformation to and from pixels
+  OffsetBoxBase *Offset, *GlobalOffset;// Global Offset is transformation to and from pixels
   int RecurseDepth;
   /* ********************************************************************************* */
   // IDrawingContext() = 0;
