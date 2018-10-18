@@ -33,22 +33,22 @@ public:
   void setLocation(double XLoc, double YLoc) {
     this->x = XLoc; this->y = YLoc;
   }
-  void setLocation(Point2D& pd) {
+  void setLocation(const Point2D& pd) {
     this->x = pd.x; this->y = pd.y;
   }
   void Assign(double XLoc, double YLoc) {
     this->x = XLoc; this->y = YLoc;
   }
-  void Assign(Point2D& other) {
+  void Assign(const Point2D& other) {
     this->x = other.x; this->y = other.y;
   }
-  void CopyFrom(Point2D& donor) {
+  void CopyFrom(const Point2D& donor) {
     this->x = donor.x; this->y = donor.y;
   }
-  void Add(Point2D& other) {
+  void Add(const Point2D& other) {
     this->x += other.x; this->y += other.y;
   }
-  void Subtract(Point2D& other) {
+  void Subtract(const Point2D& other) {
     this->x -= other.x; this->y -= other.y;
   }
   void Multiply(double factor) {
@@ -61,9 +61,7 @@ public:
     }
   }
   double GetMagnitude() {
-    if (this->x == 0 && this->y == 0) {
-      return 0;
-    }
+    if (this->x == 0 && this->y == 0) { return 0; }
     return Math::sqrt((this->x * this->x) + (this->y * this->y));
   }
   /* ********************************************************************************* */

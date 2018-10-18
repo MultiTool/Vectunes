@@ -39,7 +39,7 @@ public:
   /* ********************************************************************************* */
   void AssignCorner(int CornerNum, double MinLimit, double MaxLimit) {}
   /* ********************************************************************************* */
-  boolean Intersects(CajaDelimitadora& other) {
+  boolean Intersects(const CajaDelimitadora& other) {
     if (!this->LineFramed(this->Min.x, this->Max.x, other.Min.x, other.Max.x)) {
       return false;
     } else if (!this->LineFramed(this->Min.y, this->Max.y, other.Min.y, other.Max.y)) {
@@ -63,7 +63,7 @@ public:
     this->Max.x = this->Min.x + TimeRange;
   }
   /* ********************************************************************************* */
-  void Copy_From(CajaDelimitadora& donor) {
+  void Copy_From(const CajaDelimitadora& donor) {
     this->Min.CopyFrom(donor.Min);
     this->Max.CopyFrom(donor.Max);
   }
@@ -124,7 +124,7 @@ public:
     this->Max.Assign(0, 0);
   }
   /* ********************************************************************************* */
-  void Include(CajaDelimitadora& other) {// for aggregating with all of my child boxes
+  void Include(const CajaDelimitadora& other) {// for aggregating with all of my child boxes
     this->Min.x = Math::min(this->Min.x, other.Min.x);
     this->Min.y = Math::min(this->Min.y, other.Min.y);
     this->Max.x = Math::max(this->Max.x, other.Max.x);
@@ -132,7 +132,7 @@ public:
     this->ZeroCheck();
   }
   /* ********************************************************************************* */
-  void IncludePoint(Point2D& other) {// for aggregating with vertices
+  void IncludePoint(const Point2D& other) {// for aggregating with vertices
     IncludePoint(other.x, other.y);
   }
   /* ********************************************************************************* */

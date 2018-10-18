@@ -55,7 +55,7 @@ public:
     return child;
   }
   /* ********************************************************************************* */
-  void Copy_From(MonkeyBox& donor) {
+  void Copy_From(const MonkeyBox& donor) {
     this->TimeX = donor.TimeX;
     this->OctaveY = donor.OctaveY;
     this->LoudnessFactor = donor.LoudnessFactor;
@@ -80,7 +80,7 @@ public:
     return this->LoudnessFactor;
   }
   /* ********************************************************************************* */
-  void Compound(MonkeyBox& donor) {
+  void Compound(const MonkeyBox& donor) {
     this->TimeX += (this->ScaleX * donor.TimeX);// to do: combine matrices here.
     this->OctaveY += (this->ScaleY * donor.OctaveY);
     this->LoudnessFactor *= donor.LoudnessFactor;
@@ -122,23 +122,23 @@ public:
   void UnMap(double XLoc, double YLoc, Point2D& results) {
   }
   /* ********************************************************************************* */
-  void MapTo(Point2D& pnt, Point2D& results) {
+  void MapTo(const Point2D& pnt, Point2D& results) {
     results.x = this->MapTime(pnt.x);
     results.y = this->MapPitch(pnt.y);
   }
   /* ********************************************************************************* */
-  void UnMap(Point2D& pnt, Point2D& results) {
+  void UnMap(const Point2D& pnt, Point2D& results) {
     results.x = this->UnMapTime(pnt.x);
     results.y = this->UnMapPitch(pnt.y);
   }
   /* ********************************************************************************* */
-  void MapTo(CajaDelimitadora& source, CajaDelimitadora& results) {
+  void MapTo(const CajaDelimitadora& source, CajaDelimitadora& results) {
     this->MapTo(source.Min, results.Min);
     this->MapTo(source.Max, results.Max);
     results.Sort_Me();
   }
   /* ********************************************************************************* */
-  void UnMap(CajaDelimitadora& source, CajaDelimitadora& results) {
+  void UnMap(const CajaDelimitadora& source, CajaDelimitadora& results) {
     this->UnMap(source.Min, results.Min);
     this->UnMap(source.Max, results.Max);
     results.Sort_Me();

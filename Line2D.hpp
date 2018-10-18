@@ -19,7 +19,7 @@ public:
     this->pnt[0].Assign(X0, Y0); this->pnt[1].Assign(X1, Y1);
     this->CompDelta();
   }
-  void Assign(Point2D& p0, Point2D& p1) {
+  void Assign(const Point2D& p0, const Point2D& p1) {
     this->pnt[0].Assign(p0); this->pnt[1].Assign(p1);
     this->CompDelta();
   }

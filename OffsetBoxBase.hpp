@@ -33,7 +33,9 @@ public:
   /* ********************************************************************************* */
   virtual void BreakFromHerd(CollisionLibrary& HitTable) {}
   /* ********************************************************************************* */
-  void Copy_From(OffsetBoxBase& donor) {}
+  void Copy_From(const OffsetBoxBase& donor) {
+    MonkeyBox::Copy_From(donor);
+  }
   /* ********************************************************************************* */
 //  double Get_Max_Amplitude() override {
 //    return 0;

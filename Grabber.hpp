@@ -33,7 +33,7 @@ public:
   StackItem(){}
   ~StackItem(){this->Delete_Me();}
   /* ********************************************************************************* */
-  void Copy_From(StackItem& donor) {
+  void Copy_From(const StackItem& donor) {
     this->SearchBounds.Copy_From(donor.SearchBounds);
     this->OBox = donor.OBox;
     this->HitDex = donor.HitDex;

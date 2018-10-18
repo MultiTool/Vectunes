@@ -18,7 +18,7 @@ public:
 //  static double Sin270 = Math::sin(Math::PI * 3.0 / 2.0);// 270 degrees
 //  static double Cos270 = Math::cos(Math::PI * 3.0 / 2.0);// 270 degrees
   /* ********************************************************************************* */
-  static void Cubic_Spline_Chunk(Point2D& p0, Point2D& p1, Point2D& p2, Point2D& p3, double FractAlong, Point2D& result) {
+  static void Cubic_Spline_Chunk(const Point2D& p0, const Point2D& p1, const Point2D& p2, const Point2D& p3, double FractAlong, Point2D& result) {
     // B(t) = (1-t)^3*P0  +  3*(1-t)^2*t*P1  +  3*(1-t)*t^2*P2  +  t^3*P3
     double MinusFract = 1.0 - FractAlong;
     double Wgt0 = Math::pow(MinusFract, 3);// * P0;

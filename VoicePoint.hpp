@@ -131,7 +131,7 @@ public:
       // System.out.println();
     }
     /* ********************************************************************************* */
-    void Copy_From(LoudnessHandle &donor) {
+    void Copy_From(const LoudnessHandle &donor) {
       this->MyBounds.Copy_From(donor.MyBounds);
       this->ParentPoint = donor.ParentPoint;
       this->OctavesPerRadius = donor.OctavesPerRadius;
@@ -268,7 +268,7 @@ public:
     return child;
   }
   /* ********************************************************************************* */
-  void Copy_From(VoicePoint& donor) {
+  void Copy_From(const VoicePoint& donor) {
     MonkeyBox::Copy_From(donor);
     this->SubTime = donor.SubTime;
     this->OctavesPerLoudness = donor.OctavesPerLoudness;

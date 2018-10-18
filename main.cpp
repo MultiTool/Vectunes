@@ -85,7 +85,7 @@ void MegaChop_Add(SingerBase *singer, const String& FileNameChopped, const Strin
   singer->Start();
   singer->Render_To(Time, Whole);
   Glued.Amplify(-1.0);
-  Whole.Overdub(Glued);
+  Whole.Overdub(Glued);// If everything works, the 'whole' file waveform should be a flat line - no difference between whole and chopped.
   Whole.SaveToWav(FileNameWhole);
 }
 

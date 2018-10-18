@@ -352,7 +352,7 @@ public:
   Wave* Clone_Me() {
     return nullptr;
   }
-  void Copy_From(Wave& donor) {}
+  void Copy_From(const Wave& donor) {}
   String* Export() {
     return nullptr;
   }

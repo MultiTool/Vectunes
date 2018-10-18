@@ -250,7 +250,7 @@ public:
     }
   }
   /* ********************************************************************************* */
-  void Copy_From(Voice& donor) {
+  void Copy_From(const Voice& donor) {
     this->BaseFreq = donor.BaseFreq;
     this->MyProject = donor.MyProject;
     this->MaxAmplitude = donor.MaxAmplitude;

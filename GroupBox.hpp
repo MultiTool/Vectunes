@@ -165,7 +165,7 @@ public:
     std::sort(this->SubSongs.begin(), this->SubSongs.end(), CompareChildren);
   }
   /* ********************************************************************** */
-  static bool CompareChildren(OffsetBoxBase* obox0, OffsetBoxBase* obox1) {
+  static bool CompareChildren(const OffsetBoxBase* obox0, const OffsetBoxBase* obox1) {
     return obox0->TimeX < obox1->TimeX;
   }
   /* ********************************************************************************* */
@@ -280,7 +280,7 @@ public:
     return child;
   }
   /* ********************************************************************************* */
-  void Copy_From(GroupBox& donor) {
+  void Copy_From(const GroupBox& donor) {
     this->Duration = donor.Duration;
     this->Set_Project(donor.MyProject);
     this->MyName = donor.MyName;// for debugging
