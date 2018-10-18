@@ -60,12 +60,15 @@ public:
   virtual int Ref_Songlet() = 0;// Reference Counting: increment ref counter and return neuvo value just for kicks
   virtual int UnRef_Songlet() = 0;// Reference Counting: decrement ref counter and return neuvo value just for kicks
   virtual int GetRefCount() = 0;// Reference Counting: get number of references for serialization
-  static int Unref(ISonglet* songlet){
-     int NumLeft = songlet->UnRef_Songlet();
-     if (NumLeft<=0){
-        delete songlet;
-     }
-     return NumLeft;
+  static int Unref(ISonglet** SongletPointerPointer){// Failed(?) experiment. Should probably delete this.
+    ISonglet *songlet = *SongletPointerPointer;
+    if (songlet==nullptr){ return -1; }
+    int NumLeft = songlet->UnRef_Songlet();
+    if (NumLeft<=0){
+       delete songlet;
+       *SongletPointerPointer = nullptr;
+    }
+    return NumLeft;
   }
 };
 

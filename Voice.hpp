@@ -169,9 +169,9 @@ public:
       return TimeAlong;
     }
     // Yep calling log and pow functions for every sample generated is expensive. We will have to optimize later.
-    double Denom = (Math::log(2) * OctaveRate);// returns the integral of (2 ^ (TimeAlong * OctaveRate))
-    //SubTimeCalc = (Math::pow(2, (TimeAlong * OctaveRate)) / Denom) - (1.0 / Denom);
-    SubTimeCalc = ((Math::pow(2, (TimeAlong * OctaveRate)) - 1.0) / Denom);
+    double Denom = (Math::log(2.0) * OctaveRate);// returns the integral of (2 ^ (TimeAlong * OctaveRate))
+    //SubTimeCalc = (Math::pow(2.0, (TimeAlong * OctaveRate)) / Denom) - (1.0 / Denom);
+    SubTimeCalc = ((Math::pow(2.0, (TimeAlong * OctaveRate)) - 1.0) / Denom);
     return SubTimeCalc;
   }
   /* ********************************************************************************* */
@@ -332,8 +332,8 @@ public:
       this->Next_Point_Dex = 1;
       this->Render_Sample_Count = 0;
       this->Bone_Sample_Mark = 0;
-      if (this->MyVoice->CPoints.size() <= 1) {
-        this->IsFinished = true; return;
+      if (this->MyVoice->CPoints.size() < 2 || this->InheritedMap.LoudnessFactor == 0.0) {
+        this->IsFinished = true;// muted, so don't waste time rendering
       } else {
         this->IsFinished = false;
         VoicePoint* pnt = this->MyVoice->CPoints.at(0);
@@ -346,13 +346,14 @@ public:
     /* ********************************************************************************* */
     void Skip_To(double EndTime) override {      // ready for test
       VoicePoint *Prev_Point, *Next_Point;
+      if (this->IsFinished){ return; }
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
       this->Render_Sample_Count = 0;
-      int NumPoints = this->MyVoice->CPoints.size();
-      if (NumPoints < 2) {// this should really just throw an error
-        this->IsFinished = true;
-        return;
-      }
+//      int NumPoints = this->MyVoice->CPoints.size();
+//      if (NumPoints < 2) {// this should really just throw an error
+//        this->IsFinished = true;
+//        return;
+//      }
       EndTime = this->ClipTime(EndTime);
       Prev_Point = &(this->Cursor_Point);
       int pdex = this->Next_Point_Dex;
@@ -376,22 +377,18 @@ public:
       int EndSample = (int) (EndTime * this->MyProject->SampleRate);// absolute
       this->Bone_Sample_Mark = EndSample;
     }
+    //double UnMapped_Prev_Time;
     /* ********************************************************************************* */
-    void Render_To(double EndTime, Wave& wave) override {      // ready for test
-      if (this->InheritedMap.LoudnessFactor == 0.0) {// muted, so don't waste time rendering
+    void Render_To(double EndTime, Wave& wave) override { // ready for test
+      if (this->IsFinished) {
+        wave.Init(0, 0, this->MyProject->SampleRate);// we promise to return a blank wave
         return;
       }
-      VoicePoint* Prev_Point = null;
-      VoicePoint* Next_Point = null;
+      VoicePoint *Prev_Point = null, *Next_Point = null;
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
       double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
       this->Render_Sample_Count = 0;
       int NumPoints = this->MyVoice->CPoints.size();
-      if (NumPoints < 2) {// this should really just throw an error
-        this->IsFinished = true;
-        wave.Init(UnMapped_Prev_Time, UnMapped_Prev_Time, this->MyProject->SampleRate);
-        return;
-      }
       EndTime = this->ClipTime(EndTime);
       double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
       wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->MyProject->SampleRate);// wave times are in global coordinates because samples are always real time
@@ -433,12 +430,7 @@ public:
         }
       }
       wave.Amplify(this->MyOffsetBox->LoudnessFactor);
-      if (false) {
-        this->Distortion_Effect(wave, 10.0);
-//        this->Noise_Effect(wave);
-        Reverb_Effect(wave);
-      }
-      wave.NumSamples = this->Render_Sample_Count;
+      UnMapped_Prev_Time = UnMapped_EndTime;
     }
 
 #if false
@@ -583,6 +575,7 @@ public:
         SubTimeLocal = Integral(OctaveRate, TimeAlong);
         SubTimeAbsolute = (SubTime0 + (FrequencyFactorStart * SubTimeLocal)) * FrequencyFactorInherited;
         Amplitude = this->GetWaveForm(SubTimeAbsolute);
+        //Amplitude = SubTimeAbsolute * 0.05;// for testing
         wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
         this->Render_Sample_Count++;
       }
@@ -646,7 +639,8 @@ public:
     void BreakFromHerd(CollisionLibrary& HitTable) override {// for compose time. detach from my songlet and attach to an identical but unlinked songlet
       Voice *clone = this->VoiceContent->Deep_Clone_Me(HitTable);
       if (this->VoiceContent->UnRef_Songlet() <= 0) {
-        this->VoiceContent->Delete_Me();
+        delete this->VoiceContent;
+        this->VoiceContent = null;
       }
       this->Attach_Songlet(clone);
     }
@@ -658,9 +652,9 @@ public:
       OffsetBoxBase::Delete_Me();
       if (this->VoiceContent != null) {
         if (this->VoiceContent->UnRef_Songlet() <= 0) {
-          this->VoiceContent->Delete_Me();
+          delete this->VoiceContent;
+          this->VoiceContent = null;
         }
-        this->VoiceContent = null;
       }
     }
     /* ********************************************************************************* */

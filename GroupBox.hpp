@@ -62,22 +62,11 @@ public:
   }
   /* ********************************************************************************* */
   void Remove_SubSong(OffsetBoxBase& obox) {
-    std::vector<OffsetBoxBase*>::iterator iter;
-    iter = std::find(this->SubSongs.begin(), this->SubSongs.end(), &obox);
-    if (iter != this->SubSongs.end()){
-      std::cout << "Element found in SubSongs: " << *iter << '\n';
-      this->SubSongs.erase(iter);
-      if (false){// to do: put this in calling code
-        ISonglet *song = obox.GetContent();
-        int RefCnt = ISonglet::Unref(song);// song->UnRef_Songlet();
-        if (RefCnt<=0){
-          delete song;
-        }
-      }
-      Refresh_Splines();
-    } else {
-      std::cout << "Element not found in SubSongs\n";
-    }
+    this->SubSongs.remove(&obox);
+//    ISonglet *song = obox.GetContent();// we should leave this cleanup to whomever called us.
+//    int RefCnt = song->UnRef_Songlet();
+//    if (RefCnt<=0){ delete song; }
+    Refresh_Splines();
   }
   /* ********************************************************************************* */
   void Refresh_Splines() {
@@ -746,12 +735,12 @@ public:
     void Delete_Me() {// IDeletable
       OffsetBoxBase::Delete_Me();
       this->GroupScaleX = Double_NEGATIVE_INFINITY;
+      //ISonglet::Unref(&(this->Content));
       if (this->Content != null) {
-        if (ISonglet::Unref(this->Content)<=0){ this->Content = null; }
-//        if (this->Content->UnRef_Songlet() <= 0) {
-//          delete this->Content;
-//          this->Content = null;
-//        }
+        if (this->Content->UnRef_Songlet() <= 0) {
+          delete this->Content;
+          this->Content = null;
+        }
       }
     }
     /* ********************************************************************************* */

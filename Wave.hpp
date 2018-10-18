@@ -20,12 +20,10 @@
 class Wave{//: public IDeletable {
 public:
   int NumSamples;
-  int Current_Index;
-  int StartDex = 0;
+  int StartDex = 0;// startdex is offset of 'virtual samples' before our wave array begins
   int SampleRate;
   double StartTime = 0;
   double EndTime = 0;// for debugging
-  //double* wave;
   std::vector<double> wave;// = {7, 5, 16, 8};
   boolean Debugging = false;
   double Debug_Fill = 4;
@@ -35,7 +33,6 @@ public:
     this->wave.resize(this->NumSamples);
     this->StartTime = 0.0;
     this->StartDex = 0;
-    this->Current_Index = 0;
     this->Create_Me();
   }
   ~Wave(){this->Delete_Me();}
@@ -53,13 +50,13 @@ public:
     this->StartDex = (int) (this->StartTime * this->SampleRate);// StartDex is the number of empty samples from Time=0 to wave[0]
   }
   /* ********************************************************************************* */
-  void Init(int SizeInit, int SampleRate0) {
+  void Init(int SizeInit, int SampleRate0) {// unused and untested
     this->NumSamples = SizeInit;
     this->SampleRate = SampleRate0;
     this->wave.resize(SizeInit);
+    std::fill(this->wave.begin(), this->wave.end(), 0.0);
     this->StartTime = 0.0;
     this->StartDex = 0;
-    this->Current_Index = 0;
     this->StartTime = 0;// defaults
     this->EndTime = StartTime + (((double) this->NumSamples) / (double) this->SampleRate);
   }
@@ -68,12 +65,15 @@ public:
     this->StartTime = StartTime0;// wave start time is the offset of wave[0] from time 0.
     this->EndTime = EndTime0;
     this->SampleRate = SampleRate0;
-    double TimeSpan = EndTime0 - StartTime0;
-    int nsamps = (int) Math::ceil(TimeSpan * SampleRate0);
+
+    int SampleStart = StartTime0 * (double)SampleRate0;
+    int SampleEnd = EndTime0 * (double)SampleRate0;
+    int nsamps = SampleEnd - SampleStart;
+
     this->StartDex = (int) (this->StartTime * SampleRate0);// StartDex is the number of empty samples from Time=0 to wave[0]
     this->NumSamples = nsamps;
-    wave.resize(nsamps + 1);// plus 1 because converting from double to int truncates.
-    this->Current_Index = 0;
+    this->wave.resize(nsamps);
+    std::fill(this->wave.begin(), this->wave.end(), 0.0);
   }
   /* ********************************************************************************* */
   void Ingest(std::vector<double>& Sample, int SampleRate0) {
@@ -166,20 +166,37 @@ public:
     }
   }
   /* ********************************************************************************* */
-  void Append(Wave& other) {
+  void Append(Wave& other) {// to do: fix this and rename it Splice()
     int StartPlace = other.StartDex;
     int nextsize = StartPlace + other.NumSamples;
-    this->wave.resize(nextsize);// may be redundant
     //System.arraycopy(other.wave, 0, this->wave, StartPlace, other.NumSamples);
-    this->wave.insert(std::end(this->wave), std::begin(other.wave), std::end(other.wave));
+    this->wave.insert(std::begin(this->wave) + StartPlace, std::begin(other.wave), std::end(other.wave));
+    //this->wave.insert(std::end(this->wave), std::begin(other.wave), std::end(other.wave));
+    //this->wave.insert(this->wave.end(), other.wave.begin(), other.wave.end());
     this->NumSamples = nextsize;
+  }
+  /* ********************************************************************************* */
+  void Append2(Wave& other) {// simple append for testing, ignores time offsets
+    int MySize = this->wave.size();
+    int OtherSize = other.wave.size();
+    int nextsize = this->NumSamples + other.NumSamples;
+    //this->wave.resize(nextsize);// may be redundant
+    //this->wave.insert(std::end(this->wave), std::begin(other.wave), std::end(other.wave));
+    this->wave.insert(this->wave.end(), other.wave.begin(), other.wave.end());
+    //this->wave.insert(this->wave + this->NumSamples, other.wave.begin(), other.wave.end());
+    this->NumSamples = this->wave.size();// nextsize;
   }
   /* ********************************************************************************* */
   double Get(int dex) {
     return this->wave[dex];
   }
   void Set(int dex, double value) {
-    this->wave[dex] = value;
+    if (wave.size()-1 < dex){
+      printf("out of range! size:%i, dex:%i\n\n",wave.size(), dex);
+      //this->wave.insert(this->wave.begin()+dex, value); this->NumSamples = this->wave.size();
+    }else{
+      this->wave[dex] = value;
+    }
   }
   /* ******************************************************************* */
   double GetResample(double TimeSeconds) {
@@ -272,7 +289,11 @@ public:
     f << "RIFF----WAVEfmt ";     // (chunk size to be filled in later)
     write_word( f,     16, 4 );  // no extension data
     write_word( f,      1, 2 );  // PCM - integer samples
-    write_word( f,      2, 2 );  // two channels (stereo file)
+    if (false){
+      write_word( f,      2, 2 );  // two channels (stereo file)
+    }else{
+      write_word( f,      1, 2 );  // one channel (mono file)
+    }
     write_word( f,  44100, 4 );  // samples per second (Hz)
     write_word( f, 176400, 4 );  // (Sample Rate * BitsPerSample * Channels) / 8
     write_word( f,      4, 2 );  // data block size (size of two integer samples, one for each channel, in bytes)
@@ -286,7 +307,7 @@ public:
       double amplitude = 32000;// whatever
       for (int n = 0; n < this->wave.size(); n++){
         double value     = this->wave.at(n);
-        write_word( f, (int)(amplitude * value), 2 );// stereo
+        //write_word( f, (int)(amplitude * value), 2 );// stereo
         write_word( f, (int)(amplitude * value), 2 );
       }
     }else{
@@ -324,7 +345,7 @@ public:
   }
   void Delete_Me() { // wreck everything
     this->wave.resize(0);
-    this->NumSamples = this->Current_Index = this->StartDex = this->SampleRate = Integer_MIN_VALUE;
+    this->NumSamples = this->StartDex = this->SampleRate = Integer_MIN_VALUE;
     this->StartTime = this->EndTime = Double_NEGATIVE_INFINITY;
   }
   /* ********************************************************************************* */

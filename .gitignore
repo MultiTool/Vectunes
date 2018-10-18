@@ -39,3 +39,8 @@ bin/
 
 # Core dumps
 *.out
+
+# Wav file dumps
+*.wav
+
+

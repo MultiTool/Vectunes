@@ -45,6 +45,50 @@ public:
   }
 };
 
+void TestVector(){// crashes
+  std::vector<int> vint = {0, 1, 2};
+  std::vector<int> vgo = {10, 11, 12};
+
+  int StartPlace = 10;
+  vint.insert(std::begin(vint) + StartPlace, std::begin(vgo), std::end(vgo));
+  for (int cnt=0;cnt<vint.size();cnt++){
+    printf("cnt:%i, ", vint.at(cnt));
+  }
+  printf("\n");
+  // cnt:10, cnt:11, cnt:12, cnt:0, cnt:1, cnt:2,
+}
+
+void MegaChop(SingerBase *singer, const String& FileName){// test random chops
+  Wave chunk, whole;
+  singer->Start();
+  double Time = 0;
+  while (!singer->IsFinished){
+    Time += 0.01;// * Math::frand();
+    singer->Render_To(Time, chunk);
+    whole.Append2(chunk);
+  }
+  whole.SaveToWav(FileName);
+}
+
+void MegaChop_Add(SingerBase *singer, const String& FileNameChopped, const String& FileNameWhole){// test random chops
+  Wave chunk, Glued, Whole;
+  singer->Start();
+  double Time = 0;
+  while (!singer->IsFinished){
+    Time += 0.01;
+    //Time += 0.01 * Math::frand();
+    //Time += 0.02;// * Math::frand();
+    singer->Render_To(Time, chunk);
+    Glued.Append2(chunk);
+  }
+  Glued.SaveToWav(FileNameChopped);
+  singer->Start();
+  singer->Render_To(Time, Whole);
+  Glued.Amplify(-1.0);
+  Whole.Overdub(Glued);
+  Whole.SaveToWav(FileNameWhole);
+}
+
 int main() {
   {
     Outer *ouch = new Outer();
@@ -82,25 +126,29 @@ int main() {
     cout << "Current_Frequency:" << vsing->Current_Frequency << endl;
     vsing->Start();
 
-    Wave wave;
+    Wave wave0, wave1, wave2;
 
-    vsing->Render_To(1.0, wave);
+    if (false){
+      vsing->Render_To(0.05, wave0);
+      vsing->Render_To(0.15, wave1);
+      vsing->Render_To(0.20, wave2);
 
-    double *wav = wave.GetWave();
+      wave0.SaveToWav("example0.wav");
+      wave1.SaveToWav("example1.wav");
+      wave2.SaveToWav("example2.wav");
+    }
 
-//    for (int wcnt=0;wcnt<wave.NumSamples;wcnt++){
-//       double amp = wav[wcnt];
-//       printf("amp:%f\n", amp);
-//    }
+    //MegaChop(vsing, "Whole00.wav");
+    //MegaChop(vsing, "Whole01.wav");
+    //MegaChop(vsing, "Whole03.wav");
 
-    wave.Normalize();
-    wave.SaveToWav("example.wav");
+    MegaChop_Add(vsing, "Chopped.wav", "Whole.wav");
 
     delete vobox;
 
     delete vsing;
 
-    delete voz;
+    // delete voz;// voice is deleted automatically when we delete vobox
   }
   {
       GroupBox *gb = new GroupBox();
