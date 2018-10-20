@@ -18,7 +18,7 @@ public:
     this->push_back(item);
   }
   void Insert(int Dex, Type item){// insert by index
-    this->insert(this->begin(), Dex, item);
+    this->insert(this->begin() + Dex, item);
   }
   Type get(int Dex){
     return this->at(Dex);

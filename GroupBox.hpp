@@ -56,7 +56,8 @@ public:
     obox->GetContent()->Set_Project(this->MyProject);// child inherits project from me
     obox->MyParentSong = this;
     int dex = this->Tree_Search(obox->TimeX, 0, SubSongs.size());
-    SubSongs.insert(SubSongs.begin(), dex, obox);
+    SubSongs.insert(SubSongs.begin() + dex, obox);
+    int sz = SubSongs.size();
     //this->Sort_Me();// overkill in the case we add a bunch of subsongs in a loop. should only sort once at end of loop.
     Refresh_Splines();// maybe sort_me and refresh_splines should be in update_guts instead?
   }
@@ -70,9 +71,9 @@ public:
   }
   /* ********************************************************************************* */
   void Refresh_Splines() {
-      int SplineSize = (this->SubSongs.size()) * NumSubLines + 1;
-      this->SplinePoints.resize(SplineSize);
-      Splines::Cubic_Spline_Boxes(this->SubSongs, NumSubLines, SplinePoints);
+    int SplineSize = (this->SubSongs.size()) * NumSubLines + 1;
+    this->SplinePoints.resize(SplineSize);
+    Splines::Cubic_Spline_Boxes(this->SubSongs, NumSubLines, SplinePoints);
   }
   /* ********************************************************************************* */
   double Get_Duration() override {
@@ -113,7 +114,7 @@ public:
   /* ********************************************************************************* */
   void Update_Guts(MetricsPacket& metrics) override {
     if (this->FreshnessTimeStamp < metrics.FreshnessTimeStamp) {// don't hit the same songlet twice on one update
-      this->Set_Project(metrics.MyProject);
+      this->Set_Project(metrics.MyProject);// should probably separate Set_Project into its own thing
       //this->Sort_Me();
       this->Update_Max_Amplitude();
       metrics.MaxDuration = 0.0;// redundant
@@ -179,6 +180,13 @@ public:
   /* ********************************************************************************* */
   void Set_Project(Config* project) override {
     this->MyProject = project;
+    // below here may be redundant with Update_Guts
+    int NumSubSongs = this->SubSongs.size();
+    for (int cnt = 0; cnt < NumSubSongs; cnt++) {
+      OffsetBoxBase *obx = this->SubSongs.at(cnt);
+      ISonglet *songlet = obx->GetContent();
+      songlet->Set_Project(this->MyProject);
+    }
   }
   /* ********************************************************************************* */
   void SetSpineHighlight(boolean Highlight) {
@@ -535,7 +543,7 @@ public:
     int Current_Dex = 0;
     double Prev_Time = 0;
     /* ********************************************************************************* */
-    Group_Singer(){}
+    Group_Singer(){ this->Create_Me(); }
     ~Group_Singer(){ this->Delete_Me(); }
     /* ********************************************************************************* */
     void Start() override {
@@ -583,13 +591,13 @@ public:
       double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in parent coordinates
       if (this->MySonglet->SubSongs.size() <= 0) {
         this->IsFinished = true;
-        wave.Init(UnMapped_Prev_Time, UnMapped_Prev_Time, this->MyProject->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
+        wave.Init(UnMapped_Prev_Time, UnMapped_Prev_Time, this->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
         this->Prev_Time = EndTime;
         return;
       }
       double Clipped_EndTime = this->Tee_Up(EndTime);
       double UnMapped_EndTime = this->InheritedMap.UnMapTime(Clipped_EndTime);
-      wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->MyProject->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
+      wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
       Wave ChildWave;
       int NumPlaying = NowPlaying.size();
       SingerBase *player = null;
@@ -770,7 +778,7 @@ public:
   Group_Singer* Spawn_Singer() override {
     Group_Singer *GroupPlayer = new Group_Singer();// Spawn a singer specific to this type of songlet.
     GroupPlayer->MySonglet = this;
-    GroupPlayer->MyProject = this->MyProject;// inherit project
+    GroupPlayer->Set_Project(this->MyProject);// inherit project
     return GroupPlayer;
   }
 };

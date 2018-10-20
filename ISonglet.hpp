@@ -78,6 +78,10 @@ public:
     double MaxDuration = 0.0;
     Config* MyProject = nullptr;
     int FreshnessTimeStamp = 1;
+    void Reset(){
+      MaxDuration = 0.0;
+      FreshnessTimeStamp = 1;
+    }
   };
 
 /* ********************************************************************************* */
@@ -86,6 +90,7 @@ public:// Cantante
   Config *MyProject;
   double Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
   MonkeyBox InheritedMap;// InheritedMap is transformation to and from samples. Replacement for Inherited_*
+  int SampleRate;
 
   boolean IsFinished = false;
   SingerBase* ParentSinger;
@@ -107,6 +112,11 @@ public:// Cantante
     this->InheritedMap.Copy_From(parent.InheritedMap);
     this->Compound();
   };
+  /* ********************************************************************************* */
+  virtual void Set_Project(Config *config){
+    this->MyProject = config;
+    this->SampleRate = config->SampleRate;
+  }
   /* ********************************************************************************* */
   virtual void Compound() {// accumulate my own transformation
     this->Compound(*(this->Get_OffsetBox()));

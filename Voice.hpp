@@ -337,7 +337,7 @@ public:
       } else {
         this->IsFinished = false;
         VoicePoint* pnt = this->MyVoice->CPoints.at(0);
-        this->Bone_Sample_Mark = (int) ((pnt->TimeX * this->InheritedMap.ScaleX) * this->MyProject->SampleRate);
+        this->Bone_Sample_Mark = (int) ((pnt->TimeX * this->InheritedMap.ScaleX) * this->SampleRate);
         //if (this->Parent != null) {
         VoicePoint *ppnt = this->MyVoice->CPoints.at(this->Prev_Point_Dex);
         this->Cursor_Point.CopyFrom(*ppnt);
@@ -374,14 +374,14 @@ public:
         }
       }
       //int EndSample = (int) (pnt1.TimeX * SRate);// absolute
-      int EndSample = (int) (EndTime * this->MyProject->SampleRate);// absolute
+      int EndSample = (int) (EndTime * this->SampleRate);// absolute
       this->Bone_Sample_Mark = EndSample;
     }
     //double UnMapped_Prev_Time;
     /* ********************************************************************************* */
     void Render_To(double EndTime, Wave& wave) override { // ready for test
       if (this->IsFinished) {
-        wave.Init(0, 0, this->MyProject->SampleRate);// we promise to return a blank wave
+        wave.Init(0, 0, this->SampleRate);// we promise to return a blank wave
         return;
       }
       VoicePoint *Prev_Point = null, *Next_Point = null;
@@ -391,7 +391,7 @@ public:
       int NumPoints = this->MyVoice->CPoints.size();
       EndTime = this->ClipTime(EndTime);
       double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
-      wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->MyProject->SampleRate);// wave times are in global coordinates because samples are always real time
+      wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in global coordinates because samples are always real time
       Prev_Point = &this->Cursor_Point;
       int pdex = this->Next_Point_Dex;
 
@@ -504,7 +504,7 @@ public:
     /* ********************************************************************************* */
     void Render_Segment_Iterative(VoicePoint& pnt0, VoicePoint& pnt1, Wave& wave) {// stateful iterative approach
       double BaseFreq = this->MyVoice->BaseFreq;
-      double SRate = this->MyProject->SampleRate;
+      double SRate = this->SampleRate;
       double TimeRange = pnt1.TimeX - pnt0.TimeX;
       double SampleDuration = 1.0 / SRate;
       double FrequencyFactorStart = pnt0.GetFrequencyFactor();
@@ -543,7 +543,7 @@ public:
     }
     /* ********************************************************************************* */
     void Render_Segment_Integral(VoicePoint& pnt0, VoicePoint& pnt1, Wave& wave) {// stateless calculus integral approach
-      double SRate = this->MyProject->SampleRate;
+      double SRate = this->SampleRate;
       double Time0 = pnt0.TimeX * this->InheritedMap.ScaleX;
       double Time1 = pnt1.TimeX * this->InheritedMap.ScaleX;
       double SubTime0 = pnt0.SubTime * this->InheritedMap.ScaleX;// tempo rescale
@@ -686,7 +686,7 @@ public:
     // Handy if my parent's singers know what class I am and want special access to my particular type of singer.
     Voice_Singer *singer = new Voice_Singer();// Spawn a singer specific to this type of phrase.
     singer->MyVoice = this;
-    singer->MyProject = this->MyProject;// inherit project
+    singer->Set_Project(this->MyProject);// inherit project
     singer->BaseFreq = this->BaseFreq;
     return singer;
   }
