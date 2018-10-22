@@ -192,7 +192,7 @@ public:
   }
   void Set(int dex, double value) {
     if (wave.size()-1 < dex){
-      printf("out of range! size:%i, dex:%i\n\n",wave.size(), dex);
+      printf("out of range! size:%lu, dex:%i\n\n",wave.size(), dex);
       //this->wave.insert(this->wave.begin()+dex, value); this->NumSamples = this->wave.size();
     }else{
       this->wave[dex] = value;

@@ -26,13 +26,20 @@ public:
     this->NumberOut = 999;
   }
   class Inner{
+  public:
+    class Eener{
     public:
-      int NumberIn = 12;
-      Outer *oot;
+      Outer *afuera;
       void Test(){
-        this->NumberIn = this->oot->NumberOut;
-        this->oot->LastOne();
+        this->afuera->LastOne();
       }
+    };
+    int NumberIn = 12;
+    Outer *oot;
+    void Test(){
+      this->NumberIn = this->oot->NumberOut;
+      this->oot->LastOne();
+    }
   };
   Inner* Spawn(){
     Inner *ins = new Inner();

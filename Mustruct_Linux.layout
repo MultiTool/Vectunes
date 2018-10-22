@@ -2,6 +2,119 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
+	<File name="main.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2472" topLine="89" />
+		</Cursor>
+	</File>
+	<File name="ArrayList.hpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="486" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Voice.hpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="28447" topLine="202" />
+		</Cursor>
+		<Folding>
+			<Collapse line="18" />
+			<Collapse line="44" />
+			<Collapse line="49" />
+			<Collapse line="59" />
+			<Collapse line="63" />
+			<Collapse line="65" />
+			<Collapse line="67" />
+			<Collapse line="76" />
+			<Collapse line="85" />
+			<Collapse line="87" />
+			<Collapse line="94" />
+			<Collapse line="98" />
+			<Collapse line="102" />
+			<Collapse line="106" />
+			<Collapse line="108" />
+			<Collapse line="115" />
+			<Collapse line="116" />
+			<Collapse line="128" />
+			<Collapse line="132" />
+			<Collapse line="140" />
+			<Collapse line="179" />
+			<Collapse line="183" />
+			<Collapse line="187" />
+			<Collapse line="194" />
+			<Collapse line="198" />
+			<Collapse line="204" />
+			<Collapse line="206" />
+			<Collapse line="209" />
+			<Collapse line="218" />
+			<Collapse line="224" />
+			<Collapse line="226" />
+			<Collapse line="231" />
+			<Collapse line="243" />
+			<Collapse line="246" />
+			<Collapse line="252" />
+			<Collapse line="260" />
+			<Collapse line="263" />
+			<Collapse line="268" />
+			<Collapse line="271" />
+			<Collapse line="278" />
+			<Collapse line="280" />
+			<Collapse line="287" />
+			<Collapse line="290" />
+			<Collapse line="291" />
+			<Collapse line="296" />
+			<Collapse line="300" />
+			<Collapse line="306" />
+			<Collapse line="324" />
+			<Collapse line="328" />
+			<Collapse line="334" />
+			<Collapse line="346" />
+			<Collapse line="360" />
+			<Collapse line="369" />
+			<Collapse line="370" />
+			<Collapse line="381" />
+			<Collapse line="382" />
+			<Collapse line="397" />
+			<Collapse line="399" />
+			<Collapse line="407" />
+			<Collapse line="409" />
+			<Collapse line="422" />
+			<Collapse line="423" />
+			<Collapse line="438" />
+			<Collapse line="441" />
+			<Collapse line="444" />
+			<Collapse line="448" />
+			<Collapse line="454" />
+			<Collapse line="455" />
+			<Collapse line="460" />
+			<Collapse line="467" />
+			<Collapse line="471" />
+			<Collapse line="474" />
+			<Collapse line="481" />
+			<Collapse line="498" />
+			<Collapse line="509" />
+			<Collapse line="524" />
+			<Collapse line="578" />
+			<Collapse line="581" />
+			<Collapse line="605" />
+			<Collapse line="609" />
+			<Collapse line="614" />
+			<Collapse line="633" />
+			<Collapse line="635" />
+			<Collapse line="642" />
+			<Collapse line="645" />
+			<Collapse line="647" />
+			<Collapse line="648" />
+			<Collapse line="655" />
+			<Collapse line="660" />
+			<Collapse line="664" />
+			<Collapse line="678" />
+		</Folding>
+	</File>
+	<File name="CajaDelimitadora.hpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="0" />
+		</Cursor>
+	</File>
 	<File name="GroupBox.hpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="4880" topLine="106" />
@@ -12,29 +125,9 @@
 			<Cursor1 position="5571" topLine="107" />
 		</Cursor>
 	</File>
-	<File name="CajaDelimitadora.hpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Config.hpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="200" topLine="0" />
-		</Cursor>
-	</File>
 	<File name="Wave.hpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7450" topLine="172" />
-		</Cursor>
-	</File>
-	<File name="Voice.hpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4314" topLine="67" />
-		</Cursor>
-	</File>
-	<File name="ArrayList.hpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="486" topLine="0" />
+			<Cursor1 position="8124" topLine="187" />
 		</Cursor>
 	</File>
 	<File name="Globals.hpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -42,9 +135,9 @@
 			<Cursor1 position="2002" topLine="56" />
 		</Cursor>
 	</File>
-	<File name="main.cpp" open="1" top="1" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Config.hpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3158" topLine="126" />
+			<Cursor1 position="200" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

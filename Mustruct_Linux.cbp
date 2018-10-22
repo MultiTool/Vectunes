@@ -48,12 +48,12 @@
 		<Unit filename="IDrawable.hpp" />
 		<Unit filename="IDrawingContext.hpp" />
 		<Unit filename="IGrabber.hpp" />
-		<Unit filename="IOffsetBox.hpp" />
 		<Unit filename="ISonglet.hpp" />
 		<Unit filename="ITextable.hpp" />
 		<Unit filename="JsonParse.hpp" />
 		<Unit filename="Line2D.hpp" />
 		<Unit filename="MonkeyBox.hpp" />
+		<Unit filename="OffsetBoxBase.hpp" />
 		<Unit filename="Point2D.hpp" />
 		<Unit filename="Splines.hpp" />
 		<Unit filename="Voice.hpp" />
@@ -68,4 +68,3 @@
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
-

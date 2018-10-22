@@ -452,12 +452,6 @@ public:
     double flywheel = 0.0;
     double drag = 0.9, antidrag = 1.0 - drag;
     /* ********************************************************************************* */
-    void Noise_Effect(Wave& wave) {}
-    /* ********************************************************************************* */
-    void Distortion_Effect(Wave& wave, double gain) {}
-    /* ********************************************************************************* */
-    void Reverb_Effect(Wave& wave) {}
-    /* ********************************************************************************* */
     double ClipTime(double EndTime) {
       if (EndTime < Cursor_Point.TimeX) {
         EndTime = Cursor_Point.TimeX;// clip time
@@ -604,9 +598,10 @@ public:
     /* ********************************************************************************* */
     Voice_OffsetBox() {
       OffsetBoxBase();
+      this->Create_Me();
       this->Clear();
     }
-    ~Voice_OffsetBox(){this->Delete_Me();}
+    ~Voice_OffsetBox(){ this->Delete_Me(); }
     /* ********************************************************************************* */
     Voice* GetContent() override {
       return VoiceContent;
