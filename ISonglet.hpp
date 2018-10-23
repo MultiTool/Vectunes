@@ -18,16 +18,7 @@ protected:
   OffsetBoxBase *MyOffsetBox = null;
 public:
   Config *MyProject;
-  double Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
-  MonkeyBox *InheritedMap = nullptr;// InheritedMap is transformation to and from samples. Replacement for Inherited_*
-  /*
-  InheritedMap breakdown:
-  Inherited_Time = 0.0, Inherited_Octave = 0.0, Inherited_Loudness = 1.0;// time, octave, and loudness context
-  Inherited_ScaleX = 1.0;// tempo rescale context
-  Inherited_ScaleY = 1.0;// 'temper' context, which we will NEVER use unless we want to make ugly anharmonic noise.
-  */
-  boolean IsFinished = false;
-  SingerBase *ParentSinger;
+  int FreshnessTimeStamp;
   int RefCount = 0;
 
   /* ********************************************************************************* */
@@ -36,26 +27,21 @@ public:
   virtual SingerBase* Spawn_Singer() = 0;// for render time
 
   /* ********************************************************************************* */
-  virtual int Get_Sample_Count(int SampleRate) = 0;
-  /* ********************************************************************************* */
   virtual double Get_Duration() = 0;
   /* ********************************************************************************* */
   virtual double Get_Max_Amplitude() = 0;
   /* ********************************************************************************* */
-  virtual double Update_Durations() = 0;
-  /* ********************************************************************************* */
   virtual void Update_Guts(MetricsPacket& metrics) = 0;
   /* ********************************************************************************* */
-  virtual void Refresh_From_Beneath(IMoveable& mbox) = 0;
+  virtual void Refresh_From_Beneath(IMoveable& mbox) = 0;// do we need this?
   /* ********************************************************************************* */
-  virtual void Sort_Me() = 0;
-  /* ********************************************************************************* */
-  virtual Config* Get_Project() = 0;
+  //virtual void Sort_Me() = 0;// not needed in base class, can be implemented by child classes
   /* ********************************************************************************* */
   virtual void Set_Project(Config* project) = 0;
   /* ********************************************************************************* */
   //@Override ISonglet Deep_Clone_Me(ITextable.CollisionLibrary HitTable) = 0;
 
+  // snox to do: implement these in base class, remove from all child classes.  also make ISonglet not-pure-virtual
   /* ********************************************************************************* */
   virtual int Ref_Songlet() = 0;// Reference Counting: increment ref counter and return neuvo value just for kicks
   virtual int UnRef_Songlet() = 0;// Reference Counting: decrement ref counter and return neuvo value just for kicks
@@ -89,6 +75,12 @@ class SingerBase: public IDeletable {// Cantante
 public:// Cantante
   Config *MyProject;
   double Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
+  /*
+  InheritedMap breakdown:
+  Inherited_Time = 0.0, Inherited_Octave = 0.0, Inherited_Loudness = 1.0;// time, octave, and loudness context
+  Inherited_ScaleX = 1.0;// tempo rescale context
+  Inherited_ScaleY = 1.0;// 'temper' context, which we will NEVER use unless we want to make ugly anharmonic noise.
+  */
   MonkeyBox InheritedMap;// InheritedMap is transformation to and from samples. Replacement for Inherited_*
   int SampleRate;
 

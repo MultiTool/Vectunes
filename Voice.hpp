@@ -31,7 +31,6 @@ public:
   String CPointsName = "ControlPoints";// for serialization
   Config* MyProject;
   double MaxAmplitude;
-  int FreshnessTimeStamp;
   double BaseFreq = Globals::BaseFreqC0;
   double ReverbDelay = 0.125 / 4.0;// delay in seconds
   //int RefCount = 0;
@@ -39,7 +38,7 @@ public:
   CajaDelimitadora MyBounds;
   Color* FillColor;
   /* ********************************************************************************* */
-  Voice() {}
+  Voice() { FreshnessTimeStamp = 0; }
   ~Voice(){this->Delete_Me();}
   /* ********************************************************************************* */
   void Add_Note(VoicePoint* pnt) {
@@ -74,14 +73,14 @@ public:
     return minloc;
   }
   /* ********************************************************************************* */
-  int Get_Sample_Count(int SampleRate) override {
-    int len = this->CPoints.size();
-    VoicePoint *First_Point = this->CPoints.at(0);
-    VoicePoint *Final_Point = this->CPoints.at(len - 1);
-    double TimeDiff = Final_Point->TimeX - First_Point->TimeX;
-    return (int) (TimeDiff * SampleRate);
-    // return (int) (Final_Point.TimeX * SampleRate);
-  }
+//  int Get_Sample_Count(int SampleRate) override {
+//    int len = this->CPoints.size();
+//    VoicePoint *First_Point = this->CPoints.at(0);
+//    VoicePoint *Final_Point = this->CPoints.at(len - 1);
+//    double TimeDiff = Final_Point->TimeX - First_Point->TimeX;
+//    return (int) (TimeDiff * SampleRate);
+//    // return (int) (Final_Point.TimeX * SampleRate);
+//  }
   /* ********************************************************************************* */
   double Get_Duration() override {
     int len = this->CPoints.size();
@@ -92,9 +91,9 @@ public:
     return Final_Point->TimeX + this->ReverbDelay;
   }
   /* ********************************************************************************* */
-  double Update_Durations() override {
-    return this->Get_Duration();// this is not a container, so just return what we already know
-  }
+//  double Update_Durations() override {
+//    return this->Get_Duration();// this is not a container, so just return what we already know
+//  }
   /* ********************************************************************************* */
   double Get_Max_Amplitude() override {
     return this->MaxAmplitude;
@@ -126,15 +125,13 @@ public:
   /* ********************************************************************************* */
   void Refresh_From_Beneath(IMoveable& mbox) override {}
   /* ********************************************************************************* */
-  void Sort_Me() override {// sorting by TimeX
+  void Sort_Me() {//override {// sorting by TimeX
     std::sort(this->CPoints.begin(), this->CPoints.end(), ComparePoints);
   }
   /* ********************************************************************** */
   static bool ComparePoints(VoicePoint* vp0, VoicePoint* vp1) {
     return vp0->TimeX < vp1->TimeX;
   }
-  /* ********************************************************************************* */
-  Config* Get_Project() override { return this->MyProject; }
   /* ********************************************************************************* */
   void Set_Project(Config* project) override { this->MyProject = project; }
   /* ********************************************************************************* */

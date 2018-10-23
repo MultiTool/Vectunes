@@ -15,6 +15,7 @@
 #include "Grabber.hpp"
 
 #include "GroupBox.hpp"
+#include "LoopBox.hpp"
 
 using namespace std;
 
@@ -98,6 +99,14 @@ void MegaChop_Add(SingerBase *singer, const String& FileNameChopped, const Strin
 
 int main() {
   {
+    LoopBox *lbox = new LoopBox();
+#if false
+    LoopBox::Dummy_Songlet *dum = new LoopBox::Dummy_Songlet();
+    delete dum;
+#endif // false
+    delete lbox;
+  }
+  {
     Outer *ouch = new Outer();
     Outer::Inner *een = ouch->Spawn();
     cout << "een->NumberIn:" << een->NumberIn << endl;
@@ -157,7 +166,7 @@ int main() {
     MegaChop_Add(gsing, "ChoppedGroup.wav", "WholeGroup.wav");
     delete gsing;
     delete grobox;
-    delete vobox;
+    //delete vobox;// the group already deleted everything.
 
     // delete voz;// voice is deleted automatically when we delete vobox
   }

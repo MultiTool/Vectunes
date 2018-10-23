@@ -24,7 +24,6 @@ public:
   String MyName;// for debugging
   double MaxAmplitude = 0.0;
   CajaDelimitadora MyBounds;
-  int FreshnessTimeStamp;
 
   // to do: These will belong to the Artist object after we code for that separation
   boolean HighlightSpine = false;
@@ -36,6 +35,7 @@ public:
   GroupBox() {
     RefCount = 0;
     //this->LineColor = Globals::ToColorWheel(Math::frand());
+    FreshnessTimeStamp = 0;
   }
   ~GroupBox() {this->Delete_Me();}
   /* ********************************************************************************* */
@@ -52,7 +52,7 @@ public:
     this->Add_SubSong(obox);
   }
   /* ********************************************************************************* */
-  void Add_SubSong(OffsetBoxBase* obox) {// Add a songlet with its offsetbox already created and filled out.
+  virtual void Add_SubSong(OffsetBoxBase* obox) {// Add a songlet with its offsetbox already created and filled out.
     obox->GetContent()->Set_Project(this->MyProject);// child inherits project from me
     obox->MyParentSong = this;
     int dex = this->Tree_Search(obox->TimeX, 0, SubSongs.size());
@@ -96,21 +96,21 @@ public:
     this->MaxAmplitude = MaxAmp;
   }
   /* ********************************************************************************* */
-  double Update_Durations() override {
-    double MaxDuration = 0.0;
-    double DurBuf = 0.0;
-    int NumSubSongs = this->SubSongs.size();
-    for (int cnt = 0; cnt < NumSubSongs; cnt++) {
-      OffsetBoxBase *obox = this->SubSongs.at(cnt);
-      ISonglet *child = obox->GetContent();
-      //if (MaxDuration < (DurBuf = (ob.UnMapTime(vb.Update_Durations())))) {
-      if (MaxDuration < (DurBuf = (obox->TimeX + child->Update_Durations()))) {
-        MaxDuration = DurBuf;
-      }
-    }
-    this->Duration = MaxDuration;
-    return MaxDuration;
-  }
+//  double Update_Durations() override {
+//    double MaxDuration = 0.0;
+//    double DurBuf = 0.0;
+//    int NumSubSongs = this->SubSongs.size();
+//    for (int cnt = 0; cnt < NumSubSongs; cnt++) {
+//      OffsetBoxBase *obox = this->SubSongs.at(cnt);
+//      ISonglet *child = obox->GetContent();
+//      //if (MaxDuration < (DurBuf = (ob.UnMapTime(vb.Update_Durations())))) {
+//      if (MaxDuration < (DurBuf = (obox->TimeX + child->Update_Durations()))) {
+//        MaxDuration = DurBuf;
+//      }
+//    }
+//    this->Duration = MaxDuration;
+//    return MaxDuration;
+//  }
   /* ********************************************************************************* */
   void Update_Guts(MetricsPacket& metrics) override {
     if (this->FreshnessTimeStamp < metrics.FreshnessTimeStamp) {// don't hit the same songlet twice on one update
@@ -162,20 +162,12 @@ public:
     this->SubSongs.at(PrevDex) = mov;
   }
   /* ********************************************************************************* */
-  void Sort_Me() {// sorting by RealTime, TimeX
+  void Sort_Me() {// override {// sorting by RealTime, TimeX
     std::sort(this->SubSongs.begin(), this->SubSongs.end(), CompareChildren);
   }
   /* ********************************************************************** */
   static bool CompareChildren(const OffsetBoxBase* obox0, const OffsetBoxBase* obox1) {
     return obox0->TimeX < obox1->TimeX;
-  }
-  /* ********************************************************************************* */
-  int Get_Sample_Count(int SampleRate) override {
-    return SampleRate * (int) this->Get_Duration();
-  }
-  /* ********************************************************************************* */
-  Config* Get_Project() override {
-    return this->MyProject;
   }
   /* ********************************************************************************* */
   void Set_Project(Config* project) override {
@@ -500,7 +492,7 @@ public:
     OffsetBoxBase *obox;
     for (int cnt = 0; cnt < len; cnt++) {
       obox = this->SubSongs.at(cnt);
-      obox->Delete_Me();
+      obox->Delete_Me();// snox see if this is redundant
       delete obox;
     }
     this->SubSongs.clear();

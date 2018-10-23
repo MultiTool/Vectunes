@@ -52,6 +52,7 @@
 		<Unit filename="ITextable.hpp" />
 		<Unit filename="JsonParse.hpp" />
 		<Unit filename="Line2D.hpp" />
+		<Unit filename="LoopBox.hpp" />
 		<Unit filename="MonkeyBox.hpp" />
 		<Unit filename="OffsetBoxBase.hpp" />
 		<Unit filename="Point2D.hpp" />
