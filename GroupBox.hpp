@@ -20,7 +20,6 @@ public:
   ArrayList<OffsetBoxBase*> SubSongs;
   String SubSongsName = "SubSongs";
   double Duration = 0.0;
-  Config* MyProject;
   String MyName;// for debugging
   double MaxAmplitude = 0.0;
   CajaDelimitadora MyBounds;
@@ -136,8 +135,8 @@ public:
     metrics.MaxDuration = this->Duration;
   }
   /* ********************************************************************************* */
-  void Refresh_From_Beneath(IDrawable::IMoveable& mbox) override {
-    //System.out.println("Refresh_From_Beneath");
+  void Refresh_Me_From_Beneath(IDrawable::IMoveable& mbox) override {
+    //System.out.println("Refresh_Me_From_Beneath");
     this->Sort_Me();
 //    int Dex = this->Tree_Search(mbox.GetX(), 0, this->SubSongs.size());
 //    this->Bubble_Right(Dex);// how do we get the right index? OffsetBoxes do not have that.
@@ -496,16 +495,6 @@ public:
       delete obox;
     }
     this->SubSongs.clear();
-  }
-  /* ********************************************************************************* */
-  int Ref_Songlet() override {// ISonglet Reference Counting: increment ref counter and return neuvo value just for kicks
-    return ++this->RefCount;
-  }
-  int UnRef_Songlet() override {// ISonglet Reference Counting: decrement ref counter and return neuvo value just for kicks
-    return --this->RefCount;
-  }
-  int GetRefCount() {// ISonglet Reference Counting: get number of references for serialization
-    return this->RefCount;
   }
   /* ********************************************************************************* */
   JsonParse::Node* Export(CollisionLibrary& HitTable) override {// ITextable

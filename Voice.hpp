@@ -29,7 +29,6 @@ class Voice: public ISonglet{//, IDrawable {// collection of control points, eac
 public:
   ArrayList<VoicePoint*> CPoints;
   String CPointsName = "ControlPoints";// for serialization
-  Config* MyProject;
   double MaxAmplitude;
   double BaseFreq = Globals::BaseFreqC0;
   double ReverbDelay = 0.125 / 4.0;// delay in seconds
@@ -73,15 +72,6 @@ public:
     return minloc;
   }
   /* ********************************************************************************* */
-//  int Get_Sample_Count(int SampleRate) override {
-//    int len = this->CPoints.size();
-//    VoicePoint *First_Point = this->CPoints.at(0);
-//    VoicePoint *Final_Point = this->CPoints.at(len - 1);
-//    double TimeDiff = Final_Point->TimeX - First_Point->TimeX;
-//    return (int) (TimeDiff * SampleRate);
-//    // return (int) (Final_Point.TimeX * SampleRate);
-//  }
-  /* ********************************************************************************* */
   double Get_Duration() override {
     int len = this->CPoints.size();
     if (len <= 0) {
@@ -123,7 +113,7 @@ public:
     metrics.MaxDuration = this->Get_Duration();
   }
   /* ********************************************************************************* */
-  void Refresh_From_Beneath(IMoveable& mbox) override {}
+  void Refresh_Me_From_Beneath(IMoveable& mbox) override {}
   /* ********************************************************************************* */
   void Sort_Me() {//override {// sorting by TimeX
     std::sort(this->CPoints.begin(), this->CPoints.end(), ComparePoints);
@@ -133,7 +123,7 @@ public:
     return vp0->TimeX < vp1->TimeX;
   }
   /* ********************************************************************************* */
-  void Set_Project(Config* project) override { this->MyProject = project; }
+  //void Set_Project(Config* project) override { this->MyProject = project; }
   /* ********************************************************************************* */
   void Recalc_Line_SubTime() {
     double SubTimeLocal;// run this function whenever this voice instance is modified, e.g. control points moved, added, or removed.
@@ -280,19 +270,6 @@ public:
       delete this->CPoints.at(cnt);
     }
     this->CPoints.clear();
-  }
-  /* ********************************************************************************* */
-  int Ref_Songlet() override {// ISonglet Reference Counting: increment ref counter and return neuvo value just for kicks
-    return ++this->RefCount;
-  }
-  int UnRef_Songlet() override {// ISonglet Reference Counting: decrement ref counter and return neuvo value just for kicks
-    if (this->RefCount < 0) {
-      throw std::runtime_error("Voice: Negative RefCount:" + this->RefCount);
-    }
-    return --this->RefCount;
-  }
-  int GetRefCount() override {// ISonglet Reference Counting: get number of references for serialization
-    return this->RefCount;
   }
   /* ********************************************************************************* */
   JsonParse::Node* Export(CollisionLibrary& HitTable) {

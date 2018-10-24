@@ -125,6 +125,7 @@ int main() {
     Voice *voz;
     voz = new Voice();
     voz->Update_Guts(metrics);
+    voz->Set_Project(&conf);
 
     {// add voice bend points
       VoicePoint *vp0 = new VoicePoint();
@@ -156,6 +157,7 @@ int main() {
 
     metrics.Reset();
     gb->Update_Guts(metrics);
+    gb->Set_Project(&conf);
 
     GroupBox::Group_OffsetBox *grobox = gb->Spawn_OffsetBox();
     //grobox->Set_Project(&conf);

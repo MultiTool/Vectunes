@@ -14,8 +14,6 @@ class MetricsPacket;// forward
 class MonkeyBox;// forward
 
 class ISonglet: public IDrawable, IDeletable, public ITextable {// Cancionita
-protected:
-  OffsetBoxBase *MyOffsetBox = null;
 public:
   Config *MyProject;
   int FreshnessTimeStamp;
@@ -33,19 +31,25 @@ public:
   /* ********************************************************************************* */
   virtual void Update_Guts(MetricsPacket& metrics) = 0;
   /* ********************************************************************************* */
-  virtual void Refresh_From_Beneath(IMoveable& mbox) = 0;// do we need this?
+  virtual void Refresh_Me_From_Beneath(IMoveable& mbox) = 0;// should be just for IContainer types, but aren't all songs containers?
   /* ********************************************************************************* */
-  //virtual void Sort_Me() = 0;// not needed in base class, can be implemented by child classes
-  /* ********************************************************************************* */
-  virtual void Set_Project(Config* project) = 0;
+  virtual void Set_Project(Config* project) { this->MyProject = project; }
   /* ********************************************************************************* */
   //@Override ISonglet Deep_Clone_Me(ITextable.CollisionLibrary HitTable) = 0;
-
-  // snox to do: implement these in base class, remove from all child classes.  also make ISonglet not-pure-virtual
   /* ********************************************************************************* */
-  virtual int Ref_Songlet() = 0;// Reference Counting: increment ref counter and return neuvo value just for kicks
-  virtual int UnRef_Songlet() = 0;// Reference Counting: decrement ref counter and return neuvo value just for kicks
-  virtual int GetRefCount() = 0;// Reference Counting: get number of references for serialization
+  virtual int Ref_Songlet() {// ISonglet Reference Counting: increment ref counter and return neuvo value just for kicks
+    return ++this->RefCount;
+  }
+  virtual int UnRef_Songlet() {// ISonglet Reference Counting: decrement ref counter and return neuvo value just for kicks
+    if (this->RefCount < 0) {
+      throw std::runtime_error("Voice: Negative RefCount:" + this->RefCount);
+    }
+    return --this->RefCount;
+  }
+  virtual int GetRefCount() {// ISonglet Reference Counting: get number of references for serialization
+    return this->RefCount;
+  }
+  /* ********************************************************************************* */
   static int Unref(ISonglet** SongletPointerPointer){// Failed(?) experiment. Should probably delete this.
     ISonglet *songlet = *SongletPointerPointer;
     if (songlet==nullptr){ return -1; }
@@ -56,6 +60,12 @@ public:
     }
     return NumLeft;
   }
+};
+
+class IContainer: public ISonglet {
+public:
+  /* ********************************************************************************* */
+  //virtual void Refresh_Me_From_Beneath(IMoveable& mbox) = 0;// should be just for IContainer types, but aren't all songs containers?
 };
 
   /* ********************************************************************************* */
@@ -87,7 +97,6 @@ public:// Cantante
   boolean IsFinished = false;
   SingerBase* ParentSinger;
   OffsetBoxBase* MyOffsetBox = nullptr;
-  //MonkeyBox* MyOffsetBox = nullptr;
   /* ********************************************************************************* */
   SingerBase(){ this->Create_Me(); }
   /* ********************************************************************************* */
