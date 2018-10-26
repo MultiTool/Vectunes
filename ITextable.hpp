@@ -15,9 +15,9 @@
 class CollisionLibrary;// forward
 class ITextable {// DIY Json ISerializable - more control
 public:
-  virtual JsonParse::Node* Export(CollisionLibrary& HitTable)=0;// to do: pass a collision table parameter
-  virtual void ShallowLoad(JsonParse::Node& phrase)=0;// just fill in primitive fields that belong to this object, don't follow up pointers.
-  virtual void Consume(JsonParse::Node& phrase, CollisionLibrary& ExistingInstances)=0;// Fill in all the values of an already-created object, including deep pointers.
+  virtual JsonParse::Node* Export(CollisionLibrary& HitTable) { return nullptr; };// pass a collision table parameter
+  virtual void ShallowLoad(JsonParse::Node& phrase){};// just fill in primitive fields that belong to this object, don't follow up pointers.
+  virtual void Consume(JsonParse::Node& phrase, CollisionLibrary& ExistingInstances){};// Fill in all the values of an already-created object, including deep pointers.
 //  IFactory GetMyFactory();// this always returns a singleton of IFactory, one for each class declaration.
 //
 };

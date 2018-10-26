@@ -39,7 +39,7 @@
 		<Unit filename="Config.hpp" />
 		<Unit filename="Globals.hpp" />
 		<Unit filename="Grabber.hpp" />
-		<Unit filename="GroupBox.hpp" />
+		<Unit filename="GroupSong.hpp" />
 		<Unit filename="ICloneable.hpp" />
 		<Unit filename="IDeletable.hpp" />
 		<Unit filename="IDrawable.hpp" />
@@ -49,7 +49,7 @@
 		<Unit filename="ITextable.hpp" />
 		<Unit filename="JsonParse.hpp" />
 		<Unit filename="Line2D.hpp" />
-		<Unit filename="LoopBox.hpp" />
+		<Unit filename="LoopSong.hpp" />
 		<Unit filename="MonkeyBox.hpp" />
 		<Unit filename="OffsetBoxBase.hpp" />
 		<Unit filename="Point2D.hpp" />

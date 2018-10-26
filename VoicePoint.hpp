@@ -43,12 +43,11 @@ public:
     CajaDelimitadora MyBounds;
     VoicePoint* ParentPoint;
     double OctavesPerRadius = 0.007;
-    boolean IsSelected = false;
     /* ********************************************************************************* */
     LoudnessHandle(){ this->Create_Me(); }
     ~LoudnessHandle(){ this->Delete_Me(); }
     /* ********************************************************************************* */
-    void MoveTo(double XLoc, double YLoc) {// IMoveable
+    void MoveTo(double XLoc, double YLoc) override {// IMoveable
       if (XLoc >= 0) {// don't go backward in time
         this->ParentPoint->TimeX = XLoc;
       }

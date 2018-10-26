@@ -38,7 +38,6 @@ public:
   // graphics support, will move to separate object
   //double OctavesPerRadius = 0.03;
   double OctavesPerRadius = 0.01;
-  boolean IsSelected = false;
 
   /* ********************************************************************************* */
   MonkeyBox() {this->Create_Me();}

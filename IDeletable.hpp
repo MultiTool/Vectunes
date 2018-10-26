@@ -16,8 +16,8 @@
  */
 class IDeletable {
 public:
-  virtual boolean Create_Me() = 0;
-  virtual void Delete_Me() = 0;
+  virtual boolean Create_Me() { return true; };
+  virtual void Delete_Me() {};
 //  int Ref_Me();// increment ref counter and return neuvo value just for kicks
 //  int UnRef_Me();// decrement ref counter and return neuvo value just for kicks
 };

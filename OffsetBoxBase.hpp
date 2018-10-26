@@ -13,6 +13,7 @@ class OffsetBoxBase: public MonkeyBox { // IMoveable, IDeletable {// location bo
 public:
   Factory* MyFactory = InitFactory();
   String ContentName = "Content";
+  ISonglet *MySonglet;
   /* ********************************************************************************* */
   OffsetBoxBase() {
     this->Create_Me();
@@ -56,8 +57,9 @@ public:
   }
   /* ********************************************************************************* */
   virtual ISonglet* GetContent() {// always always always override this
-    throw std::runtime_error("Not supported yet.");
-    return nullptr;
+    return this->MySonglet;
+    //throw std::runtime_error("Not supported yet.");
+    //return nullptr;
   }
   // <editor-fold defaultstate="collapsed" desc="IDrawable and IMoveable">
   /* ********************************************************************************* */

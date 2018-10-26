@@ -66,19 +66,20 @@ class IContainer: public ISonglet {
 public:
   /* ********************************************************************************* */
   //virtual void Refresh_Me_From_Beneath(IMoveable& mbox) = 0;// should be just for IContainer types, but aren't all songs containers?
+  void Refresh_Me_From_Beneath(IMoveable& mbox) override {};// should be just for IContainer types, but aren't all songs containers?
 };
 
-  /* ********************************************************************************* */
-  class MetricsPacket {
-  public:
-    double MaxDuration = 0.0;
-    Config* MyProject = nullptr;
-    int FreshnessTimeStamp = 1;
-    void Reset(){
-      MaxDuration = 0.0;
-      FreshnessTimeStamp = 1;
-    }
-  };
+/* ********************************************************************************* */
+class MetricsPacket {
+public:
+  double MaxDuration = 0.0;
+  Config* MyProject = nullptr;
+  int FreshnessTimeStamp = 1;
+  void Reset(){
+    MaxDuration = 0.0;
+    FreshnessTimeStamp = 1;
+  }
+};
 
 /* ********************************************************************************* */
 class SingerBase: public IDeletable {// Cantante

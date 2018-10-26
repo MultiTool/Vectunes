@@ -143,7 +143,7 @@ public:
   }
   /* ********************************************************************************* */
   void Normalize() {
-    double MaxAmp = 0.0;
+    double MaxAmp = 0.5;// Globals::Fudge;// avoid divide by zero
     double AbsVal;
     int len = this->wave.size();
     for (int cnt = 0; cnt < len; cnt++) {
@@ -283,6 +283,10 @@ public:
     return outs;
   }
   int SaveToWav(const String& FileName){// from http://www.cplusplus.com/forum/beginner/166954/
+    Wave clone;
+    clone.Copy_From(*this);
+    clone.Normalize();
+
     std::ofstream f(FileName, std::ios::binary );
 
     // Write the file headers
@@ -305,8 +309,8 @@ public:
 
     if (true){
       double amplitude = 32000;// whatever
-      for (int n = 0; n < this->wave.size(); n++){
-        double value     = this->wave.at(n);
+      for (int n = 0; n < clone.wave.size(); n++){
+        double value     = clone.wave.at(n);
         //write_word( f, (int)(amplitude * value), 2 );// stereo
         write_word( f, (int)(amplitude * value), 2 );
       }
@@ -352,7 +356,16 @@ public:
   Wave* Clone_Me() {
     return nullptr;
   }
-  void Copy_From(const Wave& donor) {}
+  void Copy_From(const Wave& donor) {
+    this->NumSamples = donor.NumSamples;
+    this->StartDex = donor.StartDex;
+    this->SampleRate = donor.SampleRate;
+    this->StartTime = donor.StartTime;
+    this->EndTime = donor.EndTime;
+    this->Debugging = donor.Debugging;
+    this->Debug_Fill = donor.Debug_Fill;
+    this->wave = donor.wave;
+  }
   String* Export() {
     return nullptr;
   }

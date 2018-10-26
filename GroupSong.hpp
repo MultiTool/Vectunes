@@ -1,5 +1,5 @@
-#ifndef GroupBox_hpp
-#define GroupBox_hpp
+#ifndef GroupSong_hpp
+#define GroupSong_hpp
 
 #include <iostream>
 #include <sstream>  // Required for stringstreams
@@ -15,7 +15,7 @@
 
 // class AudProject;// forward
 
-class GroupBox: public ISonglet {
+class GroupSong: public ISonglet {
 public:
   ArrayList<OffsetBoxBase*> SubSongs;
   String SubSongsName = "SubSongs";
@@ -31,12 +31,12 @@ public:
   int NumSubLines = 10;
   ArrayList<Point2D> SplinePoints;
   /* ********************************************************************************* */
-  GroupBox() {
+  GroupSong() {
     RefCount = 0;
     //this->LineColor = Globals::ToColorWheel(Math::frand());
     FreshnessTimeStamp = 0;
   }
-  ~GroupBox() {this->Delete_Me();}
+  ~GroupSong() {this->Delete_Me();}
   /* ********************************************************************************* */
   OffsetBoxBase* Add_SubSong(ISonglet& songlet, double TimeOffset, double OctaveOffset, double LoudnessFactor) {
     OffsetBoxBase *obox = songlet.Spawn_OffsetBox();
@@ -51,7 +51,7 @@ public:
     this->Add_SubSong(obox);
   }
   /* ********************************************************************************* */
-  virtual void Add_SubSong(OffsetBoxBase* obox) {// Add a songlet with its offsetbox already created and filled out.
+  virtual int Add_SubSong(OffsetBoxBase* obox) {// Add a songlet with its offsetbox already created and filled out.
     obox->GetContent()->Set_Project(this->MyProject);// child inherits project from me
     obox->MyParentSong = this;
     int dex = this->Tree_Search(obox->TimeX, 0, SubSongs.size());
@@ -59,6 +59,7 @@ public:
     int sz = SubSongs.size();
     //this->Sort_Me();// overkill in the case we add a bunch of subsongs in a loop. should only sort once at end of loop.
     Refresh_Splines();// maybe sort_me and refresh_splines should be in update_guts instead?
+    return dex;
   }
   /* ********************************************************************************* */
   void Remove_SubSong(OffsetBoxBase& obox) {
@@ -135,7 +136,7 @@ public:
     metrics.MaxDuration = this->Duration;
   }
   /* ********************************************************************************* */
-  void Refresh_Me_From_Beneath(IDrawable::IMoveable& mbox) override {
+  void Refresh_Me_From_Beneath(IMoveable& mbox) override {
     //System.out.println("Refresh_Me_From_Beneath");
     this->Sort_Me();
 //    int Dex = this->Tree_Search(mbox.GetX(), 0, this->SubSongs.size());
@@ -231,17 +232,17 @@ public:
     }
   }
   /* ********************************************************************************* */
-  GroupBox* Clone_Me() override {// ICloneable
-    GroupBox *child = new GroupBox();// clone
+  GroupSong* Clone_Me() override {// ICloneable
+    GroupSong *child = new GroupSong();// clone
     child->Copy_From(*this);
     return child;
   }
   /* ********************************************************************************* */
-  GroupBox* Deep_Clone_Me(CollisionLibrary& HitTable) override {// ICloneable
-    GroupBox *child;
+  GroupSong* Deep_Clone_Me(CollisionLibrary& HitTable) override {// ICloneable
+    GroupSong *child;
     CollisionItem *ci = HitTable.GetItem(this);
     if (ci == null) {
-      child = new GroupBox();// clone
+      child = new GroupSong();// clone
       ci = HitTable.InsertUniqueInstance(this);
       ci->Item = child;
       child->Copy_From(*this);
@@ -253,17 +254,17 @@ public:
         child->Add_SubSong(obox);
       }
     } else {// pre exists
-      child = (GroupBox*) ci->Item;// another cast!
+      child = (GroupSong*) ci->Item;// another cast!
     }
     return child;
   }
   /* ********************************************************************************* */
-  GroupBox* Shallow_Clone_Me() {
+  GroupSong* Shallow_Clone_Me() {
     /*
      clone-me clones myself, clones all my children oboxes, but does NOT clone their songlets.
      */
-    GroupBox *child;
-    child = new GroupBox();// clone
+    GroupSong *child;
+    child = new GroupSong();// clone
     //child->TraceText = "I am a shallow clone";
     child->Copy_From(*this);
     OffsetBoxBase *SubSongHandle, *ChildSubSongHandle;
@@ -279,7 +280,7 @@ public:
     return child;
   }
   /* ********************************************************************************* */
-  void Copy_From(const GroupBox& donor) {
+  void Copy_From(const GroupSong& donor) {
     this->Duration = donor.Duration;
     this->Set_Project(donor.MyProject);
     this->MyName = donor.MyName;// for debugging
@@ -519,7 +520,7 @@ public:
   /* ********************************************************************************* */
   class Group_Singer: public SingerBase {
   public:
-    GroupBox* MySonglet;
+    GroupSong* MySonglet;
     ArrayList<SingerBase*> NowPlaying;// pool of currently playing voices
     int Current_Dex = 0;
     double Prev_Time = 0;
@@ -536,7 +537,7 @@ public:
     /* ********************************************************************************* */
     void Skip_To(double EndTime) override {
       if (this->IsFinished) { return; }
-      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupBox's own coordinate system
+      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupSong's own coordinate system
       if (this->MySonglet->SubSongs.size() <= 0) {
         this->IsFinished = true;
         this->Prev_Time = EndTime;
@@ -568,7 +569,7 @@ public:
     void Render_To(double EndTime, Wave& wave) override {
       if (this->IsFinished) { return; }
       if (this->InheritedMap.LoudnessFactor == 0.0) { return; }// muted, so don't waste time rendering
-      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupBox's own coordinate system
+      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupSong's own coordinate system
       double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in parent coordinates
       if (this->MySonglet->SubSongs.size() <= 0) {
         this->IsFinished = true;
@@ -646,7 +647,7 @@ public:
   /* ********************************************************************************* */
   class Group_OffsetBox: public OffsetBoxBase {// location box to transpose in pitch, move in time, etc.
   public:
-    GroupBox* Content = null;
+    GroupSong* Content = null;
     double GroupScaleX = 1.0;
     String GroupScaleXName = "GroupScaleX";// for serialization
     String ObjectTypeName = "Group_OffsetBox";
@@ -661,11 +662,11 @@ public:
       this->Delete_Me();
     }
     /* ********************************************************************************* */
-    GroupBox* GetContent() {
+    GroupSong* GetContent() {
       return Content;
     }
     /* ********************************************************************************* */
-    void Attach_Songlet(GroupBox* songlet) {// for serialization
+    void Attach_Songlet(GroupSong* songlet) {// for serialization
       this->Content = songlet;
       songlet->Ref_Songlet();
     }
@@ -700,7 +701,7 @@ public:
     }
     /* ********************************************************************************* */
     void BreakFromHerd(CollisionLibrary& HitTable) {// for compose time. detach from my songlet and attach to an identical but unlinked songlet
-      GroupBox *clone = this->Content->Deep_Clone_Me(HitTable);
+      GroupSong *clone = this->Content->Deep_Clone_Me(HitTable);
       if (this->Content->UnRef_Songlet() <= 0) {
         this->Content->Delete_Me();
         delete this->Content;
@@ -709,7 +710,7 @@ public:
     }
     /* ********************************************************************************* */
     void BreakFromHerd_Shallow() {// for compose time. detach from my songlet and attach to an identical but unlinked songlet
-      GroupBox *clone = this->Content->Shallow_Clone_Me();
+      GroupSong *clone = this->Content->Shallow_Clone_Me();
       if (this->Content->UnRef_Songlet() <= 0) {
         this->Content->Delete_Me();
         delete this->Content;

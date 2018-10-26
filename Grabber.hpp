@@ -15,7 +15,7 @@
 
 */
 
-class GroupBox;// forward
+class GroupSong;// forward
 
 /* ********************************************************************************* */
 class StackItem: public IDeletable {
@@ -141,7 +141,7 @@ public:
 class DestinationGrabber: public Grabber {// this class searches for containers in which to drop a floating, copied songlet
 public:
   OffsetBoxBase* Floater = null;
-  GroupBox* PossibleDestination = null;
+  GroupSong* PossibleDestination = null;
   double ClosestDistance = Double_POSITIVE_INFINITY;
   void AddFirstBox(OffsetBoxBase& starter, double XLoc, double YLoc) override {}
   /* ********************************************************************************* */
