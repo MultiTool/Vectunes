@@ -117,6 +117,9 @@ public:
   static double floor(double a) {
     return std::floor(a);
   }
+  static double round(double a) {
+    return std::round(a);
+  }
   static double abs(double a) {
     return std::abs(a);
   }

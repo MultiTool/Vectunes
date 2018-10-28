@@ -105,20 +105,24 @@ void MegaChop_Add(SingerBase *singer, const String& FileName){// test random cho
   Whole.SaveToWav(FileName + ".Diff.wav");
 }
 /* ********************************************************************************* */
-void FillVoice(Voice *voz){// add voice bend points
+void FillVoice(Voice *voz, double Duration){// add voice bend points
   VoicePoint *vp0 = new VoicePoint();
   vp0->OctaveY = 5.0; vp0->TimeX = 0;
   voz->Add_Note(vp0);
 
   VoicePoint *vp1 = new VoicePoint();
-  vp1->OctaveY = 8.0; vp1->TimeX = 0.1;
+  vp1->OctaveY = 8.0; vp1->TimeX = Duration * 0.5;
   voz->Add_Note(vp1);
 
   VoicePoint *vp2 = new VoicePoint();
-  vp2->OctaveY = 2.0; vp2->TimeX = 0.2;
+  vp2->OctaveY = 2.0; vp2->TimeX = Duration;
   voz->Add_Note(vp2);
 
   voz->Recalc_Line_SubTime();
+}
+/* ********************************************************************************* */
+void FillVoice(Voice *voz){// add voice bend points
+  FillVoice(voz, 0.2);
 }
 /* ********************************************************************************* */
 GroupSong* MakeChord(ISonglet *songlet){
@@ -147,7 +151,7 @@ int main() {
   metrics.MyProject = &conf;
   metrics.FreshnessTimeStamp = 1;
 
-  {
+  {// Span - simple group with one delayed voice
     Voice *voz0;
     voz0 = new Voice();
     FillVoice(voz0);
@@ -170,7 +174,7 @@ int main() {
     //return 0;
   }
 
-  if (false) {
+  if (false) {// Loop
     Voice *voz0;
     voz0 = new Voice();
     FillVoice(voz0);
@@ -207,15 +211,16 @@ int main() {
   }
 
   cout << Math::PI << endl;
-  {
+  {// Voice and  Group
     Voice *voz;
     voz = new Voice();
     voz->Update_Guts(metrics);
     voz->Set_Project(&conf);
 
-    FillVoice(voz);// add voice bend points
+    FillVoice(voz, 0.2);// add voice bend points
 
     Voice::Voice_OffsetBox *vobox = voz->Spawn_OffsetBox();
+    vobox->TimeX = 0.11;// 0.0;
     Voice::Voice_Singer *vsing = vobox->Spawn_Singer();
 
     //Voice::Voice_Singer *vsing = voz->Spawn_Singer();
@@ -225,7 +230,6 @@ int main() {
     delete vsing;
 
     GroupSong *gb = new GroupSong();
-    // gb->Set_Project(&conf);
     gb->Add_SubSong(vobox);
 
     metrics.Reset();

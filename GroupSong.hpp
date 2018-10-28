@@ -576,11 +576,12 @@ public:
         this->Prev_Time = EndTime;
         return;
       }
-
+      //EndTime = Math::floor(EndTime * (double)this->SampleRate) / (double)this->SampleRate;
 /* taken from voice:
+      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
       double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
       this->Render_Sample_Count = 0;
-      int NumPoints = this->MyVoice->CPoints.size();
+      int NumBends = this->MyVoice->CPoints.size();
       EndTime = this->ClipTime(EndTime);
       double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
 
@@ -592,9 +593,14 @@ from wave:
 
       //if (this->InheritedMap.LoudnessFactor == 0.0) { return; }// muted, so don't waste time rendering
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupSong's own coordinate system
-      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in parent coordinates
+      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in absolute universal coordinates
       double Clipped_EndTime = this->Tee_Up(EndTime);
       double UnMapped_EndTime = this->InheritedMap.UnMapTime(Clipped_EndTime);
+      //double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
+      if (EndTime == 0.15){ // bug hunting
+        //printf(".");
+        //UnMapped_EndTime = ((UnMapped_EndTime * (double)this->SampleRate) - 1.0) / (double)this->SampleRate;
+      }
       wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
       Wave ChildWave;
       int NumPlaying = NowPlaying.size();
@@ -603,9 +609,7 @@ from wave:
       while (cnt < NumPlaying) {// then play the whole pool
         player = this->NowPlaying.at(cnt);
         player->Render_To(Clipped_EndTime, ChildWave);
-        //if (cnt==1){
-          wave.Overdub(ChildWave);// sum/overdub the waves
-        //}
+        wave.Overdub(ChildWave);// sum/overdub the waves
         cnt++;
       }
       cnt = 0;// now pack down the finished ones
@@ -621,6 +625,8 @@ from wave:
       }
       this->NowPlaying.resize(GoodCnt);
       wave.Amplify(this->MyOffsetBox->LoudnessFactor);
+
+      //EndTime = Math::floor(EndTime * (double)this->SampleRate) / (double)this->SampleRate;
       this->Prev_Time = EndTime;
     }
     /* ********************************************************************************* */

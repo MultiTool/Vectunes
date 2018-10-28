@@ -66,8 +66,11 @@ public:
     this->EndTime = EndTime0;
     this->SampleRate = SampleRate0;
 
-    int SampleStart = StartTime0 * (double)SampleRate0;
-    int SampleEnd = EndTime0 * (double)SampleRate0;
+    //int SampleStart = Math::round(StartTime0 * (double)SampleRate0);
+    //int SampleEnd = Math::round(EndTime0 * (double)SampleRate0);
+
+    int SampleStart = (StartTime0 * (double)SampleRate0);
+    int SampleEnd = (EndTime0 * (double)SampleRate0);
     int nsamps = SampleEnd - SampleStart;
 
     this->StartDex = (int) (this->StartTime * SampleRate0);// StartDex is the number of empty samples from Time=0 to wave[0]
@@ -143,7 +146,7 @@ public:
   }
   /* ********************************************************************************* */
   void Normalize() {
-    double MaxAmp = Globals::Fudge;// avoid divide by zero
+    double MaxAmp = 0.005;//Globals::Fudge;// avoid divide by zero
     double AbsVal;
     int len = this->wave.size();
     for (int cnt = 0; cnt < len; cnt++) {

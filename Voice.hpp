@@ -323,8 +323,8 @@ public:
       if (this->IsFinished){ return; }
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
       this->Render_Sample_Count = 0;
-//      int NumPoints = this->MyVoice->CPoints.size();
-//      if (NumPoints < 2) {// this should really just throw an error
+//      int NumBends = this->MyVoice->CPoints.size();
+//      if (NumBends < 2) {// this should really just throw an error
 //        this->IsFinished = true;
 //        return;
 //      }
@@ -362,7 +362,7 @@ public:
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
       double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
       this->Render_Sample_Count = 0;
-      int NumPoints = this->MyVoice->CPoints.size();
+      int NumBends = this->MyVoice->CPoints.size();
       EndTime = this->ClipTime(EndTime);
       double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
       wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in global coordinates because samples are always real time
@@ -379,7 +379,7 @@ public:
         }
         this->Next_Point_Dex = pdex;
       } else {
-        while (this->Next_Point_Dex < NumPoints) {
+        while (this->Next_Point_Dex < NumBends) {
           Next_Point = this->MyVoice->CPoints.at(this->Next_Point_Dex);
           if (EndTime < Next_Point->TimeX) {// repeat until control point time overtakes EndTime
             break;
