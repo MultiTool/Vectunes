@@ -533,6 +533,10 @@ public:
       Current_Dex = 0;
       Prev_Time = 0;
       NowPlaying.clear();
+      if (this->MySonglet->SubSongs.size() <= 0) {
+        this->IsFinished = true;
+      }
+      if (this->InheritedMap.LoudnessFactor == 0.0) { this->IsFinished = true; }// muted, so don't waste time rendering
     }
     /* ********************************************************************************* */
     void Skip_To(double EndTime) override {
@@ -567,16 +571,28 @@ public:
     }
     /* ********************************************************************************* */
     void Render_To(double EndTime, Wave& wave) override {
-      if (this->IsFinished) { return; }
-      if (this->InheritedMap.LoudnessFactor == 0.0) { return; }// muted, so don't waste time rendering
-      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupSong's own coordinate system
-      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in parent coordinates
-      if (this->MySonglet->SubSongs.size() <= 0) {
-        this->IsFinished = true;
-        wave.Init(UnMapped_Prev_Time, UnMapped_Prev_Time, this->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
+      if (this->IsFinished) {
+        wave.Init(0, 0, this->SampleRate);
         this->Prev_Time = EndTime;
         return;
       }
+
+/* taken from voice:
+      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
+      this->Render_Sample_Count = 0;
+      int NumPoints = this->MyVoice->CPoints.size();
+      EndTime = this->ClipTime(EndTime);
+      double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
+
+from wave:
+    int SampleStart = StartTime0 * (double)SampleRate0;
+    int SampleEnd = EndTime0 * (double)SampleRate0;
+    int nsamps = SampleEnd - SampleStart;
+*/
+
+      //if (this->InheritedMap.LoudnessFactor == 0.0) { return; }// muted, so don't waste time rendering
+      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupSong's own coordinate system
+      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in parent coordinates
       double Clipped_EndTime = this->Tee_Up(EndTime);
       double UnMapped_EndTime = this->InheritedMap.UnMapTime(Clipped_EndTime);
       wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
@@ -587,18 +603,23 @@ public:
       while (cnt < NumPlaying) {// then play the whole pool
         player = this->NowPlaying.at(cnt);
         player->Render_To(Clipped_EndTime, ChildWave);
-        wave.Overdub(ChildWave);// sum/overdub the waves
+        //if (cnt==1){
+          wave.Overdub(ChildWave);// sum/overdub the waves
+        //}
         cnt++;
       }
       cnt = 0;// now pack down the finished ones
-      while (cnt < this->NowPlaying.size()) {
-        player = this->NowPlaying.at(cnt);
+      int GoodCnt = 0;
+      while (cnt < NumPlaying) {
+        player = this->NowPlaying[cnt];
         if (player->IsFinished) {
-          this->NowPlaying.remove(player);
-          // player->Delete_Me();// redundant, should be handled internally by player/singer
           delete player;
-        } else { cnt++; }
+        } else {// still playing, so pack it down
+          this->NowPlaying[GoodCnt++] = player;
+        }
+        cnt++;
       }
+      this->NowPlaying.resize(GoodCnt);
       wave.Amplify(this->MyOffsetBox->LoudnessFactor);
       this->Prev_Time = EndTime;
     }
@@ -619,9 +640,7 @@ public:
     }
     /* ********************************************************************************* */
     double Tee_Up(double EndTime) {// consolidating identical code
-      if (EndTime < 0) {
-        EndTime = 0;// clip time
-      }
+      if (EndTime < 0) { EndTime = 0; }// clip time
       int NumSonglets = MySonglet->SubSongs.size();
       int FinalSongletDex = NumSonglets - 1;
       double Final_Start = this->MySonglet->SubSongs.at(FinalSongletDex)->TimeX;

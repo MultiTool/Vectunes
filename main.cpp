@@ -19,6 +19,7 @@
 
 using namespace std;
 
+/* ********************************************************************************* */
 // perfect example
 class Outer {
 public:
@@ -52,7 +53,7 @@ public:
     cout << "LastOne" << endl;
   }
 };
-
+/* ********************************************************************************* */
 void TestVector(){// crashes
   std::vector<int> vint = {0, 1, 2};
   std::vector<int> vgo = {10, 11, 12};
@@ -65,7 +66,7 @@ void TestVector(){// crashes
   printf("\n");
   // cnt:10, cnt:11, cnt:12, cnt:0, cnt:1, cnt:2,
 }
-
+/* ********************************************************************************* */
 void MegaChop(SingerBase *singer, const String& FileName){// test random chops
   Wave chunk, whole;
   singer->Start();
@@ -77,8 +78,8 @@ void MegaChop(SingerBase *singer, const String& FileName){// test random chops
   }
   whole.SaveToWav(FileName);
 }
-
-void MegaChop_Add(SingerBase *singer, const String& FileNameChopped, const String& FileNameWhole){// test random chops
+/* ********************************************************************************* */
+void MegaChop_Add(SingerBase *singer, const String& FileName){// test random chops
   Wave chunk, Glued, Whole;
   chunk.SampleRate = Globals::SampleRate;
   Glued.SampleRate = Globals::SampleRate;
@@ -93,16 +94,17 @@ void MegaChop_Add(SingerBase *singer, const String& FileNameChopped, const Strin
     Glued.Append2(chunk);
   }
 
-  Glued.SaveToWav(FileNameChopped);
+  Glued.SaveToWav(FileName + ".Chopped.wav");
 
   singer->Start();
   singer->Render_To(Time, Whole);
+  Whole.SaveToWav(FileName + ".Whole.wav");
 
   Glued.Amplify(-1.0);
   Whole.Overdub(Glued);// If everything works, the 'whole' file waveform should be a flat line - no difference between whole and chopped.
-  Whole.SaveToWav(FileNameWhole);
+  Whole.SaveToWav(FileName + ".Diff.wav");
 }
-
+/* ********************************************************************************* */
 void FillVoice(Voice *voz){// add voice bend points
   VoicePoint *vp0 = new VoicePoint();
   vp0->OctaveY = 5.0; vp0->TimeX = 0;
@@ -118,7 +120,7 @@ void FillVoice(Voice *voz){// add voice bend points
 
   voz->Recalc_Line_SubTime();
 }
-
+/* ********************************************************************************* */
 GroupSong* MakeChord(ISonglet *songlet){
   OffsetBoxBase *handle;
   GroupSong *gsong = new GroupSong();
@@ -137,7 +139,7 @@ GroupSong* MakeChord(ISonglet *songlet){
 
   return gsong;
 }
-
+/* ********************************************************************************* */
 int main() {
   Config conf;
   MetricsPacket metrics;
@@ -149,25 +151,49 @@ int main() {
     Voice *voz0;
     voz0 = new Voice();
     FillVoice(voz0);
+
+    Voice::Voice_OffsetBox *vobox0 = voz0->Spawn_OffsetBox();
+    vobox0->TimeX = 0.11;
+
+    GroupSong *gsong = new GroupSong();
+    gsong->Add_SubSong(vobox0);
+
+    gsong->Set_Project(&conf);
+    gsong->Update_Guts(metrics);
+
+    GroupSong::Group_OffsetBox *gobox = gsong->Spawn_OffsetBox();
+
+    SingerBase *singer = gobox->Spawn_Singer();
+    MegaChop_Add(singer, "Span");
+
+    delete gsong;
+    //return 0;
+  }
+
+  if (false) {
+    Voice *voz0;
+    voz0 = new Voice();
+    FillVoice(voz0);
     //voz0->Update_Guts(metrics);
     //voz0->Set_Project(&conf);
-    //Voice::Voice_OffsetBox *vobox0 = voz0->Spawn_OffsetBox();
+    Voice::Voice_OffsetBox *vobox0 = voz0->Spawn_OffsetBox();
 
     GroupSong *chord = MakeChord(voz0);
     GroupSong::Group_OffsetBox *ChordHandle = chord->Spawn_OffsetBox();
 
     LoopSong *lsong = new LoopSong();
-    //lsong->Add_SubSong(vobox0);
-    lsong->Add_SubSong(ChordHandle);
-    lsong->Set_Beats(3);
-    lsong->Set_Interval(0.025);
+    lsong->Add_SubSong(vobox0);
+    //lsong->Add_SubSong(ChordHandle);
+    lsong->Set_Beats(2);
+    lsong->Set_Interval(0.10);// exposes loop/group chopping bug
+    //lsong->Set_Interval(0.25);
     GroupSong::Group_OffsetBox *lobox = lsong->Spawn_OffsetBox();
 
     lsong->Set_Project(&conf);
     lsong->Update_Guts(metrics);
 
     SingerBase *singer = lobox->Spawn_Singer();
-    MegaChop_Add(singer, "ChoppedLoop.wav", "WholeLoop.wav");
+    MegaChop_Add(singer, "Loop");
 
     delete lsong;
     //return 0;
@@ -195,7 +221,7 @@ int main() {
     //Voice::Voice_Singer *vsing = voz->Spawn_Singer();
     cout << "Current_Frequency:" << vsing->Current_Frequency << endl;
     vsing->Start();
-    MegaChop_Add(vsing, "ChoppedVoice.wav", "WholeVoice.wav");
+    MegaChop_Add(vsing, "Voice");
     delete vsing;
 
     GroupSong *gb = new GroupSong();
@@ -212,7 +238,7 @@ int main() {
     //delete gb;// automatically deleted by grobox
 
     GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
-    MegaChop_Add(gsing, "ChoppedGroup.wav", "WholeGroup.wav");
+    MegaChop_Add(gsing, "Group");
     delete gsing;
     delete grobox;
     //delete vobox;// the group already deleted everything.

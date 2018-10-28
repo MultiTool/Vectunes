@@ -143,7 +143,7 @@ public:
   }
   /* ********************************************************************************* */
   void Normalize() {
-    double MaxAmp = 0.5;// Globals::Fudge;// avoid divide by zero
+    double MaxAmp = Globals::Fudge;// avoid divide by zero
     double AbsVal;
     int len = this->wave.size();
     for (int cnt = 0; cnt < len; cnt++) {
