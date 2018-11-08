@@ -21,10 +21,10 @@
 				<Option type="1" />
 				<Option compiler="mingw-w64" />
 				<Compiler>
+					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 				</Compiler>
 				<Linker>
-					<Add option="-O3" />
 					<Add option="-s" />
 				</Linker>
 			</Target>

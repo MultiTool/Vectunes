@@ -25,9 +25,9 @@ public:
   virtual SingerBase* Spawn_Singer() = 0;// for render time
 
   /* ********************************************************************************* */
-  virtual double Get_Duration() = 0;
+  virtual ldouble Get_Duration() = 0;
   /* ********************************************************************************* */
-  virtual double Get_Max_Amplitude() = 0;
+  virtual ldouble Get_Max_Amplitude() = 0;
   /* ********************************************************************************* */
   virtual void Update_Guts(MetricsPacket& metrics) = 0;
   /* ********************************************************************************* */
@@ -72,7 +72,7 @@ public:
 /* ********************************************************************************* */
 class MetricsPacket {
 public:
-  double MaxDuration = 0.0;
+  ldouble MaxDuration = 0.0;
   Config* MyProject = nullptr;
   int FreshnessTimeStamp = 1;
   void Reset(){
@@ -85,7 +85,7 @@ public:
 class SingerBase: public IDeletable {// Cantante
 public:// Cantante
   Config *MyProject;
-  double Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
+  ldouble Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
   /*
   InheritedMap breakdown:
   Inherited_Time = 0.0, Inherited_Octave = 0.0, Inherited_Loudness = 1.0;// time, octave, and loudness context
@@ -96,18 +96,22 @@ public:// Cantante
   int SampleRate;
 
   boolean IsFinished = false;
-  SingerBase* ParentSinger;
+  SingerBase* ParentSinger = nullptr;
   OffsetBoxBase* MyOffsetBox = nullptr;
   /* ********************************************************************************* */
   SingerBase(){ this->Create_Me(); }
   /* ********************************************************************************* */
   ~SingerBase(){ this->Delete_Me(); }
   /* ********************************************************************************* */
-  virtual void Start() {};
+  virtual void Start() = 0;
   /* ********************************************************************************* */
-  virtual void Skip_To(double EndTime) {};
+  virtual void Skip_To(ldouble EndTime) = 0;
   /* ********************************************************************************* */
-  virtual void Render_To(double EndTime, Wave& wave) {};
+  virtual void Render_To(ldouble EndTime, Wave& wave) = 0;
+  /* ********************************************************************************* */
+  virtual void Skip_To_Sample(int EndSample) = 0;
+  /* ********************************************************************************* */
+  virtual void Render_To_Sample(int EndSample, Wave& wave) = 0;
   /* ********************************************************************************* */
   virtual void Inherit(SingerBase& parent) {// accumulate transformations
     this->ParentSinger = &parent;

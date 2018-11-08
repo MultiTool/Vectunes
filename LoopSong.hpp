@@ -30,7 +30,7 @@ public:
   public:
     LoopSong_Base *ParentLoop;
     DummySong *ContentSonglet;
-    void MoveTo(double XLoc, double YLoc) override {
+    void MoveTo(ldouble XLoc, ldouble YLoc) override {
       if (XLoc >= 0) { this->TimeX = XLoc; }// don't go backward in time
       this->OctaveY = YLoc;// should just make this 0.
       //this->ParentLoop->Refresh_Me_From_Beneath(*this);
@@ -48,6 +48,9 @@ public:
   OffsetBoxBase *Child = nullptr;// any child obox->songlet
   ISonglet *ChildSong;
   /* ********************************************************************************* */
+  DummySong(){this->Create_Me();}
+  ~DummySong(){this->Delete_Me();}
+  /* ********************************************************************************* */
   Dummy_OffsetBox* Spawn_OffsetBox() override {// for compose time
     Dummy_OffsetBox *child = new Dummy_OffsetBox();
     child->MySonglet = child->ContentSonglet = this;
@@ -56,19 +59,23 @@ public:
   }
   /* ********************************************************************************* */
   SingerBase* Spawn_Singer() override {// for render time
-    SingerBase* singer = ChildSong->Spawn_Singer();
+    SingerBase* singer = ChildSong->Spawn_Singer();// totally punt this to the child
     return singer;
   }
   /* ********************************************************************************* */
-  double Get_Duration() override { return ChildSong->Get_Duration(); }
+  ldouble Get_Duration() override { return ChildSong->Get_Duration(); }
   /* ********************************************************************************* */
-  double Get_Max_Amplitude() override { return ChildSong->Get_Max_Amplitude(); }
+  ldouble Get_Max_Amplitude() override { return ChildSong->Get_Max_Amplitude(); }
   /* ********************************************************************************* */
   void Update_Guts(MetricsPacket& metrics) override {
     ChildSong->Update_Guts(metrics);
   }
   /* ********************************************************************************* */
   void Refresh_Me_From_Beneath(IMoveable& mbox) override { ChildSong->Refresh_Me_From_Beneath(mbox); }// should be just for IContainer types, but aren't all songs containers?
+  boolean Create_Me() override { return true; }
+  void Delete_Me() override {
+    delete this->Child;
+  }
 };// end of DummySong
 
 /* ********************************************************************************* */
@@ -89,7 +96,7 @@ DummySong is the most rigorous approach but inherits too much interface junk to 
   };
   /* ********************************************************************************* */
   DummySong SingleSong;// the one child song that gets repeated, which in turn owns the custom song we are given.
-  double Interval = 0.25;// time spacing
+  ldouble Interval = 0.25;// time spacing
   /* ********************************************************************************* */
   LoopSong(): LoopSong_Base() {
     this->SingleSong.GrandParentLoop = this;
@@ -99,13 +106,13 @@ DummySong is the most rigorous approach but inherits too much interface junk to 
     this->Delete_Me();
   }
   /* ********************************************************************************* */
-  void Set_Interval(double Interval0){
+  void Set_Interval(ldouble Interval0){
     this->Interval = Interval0;
     OffsetBoxBase *obox;
     int NumKids = this->SubSongs.size();
     for (int cnt=0;cnt<NumKids;cnt++){
       obox = this->SubSongs.at(cnt);
-      obox->TimeX = this->Interval * (double)cnt;
+      obox->TimeX = this->Interval * (ldouble)cnt;
     }
   }
   /* ********************************************************************************* */
@@ -118,7 +125,7 @@ DummySong is the most rigorous approach but inherits too much interface junk to 
       for (int cnt=PrevSize;cnt<NumBeats;cnt++){
         dsobox = this->SingleSong.Spawn_OffsetBox();
         dsobox->MyIndex = cnt;
-        dsobox->TimeX = Interval * (double)cnt;// to do: Assign dsobox OctaveY and TimeX here
+        dsobox->TimeX = Interval * (ldouble)cnt;// to do: Assign dsobox OctaveY and TimeX here
         dsobox->OctaveY = 0.0;// snox is this good enough?
         //this->SubSongs.at(cnt) = dsobox;
         this->SubSongs[cnt] = dsobox;
@@ -142,24 +149,24 @@ DummySong is the most rigorous approach but inherits too much interface junk to 
   /* ********************************************************************************* */
   void Update_Rhythm(Dummy_OffsetBox_Base& mbox) override {
     int Index = mbox.MyIndex;// like Refresh_Me_From_Beneath but specific for Dummy_OffsetBox.
-    this->Interval = mbox.TimeX / (double)Index;
+    this->Interval = mbox.TimeX / (ldouble)Index;
     OffsetBoxBase *obox;// = this->SubSongs.at(Index);
     for (int cnt=0;cnt<Index;cnt++){
       obox = this->SubSongs.at(cnt);
       obox->OctaveY = mbox.OctaveY;
-      obox->TimeX = this->Interval * (double)cnt;
+      obox->TimeX = this->Interval * (ldouble)cnt;
     }
     Index++;
     for (int cnt=Index;cnt<this->SubSongs.size();cnt++){
       obox = this->SubSongs.at(cnt);
       obox->OctaveY = mbox.OctaveY;
-      obox->TimeX = this->Interval * (double)cnt;
+      obox->TimeX = this->Interval * (ldouble)cnt;
     }
   }
   /* ********************************************************************************* */
   void Refresh_Me_From_Beneath(IMoveable& mbox) override {
-    double XLoc = mbox.GetX();
-    double YLoc = mbox.GetY();
+    ldouble XLoc = mbox.GetX();
+    ldouble YLoc = mbox.GetY();
     int NumSubSongs = this->SubSongs.size();
     for (int cnt = 0; cnt < NumSubSongs; cnt++) {
       OffsetBoxBase *obx = this->SubSongs.at(cnt);

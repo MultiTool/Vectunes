@@ -2,79 +2,133 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="ArrayList.hpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="OffsetBoxBase.hpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1076" topLine="21" />
+			<Cursor1 position="811" topLine="9" />
+		</Cursor>
+	</File>
+	<File name="CajaDelimitadora.hpp" open="1" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6663" topLine="157" />
+		</Cursor>
+	</File>
+	<File name="VoicePoint.hpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="11183" topLine="218" />
+		</Cursor>
+	</File>
+	<File name="Globals.hpp" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="435" topLine="60" />
+		</Cursor>
+	</File>
+	<File name="IDrawable.hpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1353" topLine="11" />
+		</Cursor>
+	</File>
+	<File name="MonkeyBox.hpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4778" topLine="93" />
+		</Cursor>
+	</File>
+	<File name="Point2D.hpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="862" topLine="25" />
+		</Cursor>
+	</File>
+	<File name="GroupSong.hpp" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="19827" topLine="421" />
+		</Cursor>
+	</File>
+	<File name="ITextable.hpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="695" topLine="5" />
 		</Cursor>
 	</File>
 	<File name="ISonglet.hpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2174" topLine="35" />
+			<Cursor1 position="5413" topLine="100" />
 		</Cursor>
 	</File>
-	<File name="Splines.hpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+	<File name="main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1777" topLine="30" />
+			<Cursor1 position="9278" topLine="191" />
 		</Cursor>
-	</File>
-	<File name="LoopSong.hpp" open="1" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4061" topLine="64" />
-		</Cursor>
-	</File>
-	<File name="Globals.hpp" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1441" topLine="50" />
-		</Cursor>
-	</File>
-	<File name="Point2D.hpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="700" topLine="19" />
-		</Cursor>
-	</File>
-	<File name="main.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3308" topLine="120" />
-		</Cursor>
-	</File>
-	<File name="OffsetBoxBase.hpp" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2063" topLine="39" />
-		</Cursor>
+		<Folding>
+			<Collapse line="26" />
+			<Collapse line="29" />
+			<Collapse line="32" />
+			<Collapse line="34" />
+			<Collapse line="37" />
+			<Collapse line="43" />
+			<Collapse line="48" />
+			<Collapse line="54" />
+			<Collapse line="65" />
+			<Collapse line="76" />
+			<Collapse line="108" />
+			<Collapse line="188" />
+			<Collapse line="203" />
+			<Collapse line="220" />
+		</Folding>
 	</File>
 	<File name="Config.hpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="184" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="Wave.hpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+	<File name="IDrawingContext.hpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2814" topLine="63" />
+			<Cursor1 position="1376" topLine="8" />
 		</Cursor>
 	</File>
-	<File name="MonkeyBox.hpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+	<File name="Wave.hpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="774" topLine="19" />
+			<Cursor1 position="8972" topLine="200" />
+		</Cursor>
+	</File>
+	<File name="LoopSong.hpp" open="1" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5711" topLine="98" />
+		</Cursor>
+		<Folding>
+			<Collapse line="28" />
+		</Folding>
+	</File>
+	<File name="ArrayList.hpp" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="363" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="IGrabber.hpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="672" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Line2D.hpp" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="117" topLine="7" />
+		</Cursor>
+	</File>
+	<File name="Grabber.hpp" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1226" topLine="70" />
+		</Cursor>
+	</File>
+	<File name="Voice.hpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="6486" topLine="133" />
+		</Cursor>
+	</File>
+	<File name="Splines.hpp" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2307" topLine="30" />
 		</Cursor>
 	</File>
 	<File name="ICloneable.hpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="312" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="ITextable.hpp" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="695" topLine="5" />
-		</Cursor>
-	</File>
-	<File name="Line2D.hpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="609" topLine="8" />
-		</Cursor>
-	</File>
-	<File name="VoicePoint.hpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2385" topLine="45" />
 		</Cursor>
 	</File>
 	<File name="JsonParse.hpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
@@ -86,58 +140,9 @@
 			<Collapse line="28" />
 		</Folding>
 	</File>
-	<File name="IDeletable.hpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="IDeletable.hpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="603" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Voice.hpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3951" topLine="94" />
-		</Cursor>
-	</File>
-	<File name="IDrawable.hpp" open="1" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1126" topLine="15" />
-		</Cursor>
-		<Folding>
-			<Collapse line="19" />
-		</Folding>
-	</File>
-	<File name="IDrawingContext.hpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1535" topLine="18" />
-		</Cursor>
-	</File>
-	<File name="GroupSong.hpp" open="1" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="30021" topLine="643" />
-		</Cursor>
-		<Folding>
-			<Collapse line="10" />
-			<Collapse line="33" />
-			<Collapse line="40" />
-			<Collapse line="72" />
-			<Collapse line="78" />
-			<Collapse line="82" />
-			<Collapse line="86" />
-			<Collapse line="90" />
-			<Collapse line="128" />
-		</Folding>
-	</File>
-	<File name="Grabber.hpp" open="1" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6915" topLine="126" />
-		</Cursor>
-	</File>
-	<File name="CajaDelimitadora.hpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="7809" topLine="170" />
-		</Cursor>
-	</File>
-	<File name="IGrabber.hpp" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="-2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="672" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

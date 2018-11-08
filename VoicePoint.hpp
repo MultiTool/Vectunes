@@ -25,10 +25,10 @@ class Voice;// forward
 /* ********************************************************************************* */
 class VoicePoint: public MonkeyBox {
 public:
-  double SubTime = 0.0;// SubTime is cumulative subjective time.
+  ldouble SubTime = 0.0;// SubTime is cumulative subjective time.
 
   // graphics support, will move to separate object
-  double OctavesPerLoudness = 0.125;// to do: loudness will have to be mapped to screen. not a pixel value right?
+  ldouble OctavesPerLoudness = 0.125;// to do: loudness will have to be mapped to screen. not a pixel value right?
   String UpHandleName = {"UpHandle"}, DownHandleName = {"DownHandle"};
   Voice* MyParentVoice = null;
   /* ********************************************************************************* */
@@ -42,16 +42,16 @@ public:
   public:
     CajaDelimitadora MyBounds;
     VoicePoint* ParentPoint;
-    double OctavesPerRadius = 0.007;
+    ldouble OctavesPerRadius = 0.007;
     /* ********************************************************************************* */
     LoudnessHandle(){ this->Create_Me(); }
     ~LoudnessHandle(){ this->Delete_Me(); }
     /* ********************************************************************************* */
-    void MoveTo(double XLoc, double YLoc) override {// IMoveable
+    void MoveTo(ldouble XLoc, ldouble YLoc) override {// IMoveable
       if (XLoc >= 0) {// don't go backward in time
         this->ParentPoint->TimeX = XLoc;
       }
-      double RelativeY = YLoc - this->ParentPoint->OctaveY;
+      ldouble RelativeY = YLoc - this->ParentPoint->OctaveY;
       if (RelativeY >= 0) {// non negative loudness
         RelativeY /= this->ParentPoint->OctavesPerLoudness;
         if (RelativeY <= 1.0) {// shouldn't amplify loudness above 1.0, so that we can keep wave clipping under control
@@ -59,19 +59,19 @@ public:
         }
       }
     }
-    double GetX() override {
+    ldouble GetX() override {
       return this->ParentPoint->TimeX;
     }
-    double GetY() override {
-      double LoudnessHeight = this->ParentPoint->LoudnessFactor * this->ParentPoint->OctavesPerLoudness;// Map loudness to screen pixels.
+    ldouble GetY() override {
+      ldouble LoudnessHeight = this->ParentPoint->LoudnessFactor * this->ParentPoint->OctavesPerLoudness;// Map loudness to screen pixels.
       return this->ParentPoint->OctaveY + LoudnessHeight;
     }
-    boolean HitsMe(double XLoc, double YLoc) override {// IMoveable
+    boolean HitsMe(ldouble XLoc, ldouble YLoc) override {// IMoveable
       // System.out.print("** LoudnessHandle HitsMe:");
       boolean Hit = false;
       if (this->MyBounds.Contains(XLoc, YLoc)) {
         // System.out.print(" InBounds ");
-        double dist = Math::hypot(XLoc - this->GetX(), YLoc - (this->GetY() + this->OctavesPerRadius));
+        ldouble dist = Math::hypot(XLoc - this->GetX(), YLoc - (this->GetY() + this->OctavesPerRadius));
         if (dist <= this->OctavesPerRadius) {
           // System.out.print(" Hit!");
           Hit = true;
@@ -89,12 +89,12 @@ public:
     void Draw_Me(IDrawingContext& ParentDC) override {
       // Control points have the same space as their parent, so no need to create a local map.
 //      Point2D pnt = ParentDC.To_Screen(this->ParentPoint->TimeX, this->ParentPoint->OctaveY);
-//      double RadiusPixels = Math::abs(ParentDC.GlobalOffset.ScaleY) * OctavesPerRadius;
-//      double LoudnessHgt = this->ParentPoint->LoudnessFactor * this->ParentPoint->OctavesPerLoudness;
-//      double YlocHigh = ParentDC.GlobalOffset.UnMapPitch(this->ParentPoint->OctaveY + LoudnessHgt) - RadiusPixels;// My handle rests *upon* the line I control, so I don't occlude my VoicePoint.
+//      ldouble RadiusPixels = Math::abs(ParentDC.GlobalOffset.ScaleY) * OctavesPerRadius;
+//      ldouble LoudnessHgt = this->ParentPoint->LoudnessFactor * this->ParentPoint->OctavesPerLoudness;
+//      ldouble YlocHigh = ParentDC.GlobalOffset.UnMapPitch(this->ParentPoint->OctaveY + LoudnessHgt) - RadiusPixels;// My handle rests *upon* the line I control, so I don't occlude my VoicePoint.
 //
 //      RadiusPixels = Math::ceil(RadiusPixels);
-//      double DiameterPixels = RadiusPixels * 2.0;
+//      ldouble DiameterPixels = RadiusPixels * 2.0;
 //
 //      MonkeyBox.Draw_Dot2(ParentDC, pnt.x, YlocHigh, OctavesPerRadius, this->IsSelected, Globals.ToAlpha(Color.lightGray, 100));
 //
@@ -112,12 +112,12 @@ public:
       this->UpdateBoundingBoxLocal();
     }
     void UpdateBoundingBoxLocal() override {
-      double XLoc = this->GetX();
-      double YLoc = this->GetY() + this->OctavesPerRadius;// *upon* the line
-      double MinX = XLoc - this->OctavesPerRadius;
-      double MaxX = XLoc + this->OctavesPerRadius;
-      double MinY = YLoc - this->OctavesPerRadius;
-      double MaxY = YLoc + this->OctavesPerRadius;
+      ldouble XLoc = this->GetX();
+      ldouble YLoc = this->GetY() + this->OctavesPerRadius;// *upon* the line
+      ldouble MinX = XLoc - this->OctavesPerRadius;
+      ldouble MaxX = XLoc + this->OctavesPerRadius;
+      ldouble MinY = YLoc - this->OctavesPerRadius;
+      ldouble MaxY = YLoc + this->OctavesPerRadius;
       this->MyBounds.Assign(MinX, MinY, MaxX, MaxY);
     }
     void GoFishing(IGrabber& Scoop) override {
@@ -180,16 +180,16 @@ public:
     this->SubTime = source.SubTime;
   }
   /* ********************************************************************************* */
-  double GetFrequencyFactor() {
+  ldouble GetFrequencyFactor() {
     return Math::pow(2.0, this->OctaveY);
   }
   /* ********************************************************************************* */
   void Draw_Me(IDrawingContext& ParentDC) override {// IDrawable
     // Control points have the same space as their parent, so no need to create a local map.
 //    Point2D pnt = ParentDC.To_Screen(this->TimeX, this->OctaveY);
-//    double RadiusPixels = Math::abs(ParentDC.GlobalOffset.ScaleY) * OctavesPerRadius;
+//    ldouble RadiusPixels = Math::abs(ParentDC.GlobalOffset.ScaleY) * OctavesPerRadius;
 //    RadiusPixels = Math::ceil(RadiusPixels);
-//    double DiameterPixels = RadiusPixels * 2.0;
+//    ldouble DiameterPixels = RadiusPixels * 2.0;
 //    this->UpHandle.Draw_Me(ParentDC);
 //    MonkeyBox.Draw_Dot2(ParentDC, pnt.x, pnt.y, OctavesPerRadius, this->IsSelected, Globals.ToAlpha(Color.yellow, 200));
 //    if (false) {
@@ -209,12 +209,12 @@ public:
     this->UpdateBoundingBoxLocal();// Points have no children, nothing else to do.
   }
   void UpdateBoundingBoxLocal() override {// IDrawable
-    double LoudnessHeight = LoudnessFactor * OctavesPerLoudness;// Map loudness to screen pixels.
-    double MinX = TimeX - OctavesPerRadius;
-    double MaxX = TimeX + OctavesPerRadius;
-    double HeightRad = Math::max(OctavesPerRadius, LoudnessHeight);
-    double MinY = OctaveY - HeightRad;
-    double MaxY = OctaveY + HeightRad;
+    ldouble LoudnessHeight = LoudnessFactor * OctavesPerLoudness;// Map loudness to screen pixels.
+    ldouble MinX = TimeX - OctavesPerRadius;
+    ldouble MaxX = TimeX + OctavesPerRadius;
+    ldouble HeightRad = Math::max(OctavesPerRadius, LoudnessHeight);
+    ldouble MinY = OctaveY - HeightRad;
+    ldouble MaxY = OctaveY + HeightRad;
     this->MyBounds.Assign(MinX, MinY, MaxX, MaxY);
 
     this->MyBounds.Include(*(this->UpHandle.GetBoundingBox()));// Don't have to UnMap in this case because my points are already in my internal coordinates.
@@ -229,12 +229,12 @@ public:
     }
     // System.out.println();
   }
-  boolean HitsMe(double XLoc, double YLoc) override {// IDrawable.IMoveable
+  boolean HitsMe(ldouble XLoc, ldouble YLoc) override {// IDrawable.IMoveable
     // System.out.print("** Point HitsMe:");
     boolean Hit = false;
     if (this->MyBounds.Contains(XLoc, YLoc)) {
       // System.out.print(" InBounds ");
-      double dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
+      ldouble dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
       if (dist <= this->OctavesPerRadius) {
         // System.out.print(" Hit!");
         Hit = true;

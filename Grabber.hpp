@@ -37,7 +37,7 @@ public:
     this->SearchBounds.Copy_From(donor.SearchBounds);
     this->OBox = donor.OBox;
     this->HitDex = donor.HitDex;
-    this->Loc.setLocation(donor.Loc);
+    this->Loc.SetLocation(donor.Loc);
   }
   /* ********************************************************************************* */
   boolean Create_Me() override {// IDeletable
@@ -54,13 +54,13 @@ public:
 /* ********************************************************************************* */
 class Grabber: public IGrabber {
 public:
-  double XHit, YHit;// exact mouse click point
+  ldouble XHit, YHit;// exact mouse click point
   StackItem *CurrentContext = null;
   int Stack_Depth = 0, Stack_Depth_Best = 0;
   ArrayList<StackItem> Explore_Stack;
   ArrayList<StackItem> Best_Stack;
   IMoveable *Leaf;// thing we hit and are going to move or copy or whatever
-  double Radius = 5;
+  ldouble Radius = 5;
   /* ********************************************************************************* */
   virtual void ConsiderLeaf(IMoveable& CandidateLeaf) {
     if (CandidateLeaf.HitsMe(this->CurrentContext->Loc.x, this->CurrentContext->Loc.y)) {
@@ -78,7 +78,7 @@ public:
     return (this->CurrentContext->SearchBounds.Intersects(*Candidate.GetBoundingBox()));
   }
   /* ********************************************************************************* */
-  void Init(OffsetBoxBase& starter, double XLoc, double YLoc) {// add first space map at start of search
+  void Init(OffsetBoxBase& starter, ldouble XLoc, ldouble YLoc) {// add first space map at start of search
 //    OffsetBoxBase child = neuvo OffsetBoxBase();// first layer place holder.  not a great solution.
 //    child.MyBounds.Assign(Double_NEGATIVE_INFINITY, Double_NEGATIVE_INFINITY, Double_POSITIVE_INFINITY, Double_POSITIVE_INFINITY);
 //    StackItem next = neuvo StackItem();
@@ -91,7 +91,7 @@ public:
 //    Stack_Depth = 1;// Now we have one element, whee!
   }
   /* ********************************************************************************* */
-  virtual void AddFirstBox(OffsetBoxBase& starter, double XLoc, double YLoc) {// add first space map at start of search
+  virtual void AddFirstBox(OffsetBoxBase& starter, ldouble XLoc, ldouble YLoc) {// add first space map at start of search
 //    this->Leaf = null;
 //    this->Stack_Depth_Best = 0;
 //    this->Stack_Depth = 0;
@@ -122,11 +122,11 @@ public:
   /* ********************************************************************************* */
   void Copy_Stack(ArrayList<StackItem>& StackPrev, ArrayList<StackItem>& StackNext) {}
   /* ********************************************************************************* */
-  void UnMapThroughStack(double XLoc, double YLoc, Point2D& results) {}
+  void UnMapThroughStack(ldouble XLoc, ldouble YLoc, Point2D& results) {}
   /* ********************************************************************************* */
-  void MapThroughStack(double XLoc, double YLoc, Point2D& results) {}
+  void MapThroughStack(ldouble XLoc, ldouble YLoc, Point2D& results) {}
   /* ********************************************************************************* */
-  void MapThroughStack(double XLoc, double YLoc, MonkeyBox& startplace, Point2D& results) {}
+  void MapThroughStack(ldouble XLoc, ldouble YLoc, MonkeyBox& startplace, Point2D& results) {}
   /* ********************************************************************************* */
   void CompoundStack(MonkeyBox& startplace, MonkeyBox& results) {}
   /* ********************************************************************************* */
@@ -142,8 +142,8 @@ class DestinationGrabber: public Grabber {// this class searches for containers 
 public:
   OffsetBoxBase* Floater = null;
   GroupSong* PossibleDestination = null;
-  double ClosestDistance = Double_POSITIVE_INFINITY;
-  void AddFirstBox(OffsetBoxBase& starter, double XLoc, double YLoc) override {}
+  ldouble ClosestDistance = Double_POSITIVE_INFINITY;
+  void AddFirstBox(OffsetBoxBase& starter, ldouble XLoc, ldouble YLoc) override {}
   /* ********************************************************************************* */
   void ConsiderLeaf(IMoveable& CandidateLeaf) override {}
   /* ********************************************************************************* */

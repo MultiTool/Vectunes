@@ -38,21 +38,21 @@ public:
     MonkeyBox::Copy_From(donor);
   }
   /* ********************************************************************************* */
-//  double Get_Max_Amplitude() override {
+//  ldouble Get_Max_Amplitude() override {
 //    return 0;
 //  }
-  double Get_Max_Amplitude() override {// always override this
+  ldouble Get_Max_Amplitude() override {// always override this
     return this->LoudnessFactor;
   }
   /* ********************************************************************************* */
-  virtual void Rebase_Time(double Time) {}
+  virtual void Rebase_Time(ldouble Time) {}
   /* ********************************************************************************* */
   virtual SingerBase* Spawn_Singer() {// always always always override this
     throw std::runtime_error("Not supported yet.");
     return nullptr;
   }
   /* ********************************************************************************* */
-  virtual void Rescale_TimeX(double Factor) {
+  virtual void Rescale_TimeX(ldouble Factor) {
     this->ScaleX = Factor;
   }
   /* ********************************************************************************* */
@@ -76,13 +76,13 @@ public:
   void UpdateBoundingBox() override {}
   void UpdateBoundingBoxLocal() override {}
   void GoFishing(IGrabber& Scoop) override {}
-  void MoveTo(double XLoc, double YLoc) override {}
-  double GetX() override {return this->TimeX;}
-  double GetY() override {return this->OctaveY;}
-  boolean HitsMe(double XLoc, double YLoc) override {// IDrawable.IMoveable
+  void MoveTo(ldouble XLoc, ldouble YLoc) override {}
+  ldouble GetX() override {return this->TimeX;}
+  ldouble GetY() override {return this->OctaveY;}
+  boolean HitsMe(ldouble XLoc, ldouble YLoc) override {// IDrawable.IMoveable
     //System.out.print("HitsMe:");
     if (this->MyBounds.Contains(XLoc, YLoc)) {// redundant test
-      double dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
+      ldouble dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
       if (dist <= this->OctavesPerRadius) {
         //System.out.println("true");
         return true;

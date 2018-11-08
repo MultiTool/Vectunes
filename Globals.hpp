@@ -14,6 +14,12 @@
 
 #include "ArrayList.hpp"
 
+#if false
+ #define ldouble long double
+#else
+ #define ldouble double
+#endif // false
+
 #define boolean bool
 #define jpublic
 #define jprivate
@@ -35,10 +41,13 @@
 #define Math_abs(a) (std::abs(a))
 #define Math_hypot(a, b) (std::hypot(a, b))
 
-#define Double_POSITIVE_INFINITY std::numeric_limits<double>::max()
-#define Double_NEGATIVE_INFINITY std::numeric_limits<double>::min()
+#define Double_POSITIVE_INFINITY std::numeric_limits<ldouble>::max()
+#define Double_NEGATIVE_INFINITY std::numeric_limits<ldouble>::min()
 #define Integer_MIN_VALUE INT_MIN
 #define Integer_MAX_VALUE INT_MAX
+
+#define PIdef 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270L
+#define PI2def (PIdef*2.0) //M_PI_2;
 
 /**
  *
@@ -48,11 +57,23 @@
 class Color {
 public:
   Color() {};
-  Color(double R, double G, double B) {};
-  Color(double R, double G, double B, double A) {};
-  double getRed() { return 0.0; };
-  double getGreen() { return 0.0; };
-  double getBlue() { return 0.0; };
+  Color(ldouble R, ldouble G, ldouble B) {};
+  Color(ldouble R, ldouble G, ldouble B, ldouble A) {};
+  ldouble getRed() { return 0.0; };
+  ldouble getGreen() { return 0.0; };
+  ldouble getBlue() { return 0.0; };
+};
+
+class Double {// more simulated Java
+public:
+  static constexpr double POSITIVE_INFINITY = std::numeric_limits<double>::max();
+  static constexpr double NEGATIVE_INFINITY = std::numeric_limits<double>::min();
+};
+
+class Integer {// more simulated Java
+public:
+  static constexpr int MAX_VALUE = std::numeric_limits<int>::max();
+  static constexpr int MIN_VALUE = std::numeric_limits<int>::min();
 };
 
 class Globals {
@@ -60,27 +81,27 @@ public:
   const static int SampleRate = 44100;
   //const int SampleRate = 44100;
   const static int SampleRateTest = 100;
-  static constexpr double BaseFreqC0 = 16.3516;// hz
-  static constexpr double BaseFreqA0 = 27.5000;// hz
-  //static constexpr double BaseFreqC0;// hz
+  static constexpr ldouble BaseFreqC0 = 16.3516;// hz
+  static constexpr ldouble BaseFreqA0 = 27.5000;// hz
+  //static constexpr ldouble BaseFreqC0;// hz
   //const constexpr BaseFreqC0 = 16.3516;// hz
-  //static double BaseFreqA0;// = 27.5000;// hz
-  //constexpr static double usPerSec = 1000000.0;
-  // http://stackoverflow.com/questions/2777541/static-const-double-in-c
-  static double BaseFreqA0_G() {
+  //static ldouble BaseFreqA0;// = 27.5000;// hz
+  //constexpr static ldouble usPerSec = 1000000.0;
+  // http://stackoverflow.com/questions/2777541/static-const-ldouble-in-c
+  static ldouble BaseFreqA0_G() {
     return 27.5000;  // hz
   }
-  static double BaseFreqC0_G() {
+  static ldouble BaseFreqC0_G() {
     return 16.3516;  // hz
   }
 
-  static constexpr long double Math_PI = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270L;
-  static constexpr long double TwoPi = Math_PI * 2; //M_PI_2; // hz
-  static constexpr double Fudge = 0.00000000001;
+  static constexpr long double Math_PI = PIdef;
+  static constexpr long double TwoPi = PI2def; //M_PI_2; // hz
+  static constexpr ldouble Fudge = 0.00000000001;
   class Random {
   public:
-    double NextDouble() {
-      return ((double)rand()) / (double)RAND_MAX;
+    ldouble NextDouble() {
+      return ((ldouble)rand()) / (ldouble)RAND_MAX;
     }
   };
   const static Random RandomGenerator();
@@ -103,52 +124,52 @@ public:
 class Math {
 public:
   //static constexpr long double PI = 3.141592653589793238L;
-  static constexpr long double PI = Globals::Math_PI;
+  static constexpr long double PI = PIdef;
 
-  static double min(double a, double b) {
+  static ldouble min(ldouble a, ldouble b) {
     return std::min(a, b);
   }
-  static double max(double a, double b) {
+  static ldouble max(ldouble a, ldouble b) {
     return std::max(a, b);
   }
-  static double ceil(double a) {
+  static ldouble ceil(ldouble a) {
     return std::ceil(a);
   }
-  static double floor(double a) {
+  static ldouble floor(ldouble a) {
     return std::floor(a);
   }
-  static double round(double a) {
+  static ldouble round(ldouble a) {
     return std::round(a);
   }
-  static double abs(double a) {
+  static ldouble abs(ldouble a) {
     return std::abs(a);
   }
-  static double hypot(double a, double b) {
+  static ldouble hypot(ldouble a, ldouble b) {
     return std::hypot(a, b);
   }
-  static double sqrt(double a) {
+  static ldouble sqrt(ldouble a) {
     return std::sqrt(a);
   }
-  static double sin(double a) {
+  static ldouble sin(ldouble a) {
     return std::sin(a);
   }
-  static double cos(double a) {
+  static ldouble cos(ldouble a) {
     return std::cos(a);
   }
-  static double log(double a) {
+  static ldouble log(ldouble a) {
     return std::log(a);
   }
-  static double pow(double a, double exp) {
+  static ldouble pow(ldouble a, ldouble exp) {
     return std::pow(a, exp);
   }
   //  std::srand(std::time(nullptr)); // use current time as seed for random generator
-  static double frand() {
-    return ((double)std::rand()) / (double)RAND_MAX;
+  static ldouble frand() {
+    return ((ldouble)std::rand()) / (ldouble)RAND_MAX;
   }
 };
 
 struct Example {
-  static double usPerSec() {
+  static ldouble usPerSec() {
     return 1000000.0;
   }
 };

@@ -29,13 +29,14 @@ class Voice: public ISonglet{//, IDrawable {// collection of control points, eac
 public:
   ArrayList<VoicePoint*> CPoints;
   String CPointsName = "ControlPoints";// for serialization
-  double MaxAmplitude;
-  double BaseFreq = Globals::BaseFreqC0;
-  double ReverbDelay = 0.125 / 4.0;// delay in seconds
+  ldouble MaxAmplitude;
+  ldouble BaseFreq = Globals::BaseFreqC0;
+  ldouble ReverbDelay = 0.125 / 4.0;// delay in seconds
   //int RefCount = 0;
   // graphics support
   CajaDelimitadora MyBounds;
   Color* FillColor;
+  static constexpr ldouble Filler = 0.3;
   /* ********************************************************************************* */
   Voice() { FreshnessTimeStamp = 0; }
   ~Voice(){this->Delete_Me();}
@@ -45,7 +46,7 @@ public:
     this->CPoints.push_back(pnt);
   }
   /* ********************************************************************************* */
-  VoicePoint* Add_Note(double RealTime, double Octave, double Loudness) {
+  VoicePoint* Add_Note(ldouble RealTime, ldouble Octave, ldouble Loudness) {
     VoicePoint *pnt = new VoicePoint();// decide whether vp is created/deleted by the voice, or someone else.
     pnt->TimeX = RealTime;
     pnt->OctaveY = Octave;
@@ -59,7 +60,7 @@ public:
     this->CPoints.remove(pnt);// decide whether vp is created/deleted by the voice, or someone else.
   }
   /* ************************************************************************************************************************ */
-  int Tree_Search(double Time, int minloc, int maxloc) {// finds place where time would be inserted or replaced
+  int Tree_Search(ldouble Time, int minloc, int maxloc) {// finds place where time would be inserted or replaced
     int medloc;
     while (minloc < maxloc) {
       medloc = (minloc + maxloc) >> 1; // >>1 is same as div 2, only faster.
@@ -72,7 +73,7 @@ public:
     return minloc;
   }
   /* ********************************************************************************* */
-  double Get_Duration() override {
+  ldouble Get_Duration() override {
     int len = this->CPoints.size();
     if (len <= 0) {
       return 0;
@@ -81,18 +82,18 @@ public:
     return Final_Point->TimeX + this->ReverbDelay;
   }
   /* ********************************************************************************* */
-//  double Update_Durations() override {
+//  ldouble Update_Durations() override {
 //    return this->Get_Duration();// this is not a container, so just return what we already know
 //  }
   /* ********************************************************************************* */
-  double Get_Max_Amplitude() override {
+  ldouble Get_Max_Amplitude() override {
     return this->MaxAmplitude;
   }
   /* ********************************************************************************* */
   void Update_Max_Amplitude() {
     int len = this->CPoints.size();
     VoicePoint* pnt;
-    double MaxAmp = 0.0;
+    ldouble MaxAmp = 0.0;
     for (int pcnt = 0; pcnt < len; pcnt++) {
       pnt = this->CPoints.at(pcnt);
       if (MaxAmp < pnt->LoudnessFactor) {
@@ -126,7 +127,7 @@ public:
   //void Set_Project(Config* project) override { this->MyProject = project; }
   /* ********************************************************************************* */
   void Recalc_Line_SubTime() {
-    double SubTimeLocal;// run this function whenever this voice instance is modified, e.g. control points moved, added, or removed.
+    ldouble SubTimeLocal;// run this function whenever this voice instance is modified, e.g. control points moved, added, or removed.
     int len = this->CPoints.size();
     if (len < 1) { return; }
     this->Sort_Me();
@@ -138,25 +139,27 @@ public:
     for (int pcnt = 0; pcnt < len; pcnt++) {
       Prev_Point = Next_Point;
       Next_Point = this->CPoints.at(pcnt);
-      double FrequencyFactorStart = Prev_Point->GetFrequencyFactor();
-      double TimeRange = Next_Point->TimeX - Prev_Point->TimeX;
-      double OctaveRange = Next_Point->OctaveY - Prev_Point->OctaveY;
+      ldouble FrequencyFactorStart = Prev_Point->GetFrequencyFactor();
+      ldouble TimeRange = Next_Point->TimeX - Prev_Point->TimeX;
+      ldouble OctaveRange = Next_Point->OctaveY - Prev_Point->OctaveY;
       if (TimeRange == 0.0) {
         TimeRange = Globals::Fudge;// Fudge to avoid div by 0
       }
-      double OctaveRate = OctaveRange / TimeRange;// octaves per second
+      ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second
       SubTimeLocal = Integral(OctaveRate, TimeRange);
       Next_Point->SubTime = Prev_Point->SubTime + (FrequencyFactorStart * SubTimeLocal);
     }
   }
   /* ********************************************************************************* */
-  static double Integral(double OctaveRate, double TimeAlong) {// to do: optimize this!
-    double SubTimeCalc;// given realtime passed and rate of octave change, use integration to get the sum of all subjective time passed.
+  static ldouble Integral(ldouble OctaveRate, ldouble TimeAlong) {// to do: optimize this!
+    ldouble SubTimeCalc;// given realtime passed and rate of octave change, use integration to get the sum of all subjective time passed.
+    //return TimeAlong;// snox for testing.  removing integral about doubles speed
     if (OctaveRate == 0.0) {// do we really have to check this for every sample? more efficient to do it once up front.
       return TimeAlong;
     }
     // Yep calling log and pow functions for every sample generated is expensive. We will have to optimize later.
-    double Denom = (Math::log(2.0) * OctaveRate);// returns the integral of (2 ^ (TimeAlong * OctaveRate))
+    ldouble Denom = (Math::log(2.0) * OctaveRate);// returns the integral of (2 ^ (TimeAlong * OctaveRate))
+    //ldouble Denom = 1.0;// snox for testing.  doing this might maybe be about 0.05(?) seconds faster for a ~1.4 second render
     //SubTimeCalc = (Math::pow(2.0, (TimeAlong * OctaveRate)) / Denom) - (1.0 / Denom);
     SubTimeCalc = ((Math::pow(2.0, (TimeAlong * OctaveRate)) - 1.0) / Denom);
     return SubTimeCalc;
@@ -285,14 +288,15 @@ public:
   class Voice_Singer: public SingerBase {
   public:
     Voice* MyVoice;
-    double Phase, Cycles;// Cycles is the number of cycles we've rotated since the start of this voice. The fractional part is the phase information.
-    double SubTime;// Subjective time.
-    double Current_Octave, Current_Frequency;
+    ldouble Phase, Cycles;// Cycles is the number of cycles we've rotated since the start of this voice. The fractional part is the phase information.
+    ldouble SubTime;// Subjective time.
+    ldouble Current_Octave, Current_Frequency;
     int Prev_Point_Dex, Next_Point_Dex;
-    int Render_Sample_Count;
+    int Render_Sample_Count;// number of samples since start of render
     VoicePoint Cursor_Point;
-    int Bone_Sample_Mark = 0;// number of samples since time 0
-    double BaseFreq;
+    int Bone_Sample_Mark = 0;// number of samples since time 0 absolute, not local
+    int Sample_Start;
+    ldouble BaseFreq;
     /* ********************************************************************************* */
     Voice_Singer() { this->Current_Frequency = 440; }
     /* ********************************************************************************* */
@@ -306,29 +310,27 @@ public:
       this->Next_Point_Dex = 1;
       this->Render_Sample_Count = 0;
       this->Bone_Sample_Mark = 0;
+      this->Sample_Start = 0;
       if (this->MyVoice->CPoints.size() < 2 || this->InheritedMap.LoudnessFactor == 0.0) {
         this->IsFinished = true;// muted, so don't waste time rendering
       } else {
         this->IsFinished = false;
         VoicePoint* pnt = this->MyVoice->CPoints.at(0);
-        this->Bone_Sample_Mark = (int) ((pnt->TimeX * this->InheritedMap.ScaleX) * this->SampleRate);
-        //if (this->Parent != null) {
+        this->Bone_Sample_Mark = (int) (this->InheritedMap.UnMapTime(pnt->TimeX) * this->SampleRate);
         VoicePoint *ppnt = this->MyVoice->CPoints.at(this->Prev_Point_Dex);
         this->Cursor_Point.CopyFrom(*ppnt);
+        ldouble UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
+        this->Sample_Start = (int)(UnMapped_Prev_Time * (double)this->SampleRate);
       }
     }
     /* ********************************************************************************* */
-    void Skip_To(double EndTime) override {      // ready for test
+    void Skip_To(ldouble EndTime) override {// to do: rewrite this to match bug-fixed render_to
       VoicePoint *Prev_Point, *Next_Point;
       if (this->IsFinished){ return; }
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
       this->Render_Sample_Count = 0;
-//      int NumBends = this->MyVoice->CPoints.size();
-//      if (NumBends < 2) {// this should really just throw an error
-//        this->IsFinished = true;
-//        return;
-//      }
       EndTime = this->ClipTime(EndTime);
+      this->Sample_Start = EndTime * (ldouble)this->SampleRate;
       Prev_Point = &(this->Cursor_Point);
       int pdex = this->Next_Point_Dex;
       Next_Point = this->MyVoice->CPoints.at(pdex);
@@ -347,25 +349,31 @@ public:
           Interpolate_ControlPoint(*Prev_Point, *Next_Point, EndTime, this->Cursor_Point);
         }
       }
-      //int EndSample = (int) (pnt1.TimeX * SRate);// absolute
       int EndSample = (int) (EndTime * this->SampleRate);// absolute
       this->Bone_Sample_Mark = EndSample;
     }
-    //double UnMapped_Prev_Time;
     /* ********************************************************************************* */
-    void Render_To(double EndTime, Wave& wave) override { // ready for test
+    void Render_To(ldouble EndTime, Wave& wave) override { // ready for test
       if (this->IsFinished) {
-        wave.Init(0, 0, this->SampleRate);// we promise to return a blank wave
+        wave.Init(0, 0, this->SampleRate, Filler);// we promise to return a blank wave
         return;
       }
       VoicePoint *Prev_Point = null, *Next_Point = null;
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
-      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
+      ldouble UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
       this->Render_Sample_Count = 0;
       int NumBends = this->MyVoice->CPoints.size();
+      ldouble EndTime1 = EndTime;
       EndTime = this->ClipTime(EndTime);
-      double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
-      wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in global coordinates because samples are always real time
+      ldouble UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
+
+      int Sample_End = UnMapped_EndTime * (ldouble)this->SampleRate;
+      if (true){
+        wave.Init_Sample(this->Sample_Start, Sample_End, this->SampleRate, Filler);// wave times are in global coordinates because samples are always real time
+      }else{
+        wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate, Filler);// wave times are in global coordinates because samples are always real time
+      }
+
       Prev_Point = &this->Cursor_Point;
       int pdex = this->Next_Point_Dex;
 
@@ -405,28 +413,22 @@ public:
       }
       wave.Amplify(this->MyOffsetBox->LoudnessFactor);
       UnMapped_Prev_Time = UnMapped_EndTime;
+
+      this->Sample_Start = Sample_End;
     }
 
-#if false
-
     /* ********************************************************************************* */
-    void Inherit(SingerBase& parent) override {// SingerBase
+    void Skip_To_Sample(int EndSample) override {
     }
     /* ********************************************************************************* */
-    void Compound() override {// SingerBase
+    void Render_To_Sample(int EndSample, Wave& wave) override {
     }
     /* ********************************************************************************* */
-    void Compound(MonkeyBox& donor) override {// SingerBase
-    }
-#endif // false
-    /* ********************************************************************************* */
-    double GetWaveForm(double SubTimeAbsolute) {// not used currently
+    ldouble GetWaveForm(ldouble SubTimeAbsolute) {// not used currently
       return Math::sin(SubTimeAbsolute * this->MyVoice->BaseFreq * Globals::TwoPi);
     }
-    double flywheel = 0.0;
-    double drag = 0.9, antidrag = 1.0 - drag;
     /* ********************************************************************************* */
-    double ClipTime(double EndTime) {
+    ldouble ClipTime(ldouble EndTime) {
       if (EndTime < Cursor_Point.TimeX) {
         EndTime = Cursor_Point.TimeX;// clip time
       }
@@ -453,48 +455,48 @@ public:
       }
     }
     /* ********************************************************************************* */
-    void Interpolate_ControlPoint(VoicePoint& pnt0, VoicePoint& pnt1, double RealTime, VoicePoint& PntMid) {
-      double FrequencyFactorStart = pnt0.GetFrequencyFactor();
-      double TimeRange = pnt1.TimeX - pnt0.TimeX;
-      double TimeAlong = RealTime - pnt0.TimeX;
-      double OctaveRange = pnt1.OctaveY - pnt0.OctaveY;
-      double OctaveRate = OctaveRange / TimeRange;// octaves per second
-      double SubTimeLocal = Integral(OctaveRate, TimeAlong);
+    static void Interpolate_ControlPoint(VoicePoint& pnt0, VoicePoint& pnt1, ldouble RealTime, VoicePoint& PntMid) {
+      ldouble FrequencyFactorStart = pnt0.GetFrequencyFactor();
+      ldouble TimeRange = pnt1.TimeX - pnt0.TimeX;
+      ldouble TimeAlong = RealTime - pnt0.TimeX;
+      ldouble OctaveRange = pnt1.OctaveY - pnt0.OctaveY;
+      ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second
+      ldouble SubTimeLocal = Integral(OctaveRate, TimeAlong);
       PntMid.TimeX = RealTime;
       PntMid.SubTime = pnt0.SubTime + (FrequencyFactorStart * SubTimeLocal);
 
       // not calculus here
       PntMid.OctaveY = pnt0.OctaveY + (TimeAlong * OctaveRate);
-      double LoudRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
-      double LoudAlong = TimeAlong * LoudRange / TimeRange;
+      ldouble LoudRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
+      ldouble LoudAlong = TimeAlong * LoudRange / TimeRange;
       PntMid.LoudnessFactor = pnt0.LoudnessFactor + LoudAlong;
     }
     /* ********************************************************************************* */
     void Render_Segment_Iterative(VoicePoint& pnt0, VoicePoint& pnt1, Wave& wave) {// stateful iterative approach
-      double BaseFreq = this->MyVoice->BaseFreq;
-      double SRate = this->SampleRate;
-      double TimeRange = pnt1.TimeX - pnt0.TimeX;
-      double SampleDuration = 1.0 / SRate;
-      double FrequencyFactorStart = pnt0.GetFrequencyFactor();
+      ldouble BaseFreq = this->MyVoice->BaseFreq;
+      ldouble SRate = this->SampleRate;
+      ldouble TimeRange = pnt1.TimeX - pnt0.TimeX;
+      ldouble SampleDuration = 1.0 / SRate;
+      ldouble FrequencyFactorStart = pnt0.GetFrequencyFactor();
       // FrequencyFactorStart *= Math::pow(2.0, this->Inherited_Octave);// inherit transposition
-      //double Octave0 = this->Inherited_Octave + pnt0.OctaveY, Octave1 = this->Inherited_Octave + pnt1.OctaveY;
+      //ldouble Octave0 = this->Inherited_Octave + pnt0.OctaveY, Octave1 = this->Inherited_Octave + pnt1.OctaveY;
       FrequencyFactorStart *= Math::pow(2.0, this->InheritedMap.OctaveY);// inherit transposition
-      double Octave0 = this->InheritedMap.OctaveY + pnt0.OctaveY, Octave1 = this->InheritedMap.OctaveY + pnt1.OctaveY;
-      double OctaveRange = Octave1 - Octave0;
+      ldouble Octave0 = this->InheritedMap.OctaveY + pnt0.OctaveY, Octave1 = this->InheritedMap.OctaveY + pnt1.OctaveY;
+      ldouble OctaveRange = Octave1 - Octave0;
       if (OctaveRange == 0.0) {
         OctaveRange = Globals::Fudge;// Fudge to avoid div by 0
       }
-      double LoudnessRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
-      double OctaveRate = OctaveRange / TimeRange;// octaves per second
-      double LoudnessRate = LoudnessRange / TimeRange;
+      ldouble LoudnessRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
+      ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second
+      ldouble LoudnessRate = LoudnessRange / TimeRange;
       int NumSamples = (int) Math::ceil(TimeRange * SRate);
 
-      double TimeAlong;
-      double CurrentOctaveLocal, CurrentFrequency, CurrentFrequencyFactorAbsolute, CurrentFrequencyFactorLocal;
-      double CurrentLoudness;
-      double Amplitude;
+      ldouble TimeAlong;
+      ldouble CurrentOctaveLocal, CurrentFrequency, CurrentFrequencyFactorAbsolute, CurrentFrequencyFactorLocal;
+      ldouble CurrentLoudness;
+      ldouble Amplitude;
 
-      double SubTimeIterate = (pnt0.SubTime * BaseFreq * Globals::TwoPi);
+      ldouble SubTimeIterate = (pnt0.SubTime * BaseFreq * Globals::TwoPi);
 
       for (int scnt = 0; scnt < NumSamples; scnt++) {
         TimeAlong = scnt * SampleDuration;
@@ -511,53 +513,57 @@ public:
     }
     /* ********************************************************************************* */
     void Render_Segment_Integral(VoicePoint& pnt0, VoicePoint& pnt1, Wave& wave) {// stateless calculus integral approach
-      double SRate = this->SampleRate;
-      double Time0 = pnt0.TimeX * this->InheritedMap.ScaleX;
-      double Time1 = pnt1.TimeX * this->InheritedMap.ScaleX;
-      double SubTime0 = pnt0.SubTime * this->InheritedMap.ScaleX;// tempo rescale
-      double TimeRange = Time1 - Time0;
-      double FrequencyFactorStart = pnt0.GetFrequencyFactor();
-//      double FrequencyFactorInherited = Math::pow(2.0, this->Inherited_Octave);// inherit transposition
-//      double Octave0 = this->Inherited_Octave + pnt0.OctaveY, Octave1 = this->Inherited_Octave + pnt1.OctaveY;
-      double FrequencyFactorInherited = Math::pow(2.0, this->InheritedMap.OctaveY);// inherit transposition
-      double Octave0 = this->InheritedMap.OctaveY + pnt0.OctaveY, Octave1 = this->InheritedMap.OctaveY + pnt1.OctaveY;
+      ldouble SRate = this->SampleRate;
+      ldouble Time0 = this->InheritedMap.UnMapTime(pnt0.TimeX);
+      ldouble Time1 = this->InheritedMap.UnMapTime(pnt1.TimeX);
 
-      double OctaveRange = Octave1 - Octave0;
+      ldouble SubTime0 = pnt0.SubTime * this->InheritedMap.ScaleX;// tempo rescale
+      ldouble TimeRange = Time1 - Time0;
+      ldouble FrequencyFactorStart = pnt0.GetFrequencyFactor();
+      ldouble FrequencyFactorInherited = Math::pow(2.0, this->InheritedMap.OctaveY);// inherit transposition
+      ldouble Octave0 = this->InheritedMap.OctaveY + pnt0.OctaveY, Octave1 = this->InheritedMap.OctaveY + pnt1.OctaveY;
+
+      ldouble OctaveRange = Octave1 - Octave0;
 //      if (OctaveRange == 0.0) {
 //        OctaveRange = Globals::Fudge;// Fudge to avoid div by 0
 //      }
-      double LoudnessRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
-      double OctaveRate = OctaveRange / TimeRange;// octaves per second bend
+      ldouble LoudnessRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
+      ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second bend
       OctaveRate += this->Inherited_OctaveRate;// inherit note bend
-      double LoudnessRate = LoudnessRange / TimeRange;
-      double SubTimeLocal;
-      double SubTimeAbsolute;
-      int EndSample = (int) (Time1 * SRate);// absolute
-      double TimeAlong;
-      double CurrentLoudness;
-      double Amplitude;
+      ldouble LoudnessRate = LoudnessRange / TimeRange;
+      ldouble SubTimeLocal;
+      ldouble SubTimeAbsolute;
+      int EndSample = (int) (Time1 * (ldouble)SRate);// absolute
+
+      ldouble TimeAlong;
+      ldouble CurrentLoudness;
+      ldouble Amplitude;
       int SampleCnt;
-      for (SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++) {
+      ldouble PreCalc0 = (SubTime0 * FrequencyFactorInherited);// evaluate this outside the loop to optimize
+      ldouble PreCalc1 = (FrequencyFactorStart * FrequencyFactorInherited);
+      for (SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++) { // look into -ffast-math
         TimeAlong = (SampleCnt / SRate) - Time0;
         CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
         SubTimeLocal = Integral(OctaveRate, TimeAlong);
         SubTimeAbsolute = (SubTime0 + (FrequencyFactorStart * SubTimeLocal)) * FrequencyFactorInherited;
+        //SubTimeAbsolute = (PreCalc0 + (PreCalc1 * SubTimeLocal));// optimized, hardly notice the difference
         Amplitude = this->GetWaveForm(SubTimeAbsolute);
         //Amplitude = SubTimeAbsolute * 0.05;// for testing
-        wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
+        //wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
+        wave.Set_Abs(SampleCnt, Amplitude * CurrentLoudness);
         this->Render_Sample_Count++;
       }
       this->Bone_Sample_Mark = EndSample;
     }
     /* ********************************************************************************* */
     boolean Create_Me() override {
-      return 0;
+      return true;
     }
     void Delete_Me() override {// IDeletable
       SingerBase::Delete_Me();
       this->Cursor_Point.Delete_Me();
       this->MyVoice = null;// wreck everything so we crash if we try to use a dead object
-      this->Phase = this->Cycles = this->SubTime = Double_NEGATIVE_INFINITY;
+      this->Phase = this->Cycles = this->SubTime = Double::NEGATIVE_INFINITY;// Double_NEGATIVE_INFINITY;
       this->Current_Octave = this->Current_Frequency = Double_NEGATIVE_INFINITY;
       this->BaseFreq = Double_NEGATIVE_INFINITY;
       this->Prev_Point_Dex = this->Next_Point_Dex = Integer_MIN_VALUE;

@@ -32,10 +32,10 @@ public:
 class IMoveable: public IDrawable {// IMoveable is for things that can be selected, dragged, copied, pasted, deleted etc. through the UI.
 public:
   boolean IsSelected = false;
-  virtual void MoveTo(double XLoc, double YLoc) {};
-  virtual boolean HitsMe(double XLoc, double YLoc) { return false; };// click detection
-  virtual double GetX() { return Double_NEGATIVE_INFINITY; };
-  virtual double GetY() { return Double_NEGATIVE_INFINITY; };
+  virtual void MoveTo(ldouble XLoc, ldouble YLoc) {};
+  virtual boolean HitsMe(ldouble XLoc, ldouble YLoc) { return false; };// click detection
+  virtual ldouble GetX() { return Double_NEGATIVE_INFINITY; };
+  virtual ldouble GetY() { return Double_NEGATIVE_INFINITY; };
   virtual void SetSelected(boolean Selected) { this->IsSelected = Selected; }
   virtual IMoveable* Clone_Me() { return nullptr; };
   virtual IMoveable* Deep_Clone_Me(CollisionLibrary& HitTable) { return nullptr; };

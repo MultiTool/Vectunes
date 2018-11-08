@@ -31,13 +31,13 @@ public:
     this->Delete_Me();
   }
   /* ********************************************************************************* */
-  void Assign(double MinX, double MinY, double MaxX, double MaxY) {
+  void Assign(ldouble MinX, ldouble MinY, ldouble MaxX, ldouble MaxY) {
     this->Min.Assign(MinX, MinY);
     this->Max.Assign(MaxX, MaxY);
     this->Sort_Me();
   }
   /* ********************************************************************************* */
-  void AssignCorner(int CornerNum, double MinLimit, double MaxLimit) {}
+  void AssignCorner(int CornerNum, ldouble MinLimit, ldouble MaxLimit) {}
   /* ********************************************************************************* */
   boolean Intersects(const CajaDelimitadora& other) {
     if (!this->LineFramed(this->Min.x, this->Max.x, other.Min.x, other.Max.x)) {
@@ -48,7 +48,7 @@ public:
     return true;
   }
   /* ********************************************************************************* */
-  boolean LineFramed(double MyMin, double MyMax, double YourMin, double YourMax) {
+  boolean LineFramed(ldouble MyMin, ldouble MyMax, ldouble YourMin, ldouble YourMax) {
     if (YourMax < MyMin) {// if my min is less than your max AND my max is greater than your min
       return false;
     } else if (MyMax < YourMin) {
@@ -57,8 +57,8 @@ public:
     return true;
   }
   /* ********************************************************************************* */
-  void Rebase_Time(double TimeBase) {
-    double TimeRange = this->Max.x - this->Min.x;
+  void Rebase_Time(ldouble TimeBase) {
+    ldouble TimeRange = this->Max.x - this->Min.x;
     this->Min.x = TimeBase;
     this->Max.x = this->Min.x + TimeRange;
   }
@@ -91,7 +91,7 @@ public:
   }
   /* ********************************************************************************* */
   void Sort_Me() {// CajaDelimitadora bounds are ALWAYS to be sorted min->max, even if we are in an inverted space such as screen graphics.
-    double temp;
+    ldouble temp;
     if (this->Max.x < this->Min.x) {
       temp = this->Max.x;// swap
       this->Max.x = this->Min.x;
@@ -105,11 +105,11 @@ public:
     this->ZeroCheck();
   }
   /* ********************************************************************************* */
-  double GetWidth() {
+  ldouble GetWidth() {
     return Math::abs(this->Max.x - this->Min.x);
   }
   /* ********************************************************************************* */
-  double GetHeight() {
+  ldouble GetHeight() {
     return Math::abs(this->Max.y - this->Min.y);
   }
   /* ********************************************************************************* */
@@ -136,7 +136,7 @@ public:
     IncludePoint(other.x, other.y);
   }
   /* ********************************************************************************* */
-  void IncludePoint(double OtherX, double OtherY) {// for aggregating with vertices
+  void IncludePoint(ldouble OtherX, ldouble OtherY) {// for aggregating with vertices
     this->Min.x = Math::min(this->Min.x, OtherX);
     this->Min.y = Math::min(this->Min.y, OtherY);
     this->Max.x = Math::max(this->Max.x, OtherX);
@@ -153,7 +153,7 @@ public:
     this->Limits[1] = nullptr;
   }
   /* ********************************************************************************* */
-  boolean Contains(double XLoc, double YLoc) {
+  boolean Contains(ldouble XLoc, ldouble YLoc) {
     if (this->Min.x <= XLoc) {
       if (XLoc <= this->Max.x) {
         if (this->Min.y <= YLoc) {

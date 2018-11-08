@@ -19,7 +19,7 @@ class OffsetBoxBase;// forward
 /* ********************************************************************************* */
 class IDrawingContext: public IDeletable {
 private:
-  double Excitement;// to highlight animation, range 0 to 1.
+  ldouble Excitement;// to highlight animation, range 0 to 1.
 public:
   //public Graphics2D gr;
   CajaDelimitadora ClipBounds;
@@ -30,7 +30,7 @@ public:
   /* ********************************************************************************* */
   // IDrawingContext(IDrawingContext& Fresh_Parent, OffsetBox& Fresh_Transform) = 0;
   /* ********************************************************************************* */
-  virtual Point2D* To_Screen(double XLoc, double YLoc) = 0;
+  virtual Point2D* To_Screen(ldouble XLoc, ldouble YLoc) = 0;
   /* ********************************************************************************* */
   virtual void Compound(OffsetBoxBase& other) = 0;
   /* ********************************************************************************* */

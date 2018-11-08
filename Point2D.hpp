@@ -18,25 +18,25 @@ typedef Point2D *Point2DPtr;
 typedef std::vector<Point2DPtr> Point2DVec;
 class Point2D : public IDeletable {
 public:
-  double x, y;
+  ldouble x, y;
   //Point2D* Zero;
   Point2D() {}
   Point2D(const Point2D& donor) : Point2D(donor.x, donor.y) {
   }
-  Point2D(double XLoc, double YLoc) {
+  Point2D(ldouble XLoc, ldouble YLoc) {
     this->Assign(XLoc, YLoc);
     //this->Zero = neuvo Point2D(0, 0);
   }
   ~Point2D() {
     this->Delete_Me();
   }
-  void setLocation(double XLoc, double YLoc) {
+  void SetLocation(ldouble XLoc, ldouble YLoc) {
     this->x = XLoc; this->y = YLoc;
   }
-  void setLocation(const Point2D& pd) {
+  void SetLocation(const Point2D& pd) {
     this->x = pd.x; this->y = pd.y;
   }
-  void Assign(double XLoc, double YLoc) {
+  void Assign(ldouble XLoc, ldouble YLoc) {
     this->x = XLoc; this->y = YLoc;
   }
   void Assign(const Point2D& other) {
@@ -51,16 +51,16 @@ public:
   void Subtract(const Point2D& other) {
     this->x -= other.x; this->y -= other.y;
   }
-  void Multiply(double factor) {
+  void Multiply(ldouble factor) {
     this->x *= factor; this->y *= factor;
   }
   void Normalize() {
     if (this->x != 0 || this->y != 0) {
-      double magnitude = Math::sqrt((this->x * this->x) + (this->y * this->y));
+      ldouble magnitude = Math::sqrt((this->x * this->x) + (this->y * this->y));
       this->x /= magnitude; this->y /= magnitude;
     }
   }
-  double GetMagnitude() {
+  ldouble GetMagnitude() {
     if (this->x == 0 && this->y == 0) { return 0; }
     return Math::sqrt((this->x * this->x) + (this->y * this->y));
   }

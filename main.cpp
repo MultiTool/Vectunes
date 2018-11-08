@@ -1,4 +1,7 @@
 #include <iostream>
+#include <time.h>
+#include <chrono>
+#include <ctime>
 
 #include "ICloneable.hpp"
 #include "ISonglet.hpp"
@@ -70,7 +73,7 @@ void TestVector(){// crashes
 void MegaChop(SingerBase *singer, const String& FileName){// test random chops
   Wave chunk, whole;
   singer->Start();
-  double Time = 0;
+  ldouble Time = 0;
   while (!singer->IsFinished){
     Time += 0.01;// * Math::frand();
     singer->Render_To(Time, chunk);
@@ -80,32 +83,43 @@ void MegaChop(SingerBase *singer, const String& FileName){// test random chops
 }
 /* ********************************************************************************* */
 void MegaChop_Add(SingerBase *singer, const String& FileName){// test random chops
-  Wave chunk, Glued, Whole;
-  chunk.SampleRate = Globals::SampleRate;
-  Glued.SampleRate = Globals::SampleRate;
+  Wave Chunk, Chopped, Whole;
+  Chunk.SampleRate = Globals::SampleRate;
+  Chopped.SampleRate = Globals::SampleRate;
   Whole.SampleRate = Globals::SampleRate;
   singer->Start();
-  double Time = 0;
+  ldouble Time = 0;
+  bool TimeRender = true;
   while (!singer->IsFinished){
     Time += 0.01;
     //Time += 0.01 * Math::frand();
     //Time += 0.02;// * Math::frand();
-    singer->Render_To(Time, chunk);
-    Glued.Append2(chunk);
+    if (TimeRender){
+      singer->Render_To(Time, Chunk);
+    }else{
+      singer->Render_To_Sample(int(Time*(double)Globals::SampleRate), Chunk);
+    }
+
+    Chopped.Append2(Chunk);
   }
 
-  Glued.SaveToWav(FileName + ".Chopped.wav");
+  Chopped.SaveToWav(FileName + ".Chopped.wav");
 
   singer->Start();
-  singer->Render_To(Time, Whole);
+  if (TimeRender){
+    singer->Render_To(Time, Whole);
+  }else{
+    singer->Render_To_Sample(int(Time*(double)Globals::SampleRate), Whole);
+  }
+
   Whole.SaveToWav(FileName + ".Whole.wav");
 
-  Glued.Amplify(-1.0);
-  Whole.Overdub(Glued);// If everything works, the 'whole' file waveform should be a flat line - no difference between whole and chopped.
+  Chopped.Amplify(-1.0);
+  Whole.Overdub(Chopped);// If everything works, the 'whole' file waveform should be a flat line - no difference between whole and chopped.
   Whole.SaveToWav(FileName + ".Diff.wav");
 }
 /* ********************************************************************************* */
-void FillVoice(Voice *voz, double Duration){// add voice bend points
+void FillVoice(Voice *voz, ldouble Duration){// add voice bend points
   VoicePoint *vp0 = new VoicePoint();
   vp0->OctaveY = 5.0; vp0->TimeX = 0;
   voz->Add_Note(vp0);
@@ -144,6 +158,27 @@ GroupSong* MakeChord(ISonglet *songlet){
   return gsong;
 }
 /* ********************************************************************************* */
+void TestSpeed(SingerBase& singer){
+  using namespace std::chrono;
+
+  Wave Chunk, Chopped;
+  singer.Start();
+  system_clock::time_point start = system_clock::now();
+
+  ldouble Time = 0;
+  bool TimeRender = true;
+  while (!singer.IsFinished){
+    Time += 0.1;
+    singer.Render_To(Time, Chunk);
+    Chopped.Append2(Chunk);
+  }
+  system_clock::time_point end = system_clock::now();
+
+  duration<double> elapsed_seconds = end-start;
+  std::time_t end_time = system_clock::to_time_t(end);
+  std::cout << "finished loop computation at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+}
+/* ********************************************************************************* */
 int main() {
   Config conf;
   MetricsPacket metrics;
@@ -151,13 +186,86 @@ int main() {
   metrics.MyProject = &conf;
   metrics.FreshnessTimeStamp = 1;
 
-  {// Span - simple group with one delayed voice
+  if (false) {// http://www.cplusplus.com/reference/ctime/difftime/
+    time_t now;
+    struct tm newyear;
+    double seconds;
+
+    time(&now);  /* get current time; same as: now = time(NULL)  */
+    newyear = *localtime(&now);
+
+    newyear.tm_hour = 0; newyear.tm_min = 0; newyear.tm_sec = 0;
+    newyear.tm_mon = 0;  newyear.tm_mday = 1;
+
+    seconds = difftime(now, mktime(&newyear));
+
+    printf ("%.f seconds since new year in the current timezone.\n", seconds);
+  }
+  if (false) {// https://en.cppreference.com/w/cpp/chrono
+    using namespace std::chrono;
+
+    system_clock::time_point start = system_clock::now();
+    // std::cout << "f(42) = " << fibonacci(42) << '\n'; // do stuff here
+    system_clock::time_point end = system_clock::now();
+
+    duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = system_clock::to_time_t(end);
+
+    std::cout << "finished computation at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+    // or https://en.cppreference.com/w/cpp/chrono/c/clock   ?
+  }
+
+  cout << Math::PI << endl;
+
+  if (true) {// Voice and  Group
+    Voice *voz;
+    voz = new Voice();
+    voz->Update_Guts(metrics);
+    voz->Set_Project(&conf);
+
+    FillVoice(voz, 1.0);// add voice bend points
+    //FillVoice(voz, 0.2);// add voice bend points
+
+    Voice::Voice_OffsetBox *vobox = voz->Spawn_OffsetBox();
+    vobox->TimeX = 0.27;//0.11;// 0.0;
+    if (true){
+      Voice::Voice_Singer *vsing = vobox->Spawn_Singer();
+
+      //Voice::Voice_Singer *vsing = voz->Spawn_Singer();
+      cout << "Current_Frequency:" << vsing->Current_Frequency << endl;
+      vsing->Start();
+      MegaChop_Add(vsing, "Voice");
+      delete vsing;
+    }
+    GroupSong *gsong = new GroupSong();
+    gsong->Add_SubSong(vobox);
+
+    metrics.Reset();
+    gsong->Update_Guts(metrics);
+    gsong->Set_Project(&conf);
+
+    GroupSong::Group_OffsetBox *grobox = gsong->Spawn_OffsetBox();
+    //grobox->Set_Project(&conf);
+    //ISonglet::Unref(gb);
+    //delete gb;// automatically deleted by grobox
+
+    GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
+    MegaChop_Add(gsing, "Group");
+    delete gsing;
+    delete grobox;
+    //delete vobox;// the group already deleted everything.
+
+    // delete voz;// voice is deleted automatically when we delete vobox
+  }
+
+  if (true) {// Span - simple group with one delayed voice
     Voice *voz0;
     voz0 = new Voice();
     FillVoice(voz0);
 
     Voice::Voice_OffsetBox *vobox0 = voz0->Spawn_OffsetBox();
-    vobox0->TimeX = 0.11;
+    vobox0->TimeX = 0.27;//0.11;
 
     GroupSong *gsong = new GroupSong();
     gsong->Add_SubSong(vobox0);
@@ -174,33 +282,45 @@ int main() {
     //return 0;
   }
 
-  if (false) {// Loop
+  if (true) {// Loop
+    using namespace std::chrono;
+
     Voice *voz0;
     voz0 = new Voice();
     FillVoice(voz0);
-    //voz0->Update_Guts(metrics);
-    //voz0->Set_Project(&conf);
     Voice::Voice_OffsetBox *vobox0 = voz0->Spawn_OffsetBox();
 
     GroupSong *chord = MakeChord(voz0);
     GroupSong::Group_OffsetBox *ChordHandle = chord->Spawn_OffsetBox();
 
     LoopSong *lsong = new LoopSong();
-    lsong->Add_SubSong(vobox0);
-    //lsong->Add_SubSong(ChordHandle);
-    lsong->Set_Beats(2);
-    lsong->Set_Interval(0.10);// exposes loop/group chopping bug
-    //lsong->Set_Interval(0.25);
+
+    //lsong->Add_SubSong(vobox0);
+    lsong->Add_SubSong(ChordHandle);
+
+    lsong->Set_Beats(100);
+    //lsong->Set_Interval(0.10);// exposes loop/group chopping bug
+    lsong->Set_Interval(0.25);
     GroupSong::Group_OffsetBox *lobox = lsong->Spawn_OffsetBox();
 
     lsong->Set_Project(&conf);
     lsong->Update_Guts(metrics);
 
     SingerBase *singer = lobox->Spawn_Singer();
+
+    TestSpeed(*singer);
+    system_clock::time_point start = system_clock::now();
     MegaChop_Add(singer, "Loop");
+    system_clock::time_point end = system_clock::now();
+
+    duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = system_clock::to_time_t(end);
+    //std::cout << "finished loop computation at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+    //finished loop computation at Thu Nov 08 09:30:09 2018
+    //elapsed time: 4.09459s
 
     delete lsong;
-    //return 0;
   }
   {
     Outer *ouch = new Outer();
@@ -210,45 +330,6 @@ int main() {
     delete ouch;
   }
 
-  cout << Math::PI << endl;
-  {// Voice and  Group
-    Voice *voz;
-    voz = new Voice();
-    voz->Update_Guts(metrics);
-    voz->Set_Project(&conf);
-
-    FillVoice(voz, 0.2);// add voice bend points
-
-    Voice::Voice_OffsetBox *vobox = voz->Spawn_OffsetBox();
-    vobox->TimeX = 0.11;// 0.0;
-    Voice::Voice_Singer *vsing = vobox->Spawn_Singer();
-
-    //Voice::Voice_Singer *vsing = voz->Spawn_Singer();
-    cout << "Current_Frequency:" << vsing->Current_Frequency << endl;
-    vsing->Start();
-    MegaChop_Add(vsing, "Voice");
-    delete vsing;
-
-    GroupSong *gb = new GroupSong();
-    gb->Add_SubSong(vobox);
-
-    metrics.Reset();
-    gb->Update_Guts(metrics);
-    gb->Set_Project(&conf);
-
-    GroupSong::Group_OffsetBox *grobox = gb->Spawn_OffsetBox();
-    //grobox->Set_Project(&conf);
-    //ISonglet::Unref(gb);
-    //delete gb;// automatically deleted by grobox
-
-    GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
-    MegaChop_Add(gsing, "Group");
-    delete gsing;
-    delete grobox;
-    //delete vobox;// the group already deleted everything.
-
-    // delete voz;// voice is deleted automatically when we delete vobox
-  }
   {
     GroupSong *gb1 = new GroupSong();
     GroupSong::Group_OffsetBox *grobox1 = gb1->Spawn_OffsetBox();

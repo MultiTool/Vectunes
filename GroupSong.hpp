@@ -19,9 +19,9 @@ class GroupSong: public ISonglet {
 public:
   ArrayList<OffsetBoxBase*> SubSongs;
   String SubSongsName = "SubSongs";
-  double Duration = 0.0;
+  ldouble Duration = 0.0;
   String MyName;// for debugging
-  double MaxAmplitude = 0.0;
+  ldouble MaxAmplitude = 0.0;
   CajaDelimitadora MyBounds;
 
   // to do: These will belong to the Artist object after we code for that separation
@@ -38,13 +38,13 @@ public:
   }
   ~GroupSong() {this->Delete_Me();}
   /* ********************************************************************************* */
-  OffsetBoxBase* Add_SubSong(ISonglet& songlet, double TimeOffset, double OctaveOffset, double LoudnessFactor) {
+  OffsetBoxBase* Add_SubSong(ISonglet& songlet, ldouble TimeOffset, ldouble OctaveOffset, ldouble LoudnessFactor) {
     OffsetBoxBase *obox = songlet.Spawn_OffsetBox();
     this->Add_SubSong(obox, TimeOffset, OctaveOffset, LoudnessFactor);
     return obox;
   }
   /* ********************************************************************************* */
-  void Add_SubSong(OffsetBoxBase* obox, double TimeOffset, double OctaveOffset, double LoudnessFactor) {// Add a songlet with its offsetbox already created.
+  void Add_SubSong(OffsetBoxBase* obox, ldouble TimeOffset, ldouble OctaveOffset, ldouble LoudnessFactor) {// Add a songlet with its offsetbox already created.
     obox->TimeX = (TimeOffset);
     obox->OctaveY = (OctaveOffset);
     obox->LoudnessFactor = (LoudnessFactor);
@@ -76,29 +76,29 @@ public:
     Splines::Cubic_Spline_Boxes(this->SubSongs, NumSubLines, SplinePoints);
   }
   /* ********************************************************************************* */
-  double Get_Duration() override {
+  ldouble Get_Duration() override {
     return this->Duration;
   }
   /* ********************************************************************************* */
-  double Get_Max_Amplitude() override {
+  ldouble Get_Max_Amplitude() override {
     return this->MaxAmplitude;
   }
   /* ********************************************************************************* */
   void Update_Max_Amplitude() {
     int len = this->SubSongs.size();
     OffsetBoxBase *pnt;
-    double MaxAmp = 0.0;
+    ldouble MaxAmp = 0.0;
     for (int pcnt = 0; pcnt < len; pcnt++) {
       pnt = this->SubSongs.at(pcnt);
-      double Amp = pnt->Get_Max_Amplitude();
+      ldouble Amp = pnt->Get_Max_Amplitude();
       MaxAmp += Amp;// this is overkill, we need to only sum those subsongs that overlap.
     }
     this->MaxAmplitude = MaxAmp;
   }
   /* ********************************************************************************* */
-//  double Update_Durations() override {
-//    double MaxDuration = 0.0;
-//    double DurBuf = 0.0;
+//  ldouble Update_Durations() override {
+//    ldouble MaxDuration = 0.0;
+//    ldouble DurBuf = 0.0;
 //    int NumSubSongs = this->SubSongs.size();
 //    for (int cnt = 0; cnt < NumSubSongs; cnt++) {
 //      OffsetBoxBase *obox = this->SubSongs.at(cnt);
@@ -118,8 +118,8 @@ public:
       //this->Sort_Me();
       this->Update_Max_Amplitude();
       metrics.MaxDuration = 0.0;// redundant
-      double MyMaxDuration = 0.0;
-      double DurBuf = 0.0;
+      ldouble MyMaxDuration = 0.0;
+      ldouble DurBuf = 0.0;
       int NumSubSongs = this->SubSongs.size();
       for (int cnt = 0; cnt < NumSubSongs; cnt++) {
         OffsetBoxBase *obx = this->SubSongs.at(cnt);
@@ -289,7 +289,7 @@ public:
     this->MyBounds.Copy_From(donor.MyBounds);
   }
   /* ********************************************************************************* */
-  void RescaleGroupTimeX(double Factor) {
+  void RescaleGroupTimeX(ldouble Factor) {
     int len = this->SubSongs.size();
     for (int cnt = 0; cnt < len; cnt++) {
       OffsetBoxBase *obox = this->SubSongs.at(cnt);
@@ -297,12 +297,12 @@ public:
     }
   }
   /* ********************************************************************************* */
-  static double DotProduct(double X0, double Y0, double X1, double Y1) {
+  static ldouble DotProduct(ldouble X0, ldouble Y0, ldouble X1, ldouble Y1) {
     return X0 * X1 + Y0 * Y1;// length of projection from one vector onto another
   }
   /* ********************************************************************************* */
-  void LineClosestPoint(double LineX0, double LineY0, double LineX1, double LineY1, double XPnt, double YPnt, Point2D& Intersection) {// Find dnd destination using dot product on line segments.
-    double Temp;
+  void LineClosestPoint(ldouble LineX0, ldouble LineY0, ldouble LineX1, ldouble LineY1, ldouble XPnt, ldouble YPnt, Point2D& Intersection) {// Find dnd destination using dot product on line segments.
+    ldouble Temp;
     if (LineX1 < LineX0 || (LineX1 == LineX0 && LineY1 < LineY0)) {// sort endpoints
       Temp = LineX0;// swap X
       LineX0 = LineX1;
@@ -312,21 +312,21 @@ public:
       LineY0 = LineY1;
       LineY1 = Temp;
     }
-    double XDif = LineX1 - LineX0, YDif = LineY1 - LineY0;
-    double Shrink = Globals::Fudge;// shrink is a cheat so consecutive lines have slightly separate endpoints. this makes mouse distance from their endpoints unequal.
-    double ShrinkX = XDif * Shrink, ShrinkY = YDif * Shrink;
+    ldouble XDif = LineX1 - LineX0, YDif = LineY1 - LineY0;
+    ldouble Shrink = Globals::Fudge;// shrink is a cheat so consecutive lines have slightly separate endpoints. this makes mouse distance from their endpoints unequal.
+    ldouble ShrinkX = XDif * Shrink, ShrinkY = YDif * Shrink;
     LineX0 += ShrinkX;
     LineY0 += ShrinkY;
     LineX1 -= ShrinkX;
     LineY1 -= ShrinkY;
     XDif -= ShrinkX * 2;
     YDif -= ShrinkY * 2;
-    double Magnitude = Math::hypot(XDif, YDif);
+    ldouble Magnitude = Math::hypot(XDif, YDif);
 
-    double DotProd = DotProduct(XPnt - LineX0, YPnt - LineY0, XDif, YDif);
+    ldouble DotProd = DotProduct(XPnt - LineX0, YPnt - LineY0, XDif, YDif);
     DotProd /= Magnitude;// now dotprod is the full length of the projection
-    double XLoc = ((XDif / Magnitude) * DotProd);// scale separate dimensions to length of shadow
-    double YLoc = ((YDif / Magnitude) * DotProd);
+    ldouble XLoc = ((XDif / Magnitude) * DotProd);// scale separate dimensions to length of shadow
+    ldouble YLoc = ((YDif / Magnitude) * DotProd);
     if (XLoc > XDif) {// Test if the intersection is between the line's endpoints and cap them.
       //System.out.println("XLoc:" + XLoc + ", YLoc:" + YLoc);
       XLoc = XDif;
@@ -336,46 +336,46 @@ public:
     }
     XLoc += LineX0 + ShrinkX;
     YLoc += LineY0 + ShrinkY;
-    Intersection.setLocation(XLoc, YLoc);
+    Intersection.SetLocation(XLoc, YLoc);
 }
   /* ********************************************************************************* */
-  static double DistanceFromLine(double LineX0, double LineY0, double LineX1, double LineY1, double XPnt, double YPnt) {// work in progress for drag and drop support
-    double XDif = LineX1 - LineX0, YDif = LineY1 - LineY0;
-    double DotProd = DotProduct(XDif, YDif, XPnt - LineX0, YPnt - LineY0);
-    double XLoc = LineX0 + (XDif * DotProd);// point of intersection
-    double YLoc = LineY0 + (YDif * DotProd);
+  static ldouble DistanceFromLine(ldouble LineX0, ldouble LineY0, ldouble LineX1, ldouble LineY1, ldouble XPnt, ldouble YPnt) {// work in progress for drag and drop support
+    ldouble XDif = LineX1 - LineX0, YDif = LineY1 - LineY0;
+    ldouble DotProd = DotProduct(XDif, YDif, XPnt - LineX0, YPnt - LineY0);
+    ldouble XLoc = LineX0 + (XDif * DotProd);// point of intersection
+    ldouble YLoc = LineY0 + (YDif * DotProd);
     // to do: at this point we would like to test if the intersection is between the line's endpoints.
-//    double XLoc = (XDif * DotProd);// point of intersection
-//    double YLoc = (YDif * DotProd);
-//    double PntDX = (XLoc - XPnt); double PntDY = (YLoc - YPnt);
-    double Distance = Math::hypot(XLoc - XPnt, YLoc - YPnt);
+//    ldouble XLoc = (XDif * DotProd);// point of intersection
+//    ldouble YLoc = (YDif * DotProd);
+//    ldouble PntDX = (XLoc - XPnt); ldouble PntDY = (YLoc - YPnt);
+    ldouble Distance = Math::hypot(XLoc - XPnt, YLoc - YPnt);
     return Distance;
   }
   /* ********************************************************************************* */
-  double HeightFromLine(double LineX0, double LineY0, double LineX1, double LineY1, double XPnt, double YPnt) {// work in progress for drag and drop support
-    double YCross = LineYCross(LineX0, LineY0, LineX1, LineY1, XPnt);
-    double Distance = YPnt - YCross;
+  ldouble HeightFromLine(ldouble LineX0, ldouble LineY0, ldouble LineX1, ldouble LineY1, ldouble XPnt, ldouble YPnt) {// work in progress for drag and drop support
+    ldouble YCross = LineYCross(LineX0, LineY0, LineX1, LineY1, XPnt);
+    ldouble Distance = YPnt - YCross;
     return Distance;
   }
   /* ********************************************************************************* */
-  double LineYCross(double LineX0, double LineY0, double LineX1, double LineY1, double XPnt) {// work in progress for drag and drop support
-    double XDif = LineX1 - LineX0;// given a line and an X point, return the Y location of the intersect along that line
-    double YCross;
+  ldouble LineYCross(ldouble LineX0, ldouble LineY0, ldouble LineX1, ldouble LineY1, ldouble XPnt) {// work in progress for drag and drop support
+    ldouble XDif = LineX1 - LineX0;// given a line and an X point, return the Y location of the intersect along that line
+    ldouble YCross;
     if (XDif == 0) {// If slope is infinite, just return the halfway point between the top and bottom of the line.
       YCross = (LineY0 + LineY1) / 2.0;
     } else {
-      double YDif = LineY1 - LineY0;
-      double Slope = YDif / XDif;
-      double PointXOffset = (XPnt - LineX0);
+      ldouble YDif = LineY1 - LineY0;
+      ldouble Slope = YDif / XDif;
+      ldouble PointXOffset = (XPnt - LineX0);
       YCross = LineY0 + (PointXOffset * Slope);
     }
     return YCross;
   }
   /* ********************************************************************************* */
-  double HitsMyVineSpline(double XPnt, double YPnt) {// work in progress for drag and drop support
-    double Limit = 0.1;// octaves.  hardcoded hack, need something better
+  ldouble HitsMyVineSpline(ldouble XPnt, ldouble YPnt) {// work in progress for drag and drop support
+    ldouble Limit = 0.1;// octaves.  hardcoded hack, need something better
     int len = this->SubSongs.size();
-    double Dist;
+    ldouble Dist;
     OffsetBoxBase *LastBox = this->SubSongs.at(len - 1);
     Point2D Intersection;
     if (0.0 <= XPnt && XPnt <= LastBox->TimeX) {// or this->MyBounds.Max.x) {
@@ -388,7 +388,7 @@ public:
       EndSplineDex = Math::min(EndSplineDex, this->SplinePoints.size());
 
       Point2D prevpnt, pnt(0, 0);// = Point2D.Zero;
-      double MinDist = Double_POSITIVE_INFINITY;
+      ldouble MinDist = Double_POSITIVE_INFINITY;
       for (int scnt = StartSplineDex; scnt < EndSplineDex; scnt++) {// roll through all segments in this subrange of this spline. look for closest segment.
         prevpnt = pnt;
         pnt = this->SplinePoints[scnt];
@@ -407,11 +407,11 @@ public:
     return Double_POSITIVE_INFINITY;// infinite if not found
   }
   /* ********************************************************************************* */
-  double HitsMyVine(double XPnt, double YPnt) {// work in progress for drag and drop support
-    double Limit = 0.1;// octaves.  hardcoded hack, need something better
+  ldouble HitsMyVine(ldouble XPnt, ldouble YPnt) {// work in progress for drag and drop support
+    ldouble Limit = 0.1;// octaves.  hardcoded hack, need something better
     int len = this->SubSongs.size();
     OffsetBoxBase *OBox, *ClosestPoint = null;
-    double XPrev = 0, YPrev = 0, YCross, YDist, Dist;
+    ldouble XPrev = 0, YPrev = 0, YCross, YDist, Dist;
     OffsetBoxBase *LastBox = this->SubSongs.at(len - 1);
     Point2D Intersection;
     if (0.0 <= XPnt && XPnt <= LastBox->TimeX) {// or this->MyBounds.Max.x) {
@@ -447,7 +447,7 @@ public:
     return Double_POSITIVE_INFINITY;// infinite if not found
   }
   /* ************************************************************************************************************************ */
-  int Tree_Search(double Time, int minloc, int maxloc) {// finds place where time would be inserted or replaced
+  int Tree_Search(ldouble Time, int minloc, int maxloc) {// finds place where time would be inserted or replaced
     int medloc;
     while (minloc < maxloc) {
       medloc = (minloc + maxloc) >> 1; // >>1 is same as div 2, only faster.
@@ -467,12 +467,12 @@ public:
     }
     int FinalKid = NumKids - 1;
     OffsetBoxBase *obox = this->SubSongs.at(FinalKid);
-    double XLimit = obox->TimeX;
-    double Spacing = XLimit / NumKids;
-    double FractAlong;
+    ldouble XLimit = obox->TimeX;
+    ldouble Spacing = XLimit / NumKids;
+    ldouble FractAlong;
     for (int cnt = 0; cnt <= FinalKid; cnt++) {// do we want it to be  ---.---.---.  or  .---.---.  or  .---.---.---  ?
       obox = this->SubSongs.at(cnt);
-      FractAlong = (((double) cnt) / (double) FinalKid);//  .---.---.  spacing
+      FractAlong = (((ldouble) cnt) / (ldouble) FinalKid);//  .---.---.  spacing
       obox->TimeX = XLimit * FractAlong;
     }
   }
@@ -492,7 +492,6 @@ public:
     OffsetBoxBase *obox;
     for (int cnt = 0; cnt < len; cnt++) {
       obox = this->SubSongs.at(cnt);
-      obox->Delete_Me();// snox see if this is redundant
       delete obox;
     }
     this->SubSongs.clear();
@@ -523,7 +522,8 @@ public:
     GroupSong* MySonglet;
     ArrayList<SingerBase*> NowPlaying;// pool of currently playing voices
     int Current_Dex = 0;
-    double Prev_Time = 0;
+    ldouble Prev_Time = 0;
+    int Sample_Start;
     /* ********************************************************************************* */
     Group_Singer(){ this->Create_Me(); }
     ~Group_Singer(){ this->Delete_Me(); }
@@ -531,7 +531,7 @@ public:
     void Start() override {
       IsFinished = false;
       Current_Dex = 0;
-      Prev_Time = 0;
+      Prev_Time = 0; this->Sample_Start = 0;
       NowPlaying.clear();
       if (this->MySonglet->SubSongs.size() <= 0) {
         this->IsFinished = true;
@@ -539,7 +539,7 @@ public:
       if (this->InheritedMap.LoudnessFactor == 0.0) { this->IsFinished = true; }// muted, so don't waste time rendering
     }
     /* ********************************************************************************* */
-    void Skip_To(double EndTime) override {
+    void Skip_To(ldouble EndTime) override {// to do: rewrite this to match bug-fixed render_to
       if (this->IsFinished) { return; }
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupSong's own coordinate system
       if (this->MySonglet->SubSongs.size() <= 0) {
@@ -547,7 +547,8 @@ public:
         this->Prev_Time = EndTime;
         return;
       }
-      double Clipped_EndTime = this->Tee_Up(EndTime);
+      ldouble Clipped_EndTime = this->Tee_Up_Skip(EndTime);
+      this->Sample_Start = Clipped_EndTime * (ldouble)this->SampleRate;
       int NumPlaying = NowPlaying.size();
       SingerBase *player = null;
       int cnt = 0;
@@ -556,52 +557,35 @@ public:
         player->Skip_To(Clipped_EndTime);
         cnt++;
       }
-      cnt = 0;// now pack down the finished ones
-      while (cnt < this->NowPlaying.size()) {
+      cnt = 0;// now pack down the finished ones, probably redundant with Tee_Up_Skip now
+      int AliveCnt = 0;
+      for (cnt=0; cnt < NumPlaying; cnt++) {
         player = this->NowPlaying.at(cnt);
         if (player->IsFinished) {
-          this->NowPlaying.remove(player);
-          player->Delete_Me();
           delete player;
         } else {
-          cnt++;
+          this->NowPlaying[AliveCnt++] = player;
         }
       }
+      this->NowPlaying.resize(AliveCnt);
       this->Prev_Time = EndTime;
     }
     /* ********************************************************************************* */
-    void Render_To(double EndTime, Wave& wave) override {
+    void Render_To(ldouble EndTime, Wave& wave) override {
       if (this->IsFinished) {
-        wave.Init(0, 0, this->SampleRate);
+        wave.Init(0, 0, this->SampleRate, 0.0);
         this->Prev_Time = EndTime;
         return;
       }
-      //EndTime = Math::floor(EndTime * (double)this->SampleRate) / (double)this->SampleRate;
-/* taken from voice:
-      EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
-      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
-      this->Render_Sample_Count = 0;
-      int NumBends = this->MyVoice->CPoints.size();
-      EndTime = this->ClipTime(EndTime);
-      double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
 
-from wave:
-    int SampleStart = StartTime0 * (double)SampleRate0;
-    int SampleEnd = EndTime0 * (double)SampleRate0;
-    int nsamps = SampleEnd - SampleStart;
-*/
-
-      //if (this->InheritedMap.LoudnessFactor == 0.0) { return; }// muted, so don't waste time rendering
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to GroupSong's own coordinate system
-      double UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in absolute universal coordinates
-      double Clipped_EndTime = this->Tee_Up(EndTime);
-      double UnMapped_EndTime = this->InheritedMap.UnMapTime(Clipped_EndTime);
-      //double UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
-      if (EndTime == 0.15){ // bug hunting
-        //printf(".");
-        //UnMapped_EndTime = ((UnMapped_EndTime * (double)this->SampleRate) - 1.0) / (double)this->SampleRate;
-      }
-      wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
+      ldouble UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Prev_Time);// get start time in absolute universal coordinates
+      ldouble Clipped_EndTime = this->Tee_Up_Render(EndTime);
+      ldouble UnMapped_EndTime = this->InheritedMap.UnMapTime(Clipped_EndTime);// get end time in absolute universal coordinates
+      int Sample_End = UnMapped_EndTime * (ldouble)this->SampleRate;
+      //wave.Init(UnMapped_Prev_Time, UnMapped_EndTime, this->SampleRate);// wave times are in parent coordinates because the parent will be reading the wave data.
+      wave.Init_Sample(this->Sample_Start, Sample_End, this->SampleRate, 0.0);// wave times are in parent coordinates because the parent will be reading the wave data.
+
       Wave ChildWave;
       int NumPlaying = NowPlaying.size();
       SingerBase *player = null;
@@ -613,21 +597,27 @@ from wave:
         cnt++;
       }
       cnt = 0;// now pack down the finished ones
-      int GoodCnt = 0;
+      int AliveCnt = 0;
       while (cnt < NumPlaying) {
         player = this->NowPlaying[cnt];
         if (player->IsFinished) {
           delete player;
         } else {// still playing, so pack it down
-          this->NowPlaying[GoodCnt++] = player;
+          this->NowPlaying[AliveCnt++] = player;
         }
         cnt++;
       }
-      this->NowPlaying.resize(GoodCnt);
+      this->NowPlaying.resize(AliveCnt);
       wave.Amplify(this->MyOffsetBox->LoudnessFactor);
 
-      //EndTime = Math::floor(EndTime * (double)this->SampleRate) / (double)this->SampleRate;
       this->Prev_Time = EndTime;
+      this->Sample_Start = Sample_End;
+    }
+    /* ********************************************************************************* */
+    void Skip_To_Sample(int EndSample) override {
+    }
+    /* ********************************************************************************* */
+    void Render_To_Sample(int EndSample, Wave& wave) override {
     }
     /* ********************************************************************************* */
     boolean Create_Me() override {// IDeletable
@@ -639,19 +629,64 @@ from wave:
       SingerBase *singer;
       for (int cnt = 0; cnt < len; cnt++) {
         singer = this->NowPlaying.at(cnt);
-        //singer->Delete_Me();// redundant
         delete singer;
       }
       this->NowPlaying.clear();
     }
     /* ********************************************************************************* */
-    double Tee_Up(double EndTime) {// consolidating identical code
+    ldouble Tee_Up_Skip(ldouble EndTime) {
       if (EndTime < 0) { EndTime = 0; }// clip time
       int NumSonglets = MySonglet->SubSongs.size();
       int FinalSongletDex = NumSonglets - 1;
-      double Final_Start = this->MySonglet->SubSongs.at(FinalSongletDex)->TimeX;
+      ldouble Final_Start = this->MySonglet->SubSongs.at(FinalSongletDex)->TimeX;
       Final_Start = Math::min(Final_Start, EndTime);
-      double Final_Time = this->MySonglet->Get_Duration();
+      ldouble Final_Time = this->MySonglet->Get_Duration();
+      if (EndTime > Final_Time) {
+        this->IsFinished = true;
+        EndTime = Final_Time;// clip time
+      }
+
+      // clear out any singers that finished before EndTime
+      int NumPlaying = this->NowPlaying.size();
+      OffsetBoxBase *obox;
+      SingerBase *singer;
+      int AliveCnt = 0;
+      for (int cnt=0;cnt<NumPlaying;cnt++){
+        singer = this->NowPlaying[cnt];
+        obox = singer->MyOffsetBox;
+        ldouble Child_End_Time = obox->MyBounds.Max.x;
+        Child_End_Time = obox->UnMapTime(Child_End_Time);
+        if (Child_End_Time < EndTime){// Delete any singers whose songs end before the next 'play zone'.
+          delete singer;
+        }else{
+          this->NowPlaying[AliveCnt++] = singer;// pack them down
+        }
+      }
+      this->NowPlaying.resize(AliveCnt);
+
+      while (this->Current_Dex < NumSonglets) {// first find neuvo songlets in this time range and add them to pool
+        obox = MySonglet->SubSongs.at(this->Current_Dex);
+        if (Final_Start < obox->TimeX) { break; }// repeat until obox start time overtakes EndTime
+        ldouble Child_End_Time = obox->MyBounds.Max.x;
+        Child_End_Time = obox->UnMapTime(Child_End_Time);
+        if (EndTime < Child_End_Time){// Only use songlets that cross into the next 'play zone'
+          SingerBase *singer = obox->Spawn_Singer();
+          singer->Inherit(*this);
+          this->NowPlaying.add(singer);
+          singer->Start();
+        }
+        this->Current_Dex++;
+      }
+      return EndTime;
+    }
+    /* ********************************************************************************* */
+    ldouble Tee_Up_Render(ldouble EndTime) {// this works best for render_to
+      if (EndTime < 0) { EndTime = 0; }// clip time
+      int NumSonglets = MySonglet->SubSongs.size();
+      int FinalSongletDex = NumSonglets - 1;
+      ldouble Final_Start = this->MySonglet->SubSongs.at(FinalSongletDex)->TimeX;
+      Final_Start = Math::min(Final_Start, EndTime);
+      ldouble Final_Time = this->MySonglet->Get_Duration();
       if (EndTime > Final_Time) {
         this->IsFinished = true;
         EndTime = Final_Time;// clip time
@@ -673,7 +708,7 @@ from wave:
   class Group_OffsetBox: public OffsetBoxBase {// location box to transpose in pitch, move in time, etc.
   public:
     GroupSong* Content = null;
-    double GroupScaleX = 1.0;
+    ldouble GroupScaleX = 1.0;
     String GroupScaleXName = "GroupScaleX";// for serialization
     String ObjectTypeName = "Group_OffsetBox";
     /* ********************************************************************************* */
@@ -696,7 +731,7 @@ from wave:
       songlet->Ref_Songlet();
     }
     /* ********************************************************************************* */
-    void RescaleGroupTimeX(double Factor) {
+    void RescaleGroupTimeX(ldouble Factor) {
       this->Content->RescaleGroupTimeX(Factor);
     }
     /* ********************************************************************************* */
