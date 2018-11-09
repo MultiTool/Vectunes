@@ -55,6 +55,7 @@
 		<Unit filename="LoopSong.hpp" />
 		<Unit filename="MonkeyBox.hpp" />
 		<Unit filename="OffsetBoxBase.hpp" />
+		<Unit filename="PatternMaker.hpp" />
 		<Unit filename="Point2D.hpp" />
 		<Unit filename="Splines.hpp" />
 		<Unit filename="Voice.hpp" />

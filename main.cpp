@@ -19,6 +19,7 @@
 
 #include "GroupSong.hpp"
 #include "LoopSong.hpp"
+#include "PatternMaker.hpp"
 
 using namespace std;
 
@@ -160,23 +161,58 @@ GroupSong* MakeChord(ISonglet *songlet){
 /* ********************************************************************************* */
 void TestSpeed(SingerBase& singer){
   using namespace std::chrono;
-
+  int NumTrials = 16;
+  ldouble Time;
   Wave Chunk, Chopped;
-  singer.Start();
-  system_clock::time_point start = system_clock::now();
-
-  ldouble Time = 0;
-  bool TimeRender = true;
-  while (!singer.IsFinished){
-    Time += 0.1;
-    singer.Render_To(Time, Chunk);
-    Chopped.Append2(Chunk);
+  system_clock::time_point start = system_clock::now();// https://en.cppreference.com/w/cpp/chrono
+  for (int tcnt=0;tcnt<NumTrials;tcnt++){
+    Time = 0;
+    bool TimeRender = true;
+    singer.Start();
+    while (!singer.IsFinished){
+      Time += 0.1;
+      singer.Render_To(Time, Chunk);
+      Chopped.Append2(Chunk);
+    }
   }
   system_clock::time_point end = system_clock::now();
 
   duration<double> elapsed_seconds = end-start;
+  elapsed_seconds /= (ldouble)NumTrials;
   std::time_t end_time = system_clock::to_time_t(end);
-  std::cout << "finished loop computation at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+  std::cout << "finished speed test at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+}
+/* ********************************************************************************* */
+void CreateBentTriad(){
+  Config conf;
+  MetricsPacket metrics;
+  metrics.MaxDuration = 0.0; metrics.MyProject = &conf; metrics.FreshnessTimeStamp = 1;
+
+  double NoteDuration = 2.0, Octave = 5.0;
+  Voice *voz;
+  voz = PatternMaker::Create_Bent_Note(0.0, NoteDuration, 0.0, 1.0);
+
+  LoopSong *loop = PatternMaker::Create_Unbound_Triad_Rhythm(*voz);
+
+  GroupSong *grsong = new GroupSong();// put in a group to raise it by 5 octaves.
+  grsong->Add_SubSong(*loop, 0.0, Octave, 1.0);
+
+  grsong->Update_Guts(metrics); grsong->Set_Project(&conf);
+
+  Wave wave;
+
+  GroupSong::Group_OffsetBox *grobox = grsong->Spawn_OffsetBox();
+  GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
+
+  //TestSpeed(*gsing);
+
+  gsing->Start();
+  gsing->Render_To(grsong->Duration, wave);
+  delete gsing;
+
+  wave.SaveToWav("BentTriad.wav");
+
+  delete grobox;
 }
 /* ********************************************************************************* */
 int main() {
@@ -186,37 +222,35 @@ int main() {
   metrics.MyProject = &conf;
   metrics.FreshnessTimeStamp = 1;
 
-  if (false) {// http://www.cplusplus.com/reference/ctime/difftime/
-    time_t now;
-    struct tm newyear;
-    double seconds;
-
-    time(&now);  /* get current time; same as: now = time(NULL)  */
-    newyear = *localtime(&now);
-
-    newyear.tm_hour = 0; newyear.tm_min = 0; newyear.tm_sec = 0;
-    newyear.tm_mon = 0;  newyear.tm_mday = 1;
-
-    seconds = difftime(now, mktime(&newyear));
-
-    printf ("%.f seconds since new year in the current timezone.\n", seconds);
-  }
-  if (false) {// https://en.cppreference.com/w/cpp/chrono
-    using namespace std::chrono;
-
-    system_clock::time_point start = system_clock::now();
-    // std::cout << "f(42) = " << fibonacci(42) << '\n'; // do stuff here
-    system_clock::time_point end = system_clock::now();
-
-    duration<double> elapsed_seconds = end-start;
-    std::time_t end_time = system_clock::to_time_t(end);
-
-    std::cout << "finished computation at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
-
-    // or https://en.cppreference.com/w/cpp/chrono/c/clock   ?
+  if (true){
+    CreateBentTriad();
+    return 0;
   }
 
-  cout << Math::PI << endl;
+  if (true){// create bent minor triad
+    Voice *voz;
+    if (true){
+      voz = PatternMaker::Create_Bent_Note(0.0, 1.0, 0.0, 1.0);
+    }else{
+      voz = new Voice();
+      FillVoice(voz, 1.0);// add voice bend points
+    }
+
+    GroupSong *triad = PatternMaker::MakeMinor(*voz, 12 * 5);
+    triad->Update_Guts(metrics);
+    triad->Set_Project(&conf);
+
+    Wave wave;
+    GroupSong::Group_OffsetBox *triadbox = triad->Spawn_OffsetBox();
+    GroupSong::Group_Singer *gsing = triadbox->Spawn_Singer();
+    gsing->Start();
+    gsing->Render_To(triad->Duration, wave);
+    delete gsing;
+
+    wave.SaveToWav("Minor.wav");
+
+    delete triadbox;
+  }
 
   if (true) {// Voice and  Group
     Voice *voz;

@@ -41,7 +41,7 @@ public:
   OffsetBoxBase* Add_SubSong(ISonglet& songlet, ldouble TimeOffset, ldouble OctaveOffset, ldouble LoudnessFactor) {
     OffsetBoxBase *obox = songlet.Spawn_OffsetBox();
     this->Add_SubSong(obox, TimeOffset, OctaveOffset, LoudnessFactor);
-    return obox;
+    return obox;// even though we return the offsetbox, it is groupsong's responsibility to delete the offsetbox.
   }
   /* ********************************************************************************* */
   void Add_SubSong(OffsetBoxBase* obox, ldouble TimeOffset, ldouble OctaveOffset, ldouble LoudnessFactor) {// Add a songlet with its offsetbox already created.
@@ -532,7 +532,7 @@ public:
       IsFinished = false;
       Current_Dex = 0;
       Prev_Time = 0; this->Sample_Start = 0;
-      NowPlaying.clear();
+      Delete_Kids();
       if (this->MySonglet->SubSongs.size() <= 0) {
         this->IsFinished = true;
       }
@@ -625,6 +625,9 @@ public:
     }
     void Delete_Me() override {// IDeletable
       SingerBase::Delete_Me();
+      Delete_Kids();
+    }
+    void Delete_Kids() {// delete the whole pool of sub-singers
       int len = this->NowPlaying.size();
       SingerBase *singer;
       for (int cnt = 0; cnt < len; cnt++) {

@@ -123,7 +123,6 @@ public:
 
 class Math {
 public:
-  //static constexpr long double PI = 3.141592653589793238L;
   static constexpr long double PI = PIdef;
 
   static ldouble min(ldouble a, ldouble b) {
