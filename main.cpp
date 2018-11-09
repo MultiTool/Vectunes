@@ -166,6 +166,7 @@ void TestSpeed(SingerBase& singer){
   Wave Chunk, Chopped;
   system_clock::time_point start = system_clock::now();// https://en.cppreference.com/w/cpp/chrono
   for (int tcnt=0;tcnt<NumTrials;tcnt++){
+    cout << "Trial Number:" << tcnt << "\n";
     Time = 0;
     bool TimeRender = true;
     singer.Start();
@@ -204,7 +205,7 @@ void CreateBentTriad(){
   GroupSong::Group_OffsetBox *grobox = grsong->Spawn_OffsetBox();
   GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
 
-  //TestSpeed(*gsing);
+  // TestSpeed(*gsing);
 
   gsing->Start();
   gsing->Render_To(grsong->Duration, wave);
