@@ -159,29 +159,39 @@ GroupSong* MakeChord(ISonglet *songlet){
   return gsong;
 }
 /* ********************************************************************************* */
-void TestSpeed(SingerBase& singer){
+void TestSpeed(ISonglet& song){
   using namespace std::chrono;
   int NumTrials = 16;
   ldouble Time;
   Wave Chunk, Chopped;
+
+  OffsetBoxBase *obox = song.Spawn_OffsetBox();
+  SingerBase *singer = obox->Spawn_Singer();
+
   system_clock::time_point start = system_clock::now();// https://en.cppreference.com/w/cpp/chrono
   for (int tcnt=0;tcnt<NumTrials;tcnt++){
     cout << "Trial Number:" << tcnt << "\n";
     Time = 0;
     bool TimeRender = true;
-    singer.Start();
-    while (!singer.IsFinished){
+    singer->Start();
+    while (!singer->IsFinished){
       Time += 0.1;
-      singer.Render_To(Time, Chunk);
+      singer->Render_To(Time, Chunk);
       Chopped.Append2(Chunk);
     }
   }
   system_clock::time_point end = system_clock::now();
 
+  delete singer;
+  delete obox;
+
   duration<double> elapsed_seconds = end-start;
   elapsed_seconds /= (ldouble)NumTrials;
   std::time_t end_time = system_clock::to_time_t(end);
   std::cout << "finished speed test at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+}
+/* ********************************************************************************* */
+void CreateRandom(){// create a random composition
 }
 /* ********************************************************************************* */
 void CreateBentTriad(){
@@ -197,22 +207,17 @@ void CreateBentTriad(){
 
   GroupSong *grsong = new GroupSong();// put in a group to raise it by 5 octaves.
   grsong->Add_SubSong(*loop, 0.0, Octave, 1.0);
-
-  grsong->Update_Guts(metrics); grsong->Set_Project(&conf);
-
-  Wave wave;
+  grsong->Update_Guts(metrics); grsong->Set_Project(&conf);// finalize
 
   GroupSong::Group_OffsetBox *grobox = grsong->Spawn_OffsetBox();
   GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
-
-  // TestSpeed(*gsing);
-
+  Wave wave;
   gsing->Start();
   gsing->Render_To(grsong->Duration, wave);
   delete gsing;
-
   wave.SaveToWav("BentTriad.wav");
 
+  TestSpeed(*grsong);
   delete grobox;
 }
 /* ********************************************************************************* */
@@ -225,10 +230,10 @@ int main() {
 
   if (true){
     CreateBentTriad();
-    return 0;
+    //return 0;
   }
 
-  if (true){// create bent minor triad
+  if (false){// create bent minor triad
     Voice *voz;
     if (true){
       voz = PatternMaker::Create_Bent_Note(0.0, 1.0, 0.0, 1.0);
@@ -253,13 +258,14 @@ int main() {
     delete triadbox;
   }
 
-  if (true) {// Voice and  Group
+  if (false) {// Voice and  Group
     Voice *voz;
     voz = new Voice();
     voz->Update_Guts(metrics);
     voz->Set_Project(&conf);
 
-    FillVoice(voz, 1.0);// add voice bend points
+    //FillVoice(voz, 2000.0);// add voice bend points, 33 min 20 sec
+    FillVoice(voz, 1.0);// add voice bend points, 1 min
     //FillVoice(voz, 0.2);// add voice bend points
 
     Voice::Voice_OffsetBox *vobox = voz->Spawn_OffsetBox();
@@ -294,7 +300,7 @@ int main() {
     // delete voz;// voice is deleted automatically when we delete vobox
   }
 
-  if (true) {// Span - simple group with one delayed voice
+  if (false) {// Span - simple group with one delayed voice
     Voice *voz0;
     voz0 = new Voice();
     FillVoice(voz0);
@@ -314,12 +320,9 @@ int main() {
     MegaChop_Add(singer, "Span");
 
     delete gsong;
-    //return 0;
   }
 
-  if (true) {// Loop
-    using namespace std::chrono;
-
+  if (false) {// Loop
     Voice *voz0;
     voz0 = new Voice();
     FillVoice(voz0);
@@ -343,15 +346,10 @@ int main() {
 
     SingerBase *singer = lobox->Spawn_Singer();
 
-    TestSpeed(*singer);
-    system_clock::time_point start = system_clock::now();
     MegaChop_Add(singer, "Loop");
-    system_clock::time_point end = system_clock::now();
+    delete singer;
 
-    duration<double> elapsed_seconds = end-start;
-    std::time_t end_time = system_clock::to_time_t(end);
-    //std::cout << "finished loop computation at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
-
+    TestSpeed(*lsong);
     //finished loop computation at Thu Nov 08 09:30:09 2018
     //elapsed time: 4.09459s
 

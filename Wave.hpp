@@ -215,7 +215,7 @@ public:
     int sz = wave.size();
     dex -= this->StartDex;// to do: replace this approach with something more efficient
     if (dex < 0 || sz-1 < dex){
-      printf("out of range! size:%lu, dex:%i\n\n",wave.size(), dex);
+      printf("Set_Abs out of range! size:%lu, dex:%i\n\n",wave.size(), dex);
       //this->wave.insert(this->wave.begin()+dex, value); this->NumSamples = this->wave.size();
     }else{
       this->wave[dex] = value;

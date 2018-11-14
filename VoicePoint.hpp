@@ -180,9 +180,9 @@ public:
     this->SubTime = source.SubTime;
   }
   /* ********************************************************************************* */
-  ldouble GetFrequencyFactor() {
-    return Math::pow(2.0, this->OctaveY);
-  }
+//  ldouble GetFrequencyFactor() {
+//    return Math::pow(2.0, this->OctaveY);
+//  }
   /* ********************************************************************************* */
   void Draw_Me(IDrawingContext& ParentDC) override {// IDrawable
     // Control points have the same space as their parent, so no need to create a local map.

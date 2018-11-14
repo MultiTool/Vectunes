@@ -17,11 +17,23 @@ public:
   void add(const Type item){
     this->push_back(item);
   }
+  void Add(const Type item){
+    this->push_back(item);
+  }
   void Insert(int Dex, Type item){// insert by index
     this->insert(this->begin() + Dex, item);
   }
   Type get(int Dex){
     return this->at(Dex);
+  }
+  bool Contains(const Type item){// find by content
+    typename ArrayList<Type>::iterator it;
+    it = std::find(this->begin(), this->end(), item);
+    if (it != this->end()){
+      return true;
+    }else{
+      return false;
+    }
   }
 };
 

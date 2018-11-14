@@ -28,7 +28,7 @@ class CollisionLibrary;// forward
 class ISonglet;// forward
 class MonkeyBox: public IMoveable, public IDeletable, public ITextable {// location box to transpose in pitch, move in time, etc.  //IMonkeyBox,
 public:
-  ldouble TimeX = 0, OctaveY = 0, LoudnessFactor = 1.0;// all of these are in parent coordinates
+  ldouble TimeX = 0, OctaveY = 0, LoudnessFactor = 1.0;// time, octave, and loudness context. all of these are in parent coordinates
   ldouble ScaleX = 1.0, ScaleY = 1.0; // to be used for pixels per second, pixels per octave
   // ScaleY is 'temper' context, which we will NEVER use unless we want to make ugly anharmonic noise.
   String TimeXName = "TimeX", OctaveYName = "OctaveY", LoudnessFactorName = "LoudnessFactor", ScaleXName = "ScaleX", ScaleYName = "ScaleY";// for serialization
@@ -119,6 +119,7 @@ public:
   }
   /* ********************************************************************************* */
   void UnMap(ldouble XLoc, ldouble YLoc, Point2D& results) {
+    results.SetLocation(this->UnMapTime(XLoc), this->UnMapPitch(YLoc));
   }
   /* ********************************************************************************* */
   void MapTo(const Point2D& pnt, Point2D& results) {
@@ -143,6 +144,10 @@ public:
     results.Sort_Me();
   }
   // </editor-fold>
+  /* ********************************************************************************* */
+  ldouble GetFrequencyFactor() {
+    return Math::pow(2.0, this->OctaveY);
+  }
   /* ********************************************************************************* */
   void Draw_Me(IDrawingContext& ParentDC) {}
   /* ********************************************************************************* */

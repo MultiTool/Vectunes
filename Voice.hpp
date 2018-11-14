@@ -146,7 +146,11 @@ public:
         TimeRange = Globals::Fudge;// Fudge to avoid div by 0
       }
       ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second
-      SubTimeLocal = Integral(OctaveRate, TimeRange);
+      if (OctaveRate == 0.0){
+        SubTimeLocal = TimeRange;// snox is using TimeRange right?
+      }else{
+        SubTimeLocal = Integral(OctaveRate, TimeRange);
+      }
       Next_Point->SubTime = Prev_Point->SubTime + (FrequencyFactorStart * SubTimeLocal);
     }
   }
@@ -154,14 +158,14 @@ public:
   static ldouble Integral(ldouble OctaveRate, ldouble TimeAlong) {// to do: optimize this!
     ldouble SubTimeCalc;// given realtime passed and rate of octave change, use integration to get the sum of all subjective time passed.
     //return TimeAlong;// snox for testing.  removing integral about doubles speed
-    if (OctaveRate == 0.0) {// do we really have to check this for every sample? more efficient to do it once up front.
-      return TimeAlong;
-    }
+    //if (OctaveRate == 0.0) { return TimeAlong; }// do we really have to check this for every sample? more efficient to do it once up front.
     // Yep calling log and pow functions for every sample generated is expensive. We will have to optimize later.
-    ldouble Denom = (Math::log(2.0) * OctaveRate);// returns the integral of (2 ^ (TimeAlong * OctaveRate))
+    ldouble Denom = (std::log(2.0) * OctaveRate);// returns the integral of (2 ^ (TimeAlong * OctaveRate))
     //ldouble Denom = 1.0;// snox for testing.  doing this might maybe be about 0.05(?) seconds faster for a ~1.4 second render
     //SubTimeCalc = (Math::pow(2.0, (TimeAlong * OctaveRate)) / Denom) - (1.0 / Denom);
-    SubTimeCalc = ((Math::pow(2.0, (TimeAlong * OctaveRate)) - 1.0) / Denom);
+    //SubTimeCalc = Denom;// snox for testing
+    //SubTimeCalc = ((Math::pow(2.0, (TimeAlong * OctaveRate)) - 1.0) / Denom);
+    SubTimeCalc = ((std::pow(2.0, (TimeAlong * OctaveRate)) - 1.0) / Denom);// This one line eats more than half our speed.
     return SubTimeCalc;
   }
   /* ********************************************************************************* */
@@ -325,8 +329,8 @@ public:
     }
     /* ********************************************************************************* */
     void Skip_To(ldouble EndTime) override {// to do: rewrite this to match bug-fixed render_to
-      VoicePoint *Prev_Point, *Next_Point;
       if (this->IsFinished){ return; }
+      VoicePoint *Prev_Point = null, *Next_Point = null;
       EndTime = this->MyOffsetBox->MapTime(EndTime);// EndTime is now time internal to voice's own coordinate system
       this->Render_Sample_Count = 0;
       EndTime = this->ClipTime(EndTime);
@@ -363,7 +367,6 @@ public:
       ldouble UnMapped_Prev_Time = this->InheritedMap.UnMapTime(this->Cursor_Point.TimeX);// get start time in global coordinates
       this->Render_Sample_Count = 0;
       int NumBends = this->MyVoice->CPoints.size();
-      ldouble EndTime1 = EndTime;
       EndTime = this->ClipTime(EndTime);
       ldouble UnMapped_EndTime = this->InheritedMap.UnMapTime(EndTime);
 
@@ -461,7 +464,12 @@ public:
       ldouble TimeAlong = RealTime - pnt0.TimeX;
       ldouble OctaveRange = pnt1.OctaveY - pnt0.OctaveY;
       ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second
-      ldouble SubTimeLocal = Integral(OctaveRate, TimeAlong);
+      ldouble SubTimeLocal;
+      if (OctaveRate == 0.0){
+        SubTimeLocal = TimeAlong;
+      }else{
+        SubTimeLocal = Integral(OctaveRate, TimeAlong);
+      }
       PntMid.TimeX = RealTime;
       PntMid.SubTime = pnt0.SubTime + (FrequencyFactorStart * SubTimeLocal);
 
@@ -472,20 +480,18 @@ public:
       PntMid.LoudnessFactor = pnt0.LoudnessFactor + LoudAlong;
     }
     /* ********************************************************************************* */
-    void Render_Segment_Iterative(VoicePoint& pnt0, VoicePoint& pnt1, Wave& wave) {// stateful iterative approach
+    void Render_Segment_Iterative(VoicePoint& pnt0, VoicePoint& pnt1, Wave& wave) {// stateful iterative approach, not ready for test
       ldouble BaseFreq = this->MyVoice->BaseFreq;
       ldouble SRate = this->SampleRate;
       ldouble TimeRange = pnt1.TimeX - pnt0.TimeX;
       ldouble SampleDuration = 1.0 / SRate;
       ldouble FrequencyFactorStart = pnt0.GetFrequencyFactor();
-      // FrequencyFactorStart *= Math::pow(2.0, this->Inherited_Octave);// inherit transposition
-      //ldouble Octave0 = this->Inherited_Octave + pnt0.OctaveY, Octave1 = this->Inherited_Octave + pnt1.OctaveY;
-      FrequencyFactorStart *= Math::pow(2.0, this->InheritedMap.OctaveY);// inherit transposition
+      FrequencyFactorStart *= this->InheritedMap.GetFrequencyFactor();// inherit transposition
       ldouble Octave0 = this->InheritedMap.OctaveY + pnt0.OctaveY, Octave1 = this->InheritedMap.OctaveY + pnt1.OctaveY;
       ldouble OctaveRange = Octave1 - Octave0;
-      if (OctaveRange == 0.0) {
-        OctaveRange = Globals::Fudge;// Fudge to avoid div by 0
-      }
+//      if (OctaveRange == 0.0) {
+//        OctaveRange = Globals::Fudge;// Fudge to avoid div by 0
+//      }
       ldouble LoudnessRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
       ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second
       ldouble LoudnessRate = LoudnessRange / TimeRange;
@@ -501,11 +507,12 @@ public:
       for (int scnt = 0; scnt < NumSamples; scnt++) {
         TimeAlong = scnt * SampleDuration;
         CurrentOctaveLocal = TimeAlong * OctaveRate;
-        CurrentFrequencyFactorLocal = Math::pow(2.0, CurrentOctaveLocal); // to convert to absolute, do pnt0.SubTime + (FrequencyFactorStart * CurrentFrequencyFactorLocal);
+        CurrentFrequencyFactorLocal = std::pow(2.0, CurrentOctaveLocal); // to convert to absolute, do pnt0.SubTime + (FrequencyFactorStart * CurrentFrequencyFactorLocal);
         CurrentFrequencyFactorAbsolute = (FrequencyFactorStart * CurrentFrequencyFactorLocal);
         CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
         CurrentFrequency = BaseFreq * CurrentFrequencyFactorAbsolute;// do we really need to include the base frequency in the summing?
-        Amplitude = Math::sin(SubTimeIterate);
+        //Amplitude = std::sin(SubTimeIterate);
+        Amplitude = this->GetWaveForm(SubTimeIterate);
         wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
         SubTimeIterate += (CurrentFrequency * Globals::TwoPi) / SRate;
         this->Render_Sample_Count++;
@@ -520,13 +527,10 @@ public:
       ldouble SubTime0 = pnt0.SubTime * this->InheritedMap.ScaleX;// tempo rescale
       ldouble TimeRange = Time1 - Time0;
       ldouble FrequencyFactorStart = pnt0.GetFrequencyFactor();
-      ldouble FrequencyFactorInherited = Math::pow(2.0, this->InheritedMap.OctaveY);// inherit transposition
+      ldouble FrequencyFactorInherited = this->InheritedMap.GetFrequencyFactor();// inherit transposition
       ldouble Octave0 = this->InheritedMap.OctaveY + pnt0.OctaveY, Octave1 = this->InheritedMap.OctaveY + pnt1.OctaveY;
 
       ldouble OctaveRange = Octave1 - Octave0;
-//      if (OctaveRange == 0.0) {
-//        OctaveRange = Globals::Fudge;// Fudge to avoid div by 0
-//      }
       ldouble LoudnessRange = pnt1.LoudnessFactor - pnt0.LoudnessFactor;
       ldouble OctaveRate = OctaveRange / TimeRange;// octaves per second bend
       OctaveRate += this->Inherited_OctaveRate;// inherit note bend
@@ -541,17 +545,29 @@ public:
       int SampleCnt;
       ldouble PreCalc0 = (SubTime0 * FrequencyFactorInherited);// evaluate this outside the loop to optimize
       ldouble PreCalc1 = (FrequencyFactorStart * FrequencyFactorInherited);
-      for (SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++) { // look into -ffast-math
-        TimeAlong = (SampleCnt / SRate) - Time0;
-        CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
-        SubTimeLocal = Integral(OctaveRate, TimeAlong);
-        SubTimeAbsolute = (SubTime0 + (FrequencyFactorStart * SubTimeLocal)) * FrequencyFactorInherited;
-        //SubTimeAbsolute = (PreCalc0 + (PreCalc1 * SubTimeLocal));// optimized, hardly notice the difference
-        Amplitude = this->GetWaveForm(SubTimeAbsolute);
-        //Amplitude = SubTimeAbsolute * 0.05;// for testing
-        //wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
-        wave.Set_Abs(SampleCnt, Amplitude * CurrentLoudness);
-        this->Render_Sample_Count++;
+      if (OctaveRate == 0.0) {// no bends, don't waste time on calculus
+        for (SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++) {
+          TimeAlong = (SampleCnt / SRate) - Time0;
+          CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
+          SubTimeLocal = TimeAlong;
+          SubTimeAbsolute = (SubTime0 + (FrequencyFactorStart * SubTimeLocal)) * FrequencyFactorInherited;
+          Amplitude = this->GetWaveForm(SubTimeAbsolute);
+          //wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
+          wave.Set_Abs(SampleCnt, Amplitude * CurrentLoudness);
+          this->Render_Sample_Count++;
+        }
+      }else{
+        for (SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++) { // look into -ffast-math
+          TimeAlong = (SampleCnt / SRate) - Time0;
+          CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
+          SubTimeLocal = Voice::Integral(OctaveRate, TimeAlong);
+          SubTimeAbsolute = (SubTime0 + (FrequencyFactorStart * SubTimeLocal)) * FrequencyFactorInherited;
+          //SubTimeAbsolute = (PreCalc0 + (PreCalc1 * SubTimeLocal));// optimized, hardly notice the difference
+          Amplitude = this->GetWaveForm(SubTimeAbsolute);
+          //wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
+          wave.Set_Abs(SampleCnt, Amplitude * CurrentLoudness);
+          this->Render_Sample_Count++;
+        }
       }
       this->Bone_Sample_Mark = EndSample;
     }
@@ -564,10 +580,10 @@ public:
       this->Cursor_Point.Delete_Me();
       this->MyVoice = null;// wreck everything so we crash if we try to use a dead object
       this->Phase = this->Cycles = this->SubTime = Double::NEGATIVE_INFINITY;// Double_NEGATIVE_INFINITY;
-      this->Current_Octave = this->Current_Frequency = Double_NEGATIVE_INFINITY;
-      this->BaseFreq = Double_NEGATIVE_INFINITY;
-      this->Prev_Point_Dex = this->Next_Point_Dex = Integer_MIN_VALUE;
-      this->Render_Sample_Count = this->Bone_Sample_Mark = Integer_MIN_VALUE;
+      this->Current_Octave = this->Current_Frequency = Double::NEGATIVE_INFINITY;// Double_NEGATIVE_INFINITY;
+      this->BaseFreq = Double::NEGATIVE_INFINITY;// Double_NEGATIVE_INFINITY;
+      this->Prev_Point_Dex = this->Next_Point_Dex = Integer::MIN_VALUE;
+      this->Render_Sample_Count = this->Bone_Sample_Mark = Integer::MIN_VALUE;
     }
   };
   /* ********************************************************************************* */

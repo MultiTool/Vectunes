@@ -38,7 +38,7 @@ public:
   }
   ~GroupSong() {this->Delete_Me();}
   /* ********************************************************************************* */
-  OffsetBoxBase* Add_SubSong(ISonglet& songlet, ldouble TimeOffset, ldouble OctaveOffset, ldouble LoudnessFactor) {
+  virtual OffsetBoxBase* Add_SubSong(ISonglet& songlet, ldouble TimeOffset, ldouble OctaveOffset, ldouble LoudnessFactor) {
     OffsetBoxBase *obox = songlet.Spawn_OffsetBox();
     this->Add_SubSong(obox, TimeOffset, OctaveOffset, LoudnessFactor);
     return obox;// even though we return the offsetbox, it is groupsong's responsibility to delete the offsetbox.

@@ -23,8 +23,10 @@
 				<Compiler>
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
+					<Add option="-ffast-math" />
 				</Compiler>
 				<Linker>
+					<Add option="-O3" />
 					<Add option="-s" />
 				</Linker>
 			</Target>

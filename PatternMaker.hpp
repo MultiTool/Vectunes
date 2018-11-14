@@ -73,6 +73,70 @@ public:
 
     return lsong;
   }
+  /* ********************************************************************************* */
+  OffsetBoxBase* Recurse(ArrayList<ISonglet*>& palette){// Attempted random song maker, under construction.
+    ISonglet *child=nullptr, *grandkid=nullptr;//  does this really work without circular references?
+    Voice *voz; GroupSong *gsong; LoopSong *lsong;
+    OffsetBoxBase *GrandkidHandle;
+    ldouble random_time=0.0, random_octave=4.0, random_loudness=1.0;
+    double NumWays = 0;
+    double PaletteThresh = (NumWays += palette.size());
+    double VoiceThresh = (NumWays += 1.0);// Voice
+    double LoopThresh = (NumWays += 1.0);// Loop
+    double GroupThresh = (NumWays += 1.0);// Group
+
+    PaletteThresh /= NumWays; VoiceThresh /= NumWays; LoopThresh /= NumWays; GroupThresh /= NumWays;
+
+    double dice = Math::frand();
+    if (dice<PaletteThresh){
+      int randex = std::rand() % palette.size();
+      child = palette[randex];
+    } else if (dice<VoiceThresh){
+      child = voz = new Voice();
+      // to do: fill in voice
+    } else if (dice<LoopThresh){
+      child = lsong = new LoopSong();
+      GrandkidHandle = Recurse(palette);
+      lsong->Add_SubSong(GrandkidHandle);
+      grandkid = GrandkidHandle->GetContent();
+      if (!palette.Contains(grandkid)){
+        palette.Add(grandkid);
+      }
+      // to do: set interval and beats
+    } else if (dice<GroupThresh){
+      child = gsong = new GroupSong();
+      int randex = std::rand() % 12;// arbitrary max members of a group
+      for (int cnt=0; cnt<randex; cnt++){
+        GrandkidHandle = Recurse(palette);
+        gsong->Add_SubSong(GrandkidHandle);
+        grandkid = GrandkidHandle->GetContent();
+        if (!palette.Contains(grandkid)){
+          palette.Add(grandkid);
+        }
+      }
+    }
+    OffsetBoxBase *obox = child->Spawn_OffsetBox();
+    obox->TimeX = random_time;
+    obox->OctaveY = random_octave;
+    obox->LoudnessFactor = random_loudness;
+    return obox;
+  }
+  /* ********************************************************************************* */
+  void MakeRandom(){// under construction
+    ArrayList<ISonglet*> palette; // things that we've created so far
+
+    OffsetBoxBase *obox = Recurse(palette);
+
+    LoopSong MainLoop;
+    MainLoop.Add_SubSong(obox);
+
+    //Voice voz;
+    //MainLoop.Add_SubSong(voz, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
+    //MainLoop.Add_SubSong(*songlet, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
+    ldouble random = 0.123456;
+    MainLoop.Set_Interval(random);
+    MainLoop.Set_Beats(30);
+  }
 };
 
 #endif // PatternMaker_hpp

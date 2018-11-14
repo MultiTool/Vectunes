@@ -139,10 +139,12 @@ DummySong is the most rigorous approach but inherits too much interface junk to 
     }
     Refresh_Splines();
   }
+  /* ********************************************************************************* */
   int Add_SubSong(OffsetBoxBase *obox) override {
     int dex = 0;// When someone gives me an OffsetBox, I own it.  I must delete it.
     delete this->SingleSong.Child;// It is my responsibility to delete the handle I was given.
     this->SingleSong.Child = obox;// Now assign the new handle.
+    obox->MyParentSong = &this->SingleSong;
     this->SingleSong.ChildSong = obox->GetContent();
     return dex;
   }
