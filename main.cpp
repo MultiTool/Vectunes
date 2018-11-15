@@ -228,6 +228,29 @@ int main() {
   metrics.MyProject = &conf;
   metrics.FreshnessTimeStamp = 1;
 
+  std::srand(std::time(nullptr)); // use current time as seed for random generator
+
+  if (false){
+    LoopSong* tree = PatternMaker::MakeRandom();
+    GroupSong *grsong = new GroupSong();
+    GroupSong::Group_OffsetBox *treebox = tree->Spawn_OffsetBox();
+    treebox->OctaveY = 4.0;
+    grsong->Add_SubSong(treebox);
+
+    grsong->Update_Guts(metrics); grsong->Set_Project(&conf);// finalize
+
+    GroupSong::Group_OffsetBox *grobox = grsong->Spawn_OffsetBox();
+    GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
+    Wave wave;
+    gsing->Start();
+    gsing->Render_To(tree->Duration, wave);
+    delete gsing;
+    delete grobox;
+
+    wave.SaveToWav("RandomTree.wav");
+    return 0;
+  }
+
   if (true){
     CreateBentTriad();
     //return 0;

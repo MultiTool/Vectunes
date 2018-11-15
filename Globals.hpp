@@ -163,7 +163,11 @@ public:
   }
   //  std::srand(std::time(nullptr)); // use current time as seed for random generator
   static ldouble frand() {
-    return ((ldouble)std::rand()) / (ldouble)RAND_MAX;
+    int numer = std::rand();
+    int denom = 9973;//117;// prime number
+    int remainder = numer % denom;
+    return ((ldouble)remainder) / (ldouble)denom;
+    //return ((ldouble)std::rand()) / (ldouble)RAND_MAX;
   }
 };
 

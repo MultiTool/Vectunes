@@ -604,7 +604,7 @@ public:
     }
     /* ********************************************************************************* */
     void Attach_Songlet(Voice *songlet) {// for serialization
-      this->VoiceContent = songlet;
+      this->MySonglet = this->VoiceContent = songlet;
       songlet->Ref_Songlet();
     }
     /* ********************************************************************************* */

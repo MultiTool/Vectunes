@@ -20,6 +20,24 @@ public:
     return Create_Triad(song, Key, (Key + 3), (Key + 7));
   }
   /* ********************************************************************************* */
+  static GroupSong* MakeAugmented(ISonglet& song, int Key) {
+    Key /= SemitoneFraction;// convert from octaves to frets
+    return Create_Triad(song, Key, (Key + 4), (Key + 8));
+  }
+  /* ********************************************************************************* */
+  static GroupSong* MakeDiminished(ISonglet& song, int Key) {
+    Key /= SemitoneFraction;// convert from octaves to frets
+    return Create_Triad(song, Key, (Key + 3), (Key + 6));
+  }
+  /* ********************************************************************************* */
+  static GroupSong* Create_Seventh(ISonglet& song, int NoteDex0, int NoteDex1, int NoteDex2, int NoteDex3) {
+    double Loudness = 1.0;// NoteDex0 is usually the key
+    double Duration = 2.0;
+    GroupSong *cbx = Create_Triad(song, NoteDex0, NoteDex1, NoteDex2);
+    cbx->Add_SubSong(song, 0, SemitoneFraction * NoteDex3, Loudness);
+    return cbx;
+  }
+  /* ********************************************************************************* */
   static GroupSong* Create_Triad(ISonglet& song, double NoteDex0, double NoteDex1, double NoteDex2) {
     double Loudness = 1.0;// NoteDex0 is usually the key
     GroupSong *gsong = new GroupSong();
@@ -74,40 +92,62 @@ public:
     return lsong;
   }
   /* ********************************************************************************* */
-  OffsetBoxBase* Recurse(ArrayList<ISonglet*>& palette){// Attempted random song maker, under construction.
+  static void Create_Tapered_Voice(Voice& voice, double TimeOffset, double Duration, double OctaveOffset, double LoudnessOffset, int numsteps) {
+    double AttackTime = 0.01;
+    Duration -= AttackTime;
+    double midfrac;
+    voice.Add_Note(TimeOffset, OctaveOffset, 0);
+    for (int cnt = 0; cnt <= numsteps; cnt++) {
+      midfrac = ((double) cnt) / (double) numsteps;
+      voice.Add_Note(TimeOffset + AttackTime + (Duration * midfrac), OctaveOffset, LoudnessOffset * (1.0 - midfrac));
+    }
+  }
+  /* ********************************************************************************* */
+  static OffsetBoxBase* Recurse(ArrayList<ISonglet*>& palette, int Depth){// Attempted random song maker, under construction.
     ISonglet *child=nullptr, *grandkid=nullptr;//  does this really work without circular references?
     Voice *voz; GroupSong *gsong; LoopSong *lsong;
     OffsetBoxBase *GrandkidHandle;
-    ldouble random_time=0.0, random_octave=4.0, random_loudness=1.0;
+    int randex;
     double NumWays = 0;
+    double VoiceThresh = (NumWays += 0.1);// Voice
     double PaletteThresh = (NumWays += palette.size());
-    double VoiceThresh = (NumWays += 1.0);// Voice
     double LoopThresh = (NumWays += 1.0);// Loop
     double GroupThresh = (NumWays += 1.0);// Group
 
     PaletteThresh /= NumWays; VoiceThresh /= NumWays; LoopThresh /= NumWays; GroupThresh /= NumWays;
 
+    Depth++;
+
     double dice = Math::frand();
-    if (dice<PaletteThresh){
-      int randex = std::rand() % palette.size();
-      child = palette[randex];
-    } else if (dice<VoiceThresh){
+    if (dice<VoiceThresh || Depth>3){// end with a leaf
+      printf("Voice\n");
       child = voz = new Voice();
-      // to do: fill in voice
+      double Duration=0.25, OctaveOffset=0.0, LoudnessOffset=1.0; int numsteps = 3;
+      Create_Tapered_Voice(*voz, 0.0, Duration, OctaveOffset, LoudnessOffset, numsteps);// fill in voice
+    } else if (dice<PaletteThresh){
+      printf("Palette\n");
+      randex = std::rand() % palette.size();
+      child = palette[randex];
     } else if (dice<LoopThresh){
+      printf("Loop\n");
       child = lsong = new LoopSong();
-      GrandkidHandle = Recurse(palette);
+      GrandkidHandle = Recurse(palette, Depth);
       lsong->Add_SubSong(GrandkidHandle);
       grandkid = GrandkidHandle->GetContent();
       if (!palette.Contains(grandkid)){
         palette.Add(grandkid);
       }
-      // to do: set interval and beats
+      // Set interval and beats
+      ldouble random = 0.123456;// Math::frand() + 0.1;
+      lsong->Set_Interval(random);
+      randex = (std::rand() % 12)+2;
+      lsong->Set_Beats(randex);
     } else if (dice<GroupThresh){
+      printf("Group\n");
       child = gsong = new GroupSong();
-      int randex = std::rand() % 12;// arbitrary max members of a group
+      randex = (std::rand() % 12)+2;// arbitrary max members of a group
       for (int cnt=0; cnt<randex; cnt++){
-        GrandkidHandle = Recurse(palette);
+        GrandkidHandle = Recurse(palette, Depth);
         gsong->Add_SubSong(GrandkidHandle);
         grandkid = GrandkidHandle->GetContent();
         if (!palette.Contains(grandkid)){
@@ -115,6 +155,9 @@ public:
         }
       }
     }
+    ldouble random_time = Math::frand() + 0.1;
+    ldouble random_octave = Math::frand() + 0.1;
+    ldouble random_loudness=1.0;
     OffsetBoxBase *obox = child->Spawn_OffsetBox();
     obox->TimeX = random_time;
     obox->OctaveY = random_octave;
@@ -122,20 +165,22 @@ public:
     return obox;
   }
   /* ********************************************************************************* */
-  void MakeRandom(){// under construction
+  static LoopSong* MakeRandom(){// under construction
     ArrayList<ISonglet*> palette; // things that we've created so far
 
-    OffsetBoxBase *obox = Recurse(palette);
+    OffsetBoxBase *obox = Recurse(palette, 0);
+    obox->OctaveY = 4.0;
 
-    LoopSong MainLoop;
-    MainLoop.Add_SubSong(obox);
+    LoopSong *MainLoop = new LoopSong();
+    MainLoop->Add_SubSong(obox);
 
     //Voice voz;
-    //MainLoop.Add_SubSong(voz, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
+    //MainLoop->Add_SubSong(voz, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
     //MainLoop.Add_SubSong(*songlet, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
     ldouble random = 0.123456;
-    MainLoop.Set_Interval(random);
-    MainLoop.Set_Beats(30);
+    MainLoop->Set_Interval(random);
+    MainLoop->Set_Beats(30);
+    return MainLoop;
   }
 };
 

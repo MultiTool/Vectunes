@@ -730,7 +730,7 @@ public:
     }
     /* ********************************************************************************* */
     void Attach_Songlet(GroupSong* songlet) {// for serialization
-      this->Content = songlet;
+      this->MySonglet = this->Content = songlet;
       songlet->Ref_Songlet();
     }
     /* ********************************************************************************* */
