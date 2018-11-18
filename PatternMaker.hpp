@@ -171,13 +171,25 @@ public:
     OffsetBoxBase *obox = Recurse(palette, 0);
     obox->OctaveY = 4.0;
 
+    if (false) {
+    Config conf;
+    MetricsPacket metrics;
+    metrics.MaxDuration = 0.0;
+    metrics.MyProject = &conf;
+    metrics.FreshnessTimeStamp = 1;
+    ISonglet *songlet = obox->GetContent();
+    songlet->Update_Guts(metrics);
+    //obox->Update_Guts(metrics);
+    }
+
     LoopSong *MainLoop = new LoopSong();
     MainLoop->Add_SubSong(obox);
 
     //Voice voz;
     //MainLoop->Add_SubSong(voz, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
     //MainLoop.Add_SubSong(*songlet, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
-    ldouble random = 0.123456;
+    ldouble random = obox->GetContent()->Get_Duration();// 0.123456;
+    random = 2.0;
     MainLoop->Set_Interval(random);
     MainLoop->Set_Beats(30);
     return MainLoop;

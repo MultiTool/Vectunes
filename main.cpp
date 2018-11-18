@@ -159,11 +159,12 @@ GroupSong* MakeChord(ISonglet *songlet){
   return gsong;
 }
 /* ********************************************************************************* */
-void TestSpeed(ISonglet& song){
+void TestSpeed(ISonglet& song, int NumTrials){
   using namespace std::chrono;
-  int NumTrials = 16;
   ldouble Time;
   Wave Chunk, Chopped;
+
+  std::cout << "Song Duration:" << song.Get_Duration() << " seconds\n";
 
   OffsetBoxBase *obox = song.Spawn_OffsetBox();
   SingerBase *singer = obox->Spawn_Singer();
@@ -188,7 +189,11 @@ void TestSpeed(ISonglet& song){
   duration<double> elapsed_seconds = end-start;
   elapsed_seconds /= (ldouble)NumTrials;
   std::time_t end_time = system_clock::to_time_t(end);
-  std::cout << "finished speed test at " << std::ctime(&end_time) << "elapsed time: " << elapsed_seconds.count() << "s\n";
+  std::cout << "finished speed test at " << std::ctime(&end_time) << "render time: " << elapsed_seconds.count() << "s\n";
+}
+/* ********************************************************************************* */
+void TestSpeed(ISonglet& song){
+  TestSpeed(song, 16);
 }
 /* ********************************************************************************* */
 void CreateRandom(){// create a random composition
@@ -245,6 +250,7 @@ int main() {
     gsing->Start();
     gsing->Render_To(tree->Duration, wave);
     delete gsing;
+    TestSpeed(*grsong, 1);
     delete grobox;
 
     wave.SaveToWav("RandomTree.wav");

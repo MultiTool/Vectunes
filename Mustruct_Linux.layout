@@ -4,17 +4,22 @@
 	<ActiveTarget name="Release" />
 	<File name="GroupSong.hpp" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="36543" topLine="738" />
+			<Cursor1 position="5719" topLine="112" />
+		</Cursor>
+	</File>
+	<File name="main.cpp" open="1" top="1" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7127" topLine="229" />
+		</Cursor>
+	</File>
+	<File name="PatternMaker.hpp" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7970" topLine="126" />
 		</Cursor>
 		<Folding>
-			<Collapse line="374" />
-			<Collapse line="541" />
+			<Collapse line="40" />
+			<Collapse line="60" />
 		</Folding>
-	</File>
-	<File name="Wave.hpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2462" topLine="60" />
-		</Cursor>
 	</File>
 	<File name="Voice.hpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
@@ -34,14 +39,9 @@
 			<Collapse line="310" />
 		</Folding>
 	</File>
-	<File name="MonkeyBox.hpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="ISonglet.hpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4790" topLine="93" />
-		</Cursor>
-	</File>
-	<File name="LoopSong.hpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4692" topLine="91" />
+			<Cursor1 position="4229" topLine="77" />
 		</Cursor>
 	</File>
 	<File name="Globals.hpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -49,22 +49,9 @@
 			<Cursor1 position="3642" topLine="103" />
 		</Cursor>
 	</File>
-	<File name="ISonglet.hpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Wave.hpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4229" topLine="77" />
-		</Cursor>
-	</File>
-	<File name="PatternMaker.hpp" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3184" topLine="36" />
-		</Cursor>
-		<Folding>
-			<Collapse line="40" />
-		</Folding>
-	</File>
-	<File name="CajaDelimitadora.hpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="348" topLine="0" />
+			<Cursor1 position="3786" topLine="67" />
 		</Cursor>
 	</File>
 	<File name="Config.hpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -72,14 +59,24 @@
 			<Cursor1 position="200" topLine="0" />
 		</Cursor>
 	</File>
+	<File name="LoopSong.hpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4692" topLine="91" />
+		</Cursor>
+	</File>
+	<File name="CajaDelimitadora.hpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="348" topLine="0" />
+		</Cursor>
+	</File>
 	<File name="ArrayList.hpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="161" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="main.cpp" open="1" top="1" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MonkeyBox.hpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7571" topLine="196" />
+			<Cursor1 position="4790" topLine="93" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
