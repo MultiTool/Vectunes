@@ -161,10 +161,11 @@ GroupSong* MakeChord(ISonglet *songlet){
 /* ********************************************************************************* */
 void TestSpeed(ISonglet& song, int NumTrials){
   using namespace std::chrono;
-  ldouble Time;
+  ldouble Time, Duration;
   Wave Chunk, Chopped;
 
-  std::cout << "Song Duration:" << song.Get_Duration() << " seconds\n";
+  Duration = song.Get_Duration();
+  std::cout << "Song Duration:" << Duration << " seconds\n";
 
   OffsetBoxBase *obox = song.Spawn_OffsetBox();
   SingerBase *singer = obox->Spawn_Singer();
@@ -187,9 +188,11 @@ void TestSpeed(ISonglet& song, int NumTrials){
   delete obox;
 
   duration<double> elapsed_seconds = end-start;
-  elapsed_seconds /= (ldouble)NumTrials;
+  // elapsed_seconds /= (ldouble)NumTrials;
+  ldouble TestTime = elapsed_seconds.count() / (ldouble)NumTrials;
   std::time_t end_time = system_clock::to_time_t(end);
-  std::cout << "finished speed test at " << std::ctime(&end_time) << "render time: " << elapsed_seconds.count() << "s\n";
+  std::cout << "finished speed test at " << std::ctime(&end_time) << "render time: " << TestTime << "s\n";
+  std::cout << "Ratio:" << (TestTime / Duration) << " seconds per second\n";
 }
 /* ********************************************************************************* */
 void TestSpeed(ISonglet& song){
@@ -226,20 +229,52 @@ void CreateBentTriad(){
   delete grobox;
 }
 /* ********************************************************************************* */
+void ComparePowers(){// Test for iterative render, faster than integral but accumulates errors
+  int Divisions = 12;
+  Divisions = 44100;
+  Divisions = 100;
+  ldouble OctaveStart = 0.2;
+  ldouble OctaveEnd = OctaveStart+2.0; OctaveEnd = OctaveStart+1.5;
+  ldouble OctaveRange = OctaveEnd - OctaveStart;
+
+  ldouble FrequencyStart = std::pow(OctaveRange, OctaveStart);
+  ldouble Root = std::pow(OctaveRange, 1.0/(ldouble)Divisions);
+  ldouble Snowball = 1.0;// frequency, pow(2, 0)
+  for (int cnt=0;cnt<=Divisions;cnt++){
+    ldouble FractAlong = ((ldouble)cnt)/(ldouble)Divisions;
+    ldouble Power = std::pow(OctaveRange, OctaveStart+FractAlong);
+    ldouble Iterative = FrequencyStart*Snowball;
+    ldouble Error = Power - Iterative;
+    printf("FractAlong:%f, Power:%f, Iterative:%f, Error:%e\n", FractAlong, Power, Iterative, Error);
+    Snowball *= Root;
+  }
+  /*
+  So adding octave means multiplying frequency.
+  Freq always starts at 1.0, octave at 0.0?
+  Then we apply an offset by multiplying FrequencyStart by our current frequency, and
+  adding OctaveStart to the current octave.
+  */
+  printf("\n");
+}
+/* ********************************************************************************* */
 int main() {
+  if (false){
+    ComparePowers();
+    return 0;
+  }
   Config conf;
   MetricsPacket metrics;
   metrics.MaxDuration = 0.0;
   metrics.MyProject = &conf;
-  metrics.FreshnessTimeStamp = 1;
+  metrics.FreshnessTimeStamp = 2;
 
   std::srand(std::time(nullptr)); // use current time as seed for random generator
 
-  if (false){
+  if (true){
     LoopSong* tree = PatternMaker::MakeRandom();
     GroupSong *grsong = new GroupSong();
     GroupSong::Group_OffsetBox *treebox = tree->Spawn_OffsetBox();
-    treebox->OctaveY = 4.0;
+    treebox->OctaveY = 3.0;
     grsong->Add_SubSong(treebox);
 
     grsong->Update_Guts(metrics); grsong->Set_Project(&conf);// finalize
@@ -248,12 +283,16 @@ int main() {
     GroupSong::Group_Singer *gsing = grobox->Spawn_Singer();
     Wave wave;
     gsing->Start();
+    printf("Render_To:\n");
     gsing->Render_To(tree->Duration, wave);
+    printf("Render_To done.\n");
     delete gsing;
+    printf("SaveToWav:\n");
+    wave.SaveToWav("RandomTree.wav");
+    printf("SaveToWav done.\n");
     TestSpeed(*grsong, 1);
     delete grobox;
 
-    wave.SaveToWav("RandomTree.wav");
     return 0;
   }
 

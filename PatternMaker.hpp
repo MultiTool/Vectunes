@@ -104,17 +104,22 @@ public:
   }
   /* ********************************************************************************* */
   static OffsetBoxBase* Recurse(ArrayList<ISonglet*>& palette, int Depth){// Attempted random song maker, under construction.
-    ISonglet *child=nullptr, *grandkid=nullptr;//  does this really work without circular references?
+    ISonglet *child=nullptr, *grandkid=nullptr;//  does this really not make circular references?
     Voice *voz; GroupSong *gsong; LoopSong *lsong;
     OffsetBoxBase *GrandkidHandle;
     int randex;
+    double MajorMinorOdds = 0.5;
+    double MajorMinorKey = 0.0;
     double NumWays = 0;
     double VoiceThresh = (NumWays += 0.1);// Voice
     double PaletteThresh = (NumWays += palette.size());
     double LoopThresh = (NumWays += 1.0);// Loop
     double GroupThresh = (NumWays += 1.0);// Group
+    double MajorThresh = (NumWays += MajorMinorOdds);// Major chord
+    double MinorThresh = (NumWays += MajorMinorOdds);// Minor chord
 
-    PaletteThresh /= NumWays; VoiceThresh /= NumWays; LoopThresh /= NumWays; GroupThresh /= NumWays;
+    PaletteThresh /= NumWays; VoiceThresh /= NumWays; LoopThresh /= NumWays;
+    GroupThresh /= NumWays; MajorThresh /= NumWays; MinorThresh /= NumWays;
 
     Depth++;
 
@@ -123,6 +128,7 @@ public:
       printf("Voice\n");
       child = voz = new Voice();
       double Duration=0.25, OctaveOffset=0.0, LoudnessOffset=1.0; int numsteps = 3;
+      Duration = (Math::frand() * 0.8) + 0.2;
       Create_Tapered_Voice(*voz, 0.0, Duration, OctaveOffset, LoudnessOffset, numsteps);// fill in voice
     } else if (dice<PaletteThresh){
       printf("Palette\n");
@@ -138,7 +144,7 @@ public:
         palette.Add(grandkid);
       }
       // Set interval and beats
-      ldouble random = 0.123456;// Math::frand() + 0.1;
+      ldouble random = (Math::frand()*1.5) + 0.25;// 0.123456;//
       lsong->Set_Interval(random);
       randex = (std::rand() % 12)+2;
       lsong->Set_Beats(randex);
@@ -154,9 +160,28 @@ public:
           palette.Add(grandkid);
         }
       }
+    } else if (dice<MajorThresh){
+      printf("Major\n");
+      GrandkidHandle = Recurse(palette, Depth);
+      grandkid = GrandkidHandle->GetContent();
+      child = gsong = MakeMajor(*grandkid, MajorMinorKey);
+      delete GrandkidHandle;
+      if (!palette.Contains(grandkid)){
+        palette.Add(grandkid);
+      }
+    } else if (dice<MinorThresh){
+      printf("Minor\n");
+      GrandkidHandle = Recurse(palette, Depth);
+      grandkid = GrandkidHandle->GetContent();
+      child = gsong = MakeMinor(*grandkid, MajorMinorKey);
+      delete GrandkidHandle;
+      if (!palette.Contains(grandkid)){
+        palette.Add(grandkid);
+      }
     }
-    ldouble random_time = Math::frand() + 0.1;
-    ldouble random_octave = Math::frand() + 0.1;
+
+    ldouble random_time = (Math::frand()*1.5) + 0.2;
+    ldouble random_octave = (Math::frand()*2.0) + 0.1;
     ldouble random_loudness=1.0;
     OffsetBoxBase *obox = child->Spawn_OffsetBox();
     obox->TimeX = random_time;
@@ -171,15 +196,16 @@ public:
     OffsetBoxBase *obox = Recurse(palette, 0);
     obox->OctaveY = 4.0;
 
-    if (false) {
-    Config conf;
-    MetricsPacket metrics;
-    metrics.MaxDuration = 0.0;
-    metrics.MyProject = &conf;
-    metrics.FreshnessTimeStamp = 1;
-    ISonglet *songlet = obox->GetContent();
-    songlet->Update_Guts(metrics);
-    //obox->Update_Guts(metrics);
+    if (true) {
+      Config conf;
+      MetricsPacket metrics;
+      metrics.MaxDuration = 0.0;
+      metrics.MyProject = &conf;
+      metrics.FreshnessTimeStamp = 1;
+      ISonglet *songlet = obox->GetContent();
+      printf("MakeRandom Update_Guts:\n");
+      songlet->Update_Guts(metrics);
+      printf("MakeRandom Update_Guts done.\n");
     }
 
     LoopSong *MainLoop = new LoopSong();
@@ -188,10 +214,11 @@ public:
     //Voice voz;
     //MainLoop->Add_SubSong(voz, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
     //MainLoop.Add_SubSong(*songlet, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
-    ldouble random = obox->GetContent()->Get_Duration();// 0.123456;
-    random = 2.0;
-    MainLoop->Set_Interval(random);
-    MainLoop->Set_Beats(30);
+    ldouble LoopInterval = obox->GetContent()->Get_Duration();// 0.123456;
+    //LoopInterval = 2.0;
+    MainLoop->Set_Interval(LoopInterval);
+    MainLoop->Set_Beats(9);
+    printf("LoopInterval:%f\n", LoopInterval);
     return MainLoop;
   }
 };

@@ -113,7 +113,7 @@ public:
 //  }
   /* ********************************************************************************* */
   void Update_Guts(MetricsPacket& metrics) override {
-    if (this->FreshnessTimeStamp < metrics.FreshnessTimeStamp) {// don't hit the same songlet twice on one update
+    if (this->FreshnessTimeStamp != metrics.FreshnessTimeStamp) {// don't hit the same songlet twice on one update
       this->Set_Project(metrics.MyProject);// should probably separate Set_Project into its own thing
       //this->Sort_Me();
       this->Update_Max_Amplitude();

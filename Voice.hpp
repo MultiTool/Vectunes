@@ -104,7 +104,7 @@ public:
   }
   /* ********************************************************************************* */
   void Update_Guts(MetricsPacket& metrics) override {
-    if (this->FreshnessTimeStamp < metrics.FreshnessTimeStamp) {// don't hit the same songlet twice on one update
+    if (this->FreshnessTimeStamp != metrics.FreshnessTimeStamp) {// don't hit the same songlet twice on one update
       this->Set_Project(metrics.MyProject);
       this->Sort_Me();
       this->Recalc_Line_SubTime();
