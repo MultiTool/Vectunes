@@ -264,7 +264,7 @@ void ComparePowers(){// Test for iterative render, faster than integral but accu
 }
 /* ********************************************************************************* */
 int main() {
-  Voice_Iterative = true;// temporary for testing
+  Voice_Iterative = false;// temporary for testing
   if (false){
     ComparePowers();
     return 0;
