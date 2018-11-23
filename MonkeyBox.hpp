@@ -28,16 +28,16 @@ class CollisionLibrary;// forward
 class ISonglet;// forward
 class MonkeyBox: public IMoveable, public IDeletable, public ITextable {// location box to transpose in pitch, move in time, etc.  //IMonkeyBox,
 public:
-  ldouble TimeX = 0, OctaveY = 0, LoudnessFactor = 1.0;// time, octave, and loudness context. all of these are in parent coordinates
-  ldouble ScaleX = 1.0, ScaleY = 1.0; // to be used for pixels per second, pixels per octave
+  SoundFloat TimeX = 0, OctaveY = 0, LoudnessFactor = 1.0;// time, octave, and loudness context. all of these are in parent coordinates
+  SoundFloat ScaleX = 1.0, ScaleY = 1.0; // to be used for pixels per second, pixels per octave
   // ScaleY is 'temper' context, which we will NEVER use unless we want to make ugly anharmonic noise.
   String TimeXName = "TimeX", OctaveYName = "OctaveY", LoudnessFactorName = "LoudnessFactor", ScaleXName = "ScaleX", ScaleYName = "ScaleY";// for serialization
   CajaDelimitadora MyBounds;
   ISonglet* MyParentSong;// can do this but not used yet
 
   // graphics support, will move to separate object
-  //ldouble OctavesPerRadius = 0.03;
-  ldouble OctavesPerRadius = 0.01;
+  //SoundFloat OctavesPerRadius = 0.03;
+  SoundFloat OctavesPerRadius = 0.01;
 
   /* ********************************************************************************* */
   MonkeyBox() {this->Create_Me();}
@@ -75,7 +75,7 @@ public:
     pnt.x = TimeX; pnt.y = OctaveY;
   }
   /* ********************************************************************************* */
-  virtual ldouble Get_Max_Amplitude() {// always override this
+  virtual SoundFloat Get_Max_Amplitude() {// always override this
     return this->LoudnessFactor;
   }
   /* ********************************************************************************* */
@@ -87,38 +87,38 @@ public:
     this->ScaleY *= donor.ScaleY;
   }
   /* ********************************************************************************* */
-  void RescaleTimeX(ldouble Factor) {
+  void RescaleTimeX(SoundFloat Factor) {
     this->ScaleX = Factor;
   }
   /* ********************************************************************************* */
-  void Rebase_Time(ldouble Time) {
+  void Rebase_Time(SoundFloat Time) {
     this->TimeX = Time;
-    ldouble RelativeMinBound = this->MyBounds.Min.x;// preserve the relative relationship of my bounds and my origin.
+    SoundFloat RelativeMinBound = this->MyBounds.Min.x;// preserve the relative relationship of my bounds and my origin.
     this->MyBounds.Rebase_Time(Time + RelativeMinBound);
   }
   // <editor-fold defaultstate="collapsed" desc="Mappings and Unmappings">
   /* ********************************************************************************* */
-  ldouble MapTime(ldouble ParentTime) {// convert time coordinate from my parent's frame to my child's frame
+  SoundFloat MapTime(SoundFloat ParentTime) {// convert time coordinate from my parent's frame to my child's frame
     return ((ParentTime - this->TimeX) / ScaleX); // in the long run we'll probably use a matrix
   }
   /* ********************************************************************************* */
-  ldouble UnMapTime(ldouble ChildTime) {// convert time coordinate from my child's frame to my parent's frame
+  SoundFloat UnMapTime(SoundFloat ChildTime) {// convert time coordinate from my child's frame to my parent's frame
     return this->TimeX + (ChildTime * ScaleX);
   }
   /* ********************************************************************************* */
-  ldouble MapPitch(ldouble ParentPitch) {// convert octave coordinate from my parent's frame to my child's frame
+  SoundFloat MapPitch(SoundFloat ParentPitch) {// convert octave coordinate from my parent's frame to my child's frame
     return ((ParentPitch - this->OctaveY) / ScaleY);
   }
   /* ********************************************************************************* */
-  ldouble UnMapPitch(ldouble ChildPitch) {// convert octave coordinate from my child's frame to my parent's frame
+  SoundFloat UnMapPitch(SoundFloat ChildPitch) {// convert octave coordinate from my child's frame to my parent's frame
     return this->OctaveY + ((ChildPitch) * ScaleY);
   }
   /* ********************************************************************************* */
-  void MapTo(ldouble XLoc, ldouble YLoc, Point2D& results) {
+  void MapTo(SoundFloat XLoc, SoundFloat YLoc, Point2D& results) {
     results.SetLocation(this->MapTime(XLoc), this->MapPitch(YLoc));
   }
   /* ********************************************************************************* */
-  void UnMap(ldouble XLoc, ldouble YLoc, Point2D& results) {
+  void UnMap(SoundFloat XLoc, SoundFloat YLoc, Point2D& results) {
     results.SetLocation(this->UnMapTime(XLoc), this->UnMapPitch(YLoc));
   }
   /* ********************************************************************************* */
@@ -145,7 +145,7 @@ public:
   }
   // </editor-fold>
   /* ********************************************************************************* */
-  ldouble GetFrequencyFactor() {
+  SoundFloat GetFrequencyFactor() {
     return Math::pow(2.0, this->OctaveY);
   }
   /* ********************************************************************************* */
@@ -153,7 +153,7 @@ public:
   /* ********************************************************************************* */
   void Draw_Dot(IDrawingContext& ParentDC, Color& col) {}
   /* ********************************************************************************* */
-  void Draw_Dot2(IDrawingContext& DC, ldouble XCtr, ldouble YCtr, ldouble OctavesPerRadius, boolean Selected, Color& col) {}
+  void Draw_Dot2(IDrawingContext& DC, SoundFloat XCtr, SoundFloat YCtr, SoundFloat OctavesPerRadius, boolean Selected, Color& col) {}
   /* ********************************************************************************* */
   CajaDelimitadora* GetBoundingBox() override {// IDrawable
     return &(this->MyBounds);
@@ -164,18 +164,18 @@ public:
   }
   void GoFishing(IGrabber& Scoop) override {// IDrawable
   }
-  void MoveTo(ldouble XLoc, ldouble YLoc) override {// IMoveable
+  void MoveTo(SoundFloat XLoc, SoundFloat YLoc) override {// IMoveable
   }
-  ldouble GetX() override {// IMoveable
+  SoundFloat GetX() override {// IMoveable
     return 0;
   }
-  ldouble GetY() override {// IMoveable
+  SoundFloat GetY() override {// IMoveable
     return 0;
   }
-  boolean HitsMe(ldouble XLoc, ldouble YLoc) override {// IMoveable
+  boolean HitsMe(SoundFloat XLoc, SoundFloat YLoc) override {// IMoveable
     //System.out.print("HitsMe:");
     if (this->MyBounds.Contains(XLoc, YLoc)) {// redundant test
-      ldouble dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
+      SoundFloat dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
       if (dist <= this->OctavesPerRadius) {
         //System.out.println("true");
         return true;

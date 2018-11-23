@@ -22,11 +22,11 @@ public:
   int NumSamples;
   int StartDex = 0;// startdex is offset of 'virtual samples' before our wave array begins
   int SampleRate;
-  ldouble StartTime = 0;
-  ldouble EndTime = 0;// for debugging
-  std::vector<ldouble> wave;// = {7, 5, 16, 8};
+  SoundFloat StartTime = 0;
+  SoundFloat EndTime = 0;// for debugging
+  std::vector<SoundFloat> wave;// = {7, 5, 16, 8};
   boolean Debugging = false;
-  ldouble Debug_Fill = 4;
+  SoundFloat Debug_Fill = 4;
   /* ********************************************************************************* */
   Wave() {
     this->NumSamples = 0;
@@ -37,20 +37,20 @@ public:
   }
   ~Wave(){this->Delete_Me();}
   /* ********************************************************************************* */
-  void Rebase_Time(ldouble TimeBase) {
-    ldouble TimeRange = this->EndTime - this->StartTime;
+  void Rebase_Time(SoundFloat TimeBase) {
+    SoundFloat TimeRange = this->EndTime - this->StartTime;
     this->StartTime = TimeBase;// wave start time is the offset of wave[0] from time 0.
     this->EndTime = this->StartTime + TimeRange;
     this->StartDex = (int) (this->StartTime * this->SampleRate);// StartDex is the number of empty samples from Time=0 to wave[0]
   }
   /* ********************************************************************************* */
-  void Shift_Timebase(ldouble TimeDif) {
+  void Shift_Timebase(SoundFloat TimeDif) {
     this->StartTime += TimeDif;// wave start time is the offset of wave[0] from time 0.
     this->EndTime += TimeDif;
     this->StartDex = (int) (this->StartTime * this->SampleRate);// StartDex is the number of empty samples from Time=0 to wave[0]
   }
   /* ********************************************************************************* */
-  void Init(int SizeInit, int SampleRate0, ldouble Filler) {// unused and untested
+  void Init(int SizeInit, int SampleRate0, SoundFloat Filler) {// unused and untested
     this->NumSamples = SizeInit;
     this->SampleRate = SampleRate0;
     this->wave.resize(SizeInit);
@@ -58,16 +58,16 @@ public:
     this->StartTime = 0.0;
     this->StartDex = 0;
     this->StartTime = 0;// defaults
-    this->EndTime = StartTime + (((ldouble) this->NumSamples) / (ldouble) this->SampleRate);
+    this->EndTime = StartTime + (((SoundFloat) this->NumSamples) / (SoundFloat) this->SampleRate);
   }
   /* ********************************************************************************* */
-  void Init(ldouble StartTime0, ldouble EndTime0, int SampleRate0, ldouble Filler) {
+  void Init(SoundFloat StartTime0, SoundFloat EndTime0, int SampleRate0, SoundFloat Filler) {
     this->StartTime = StartTime0;// wave start time is the offset of wave[0] from time 0.
     this->EndTime = EndTime0;
     this->SampleRate = SampleRate0;
 
-    int SampleStart = (StartTime0 * (ldouble)SampleRate0);
-    int SampleEnd = (EndTime0 * (ldouble)SampleRate0);
+    int SampleStart = (StartTime0 * (SoundFloat)SampleRate0);
+    int SampleEnd = (EndTime0 * (SoundFloat)SampleRate0);
     int nsamps = SampleEnd - SampleStart;
 
     this->StartDex = (int) (this->StartTime * SampleRate0);// StartDex is the number of empty samples from Time=0 to wave[0]
@@ -76,9 +76,9 @@ public:
     std::fill(this->wave.begin(), this->wave.end(), Filler);
   }
   /* ********************************************************************************* */
-  void Init_Sample(int SampleStart, int SampleEnd, int SampleRate0, ldouble Filler) {
-    this->StartTime = ((ldouble)SampleStart)/(ldouble)SampleRate0;// wave start time is the offset of wave[0] from time 0.
-    this->EndTime = ((ldouble)SampleEnd)/(ldouble)SampleRate0;
+  void Init_Sample(int SampleStart, int SampleEnd, int SampleRate0, SoundFloat Filler) {
+    this->StartTime = ((SoundFloat)SampleStart)/(SoundFloat)SampleRate0;// wave start time is the offset of wave[0] from time 0.
+    this->EndTime = ((SoundFloat)SampleEnd)/(SoundFloat)SampleRate0;
     this->SampleRate = SampleRate0;
     int nsamps = SampleEnd - SampleStart;
 
@@ -88,9 +88,9 @@ public:
     std::fill(this->wave.begin(), this->wave.end(), Filler);
   }
   /* ********************************************************************************* */
-  void Ingest(std::vector<ldouble>& Sample, int SampleRate0) {
+  void Ingest(std::vector<SoundFloat>& Sample, int SampleRate0) {
     int len = Sample.size();//->length;
-    ldouble Duration = ((ldouble) len) / (ldouble) SampleRate0;
+    SoundFloat Duration = ((SoundFloat) len) / (SoundFloat) SampleRate0;
     this->Init(0, Duration, SampleRate0, 0.0);
     for (int cnt = 0; cnt < len; cnt++) {
       this->wave[cnt] = Sample[cnt];
@@ -122,13 +122,13 @@ public:
     }
   }
   /* ********************************************************************************* */
-  void Amplify(ldouble LoudnessFactor) {
+  void Amplify(SoundFloat LoudnessFactor) {
     for (uint_fast64_t cnt = 0; cnt < this->wave.size(); cnt++) {
       this->wave[cnt] *= LoudnessFactor;
     }
   }
   /* ********************************************************************************* */
-  void Fill(ldouble Stuffing) {
+  void Fill(SoundFloat Stuffing) {
     int len = this->wave.size();
     for (int cnt = 0; cnt < len; cnt++) {
       this->wave[cnt] = Stuffing;
@@ -142,10 +142,10 @@ public:
     }
   }
   /* ********************************************************************************* */
-  ldouble GetMaxAmp() {
+  SoundFloat GetMaxAmp() {
     int len = this->wave.size();
-    ldouble MaxAmp = 0.0;
-    ldouble AbsVal;
+    SoundFloat MaxAmp = 0.0;
+    SoundFloat AbsVal;
     for (int cnt = 0; cnt < len; cnt++) {
       if (MaxAmp < (AbsVal = Math::abs(this->wave[cnt]))) {
         MaxAmp = AbsVal;
@@ -155,8 +155,8 @@ public:
   }
   /* ********************************************************************************* */
   void Normalize() {
-    ldouble MaxAmp = 0.005;//Globals::Fudge;// avoid divide by zero
-    ldouble AbsVal;
+    SoundFloat MaxAmp = 0.005;//Globals::Fudge;// avoid divide by zero
+    SoundFloat AbsVal;
     int len = this->wave.size();
     for (int cnt = 0; cnt < len; cnt++) {
       if (MaxAmp < (AbsVal = Math::abs(this->wave[cnt]))) {
@@ -167,12 +167,12 @@ public:
   }
   /* ********************************************************************************* */
   void Center() {// Make sure integral of wave is 0.
-    ldouble Avg = 0.0, Sum = 0.0;
+    SoundFloat Avg = 0.0, Sum = 0.0;
     int len = this->wave.size();
     for (int cnt = 0; cnt < len; cnt++) {
       Sum += this->wave[cnt];
     }
-    Avg = Sum / (ldouble) len;
+    Avg = Sum / (SoundFloat) len;
     for (int cnt = 0; cnt < len; cnt++) {
       this->wave[cnt] -= Avg;
     }
@@ -199,10 +199,10 @@ public:
     this->NumSamples = this->wave.size();// nextsize;
   }
   /* ********************************************************************************* */
-  ldouble Get(int dex) {
+  SoundFloat Get(int dex) {
     return this->wave[dex];
   }
-  void Set(int dex, ldouble value) {
+  void Set(int dex, SoundFloat value) {
     int sz = wave.size();// to do: replace this approach with something more efficient
     if (sz-1 < dex){
       printf("out of range! size:%lu, dex:%i\n\n",wave.size(), dex);
@@ -211,7 +211,7 @@ public:
       this->wave[dex] = value;
     }
   }
-  void Set_Abs(int dex, ldouble value) {// set with index based on absolute time == 0 (beginning of whole composition)
+  void Set_Abs(int dex, SoundFloat value) {// set with index based on absolute time == 0 (beginning of whole composition)
     int sz = wave.size();
     dex -= this->StartDex;// to do: replace this approach with something more efficient
     if (dex < 0 || sz-1 < dex){
@@ -226,35 +226,35 @@ public:
     return this->StartDex + this->wave.size();
   }
   /* ******************************************************************* */
-  ldouble GetResample(ldouble TimeSeconds) {
+  SoundFloat GetResample(SoundFloat TimeSeconds) {
     TimeSeconds *= this->SampleRate;// convert to fractional sample index
     int Dex0 = (int) Math::floor(TimeSeconds);
     int Dex1 = Dex0 + 1;
     if (Dex1 >= this->wave.size()) {
       return 0.0;
     }
-    ldouble amp0 = this->wave[Dex0];
-    ldouble amp1 = this->wave[Dex1];
-    ldouble FullAmpDelta = amp1 - amp0;
-    ldouble Fraction = (TimeSeconds - Dex0);// always in the range of 0<=Fraction<1
+    SoundFloat amp0 = this->wave[Dex0];
+    SoundFloat amp1 = this->wave[Dex1];
+    SoundFloat FullAmpDelta = amp1 - amp0;
+    SoundFloat Fraction = (TimeSeconds - Dex0);// always in the range of 0<=Fraction<1
     return amp0 + (Fraction * FullAmpDelta);
   }
   /* ******************************************************************* */
-  ldouble GetResampleLooped(ldouble TimeSeconds) {
-    ldouble SampleDex = TimeSeconds * this->SampleRate;
-    ldouble SampleDexFlat = Math::floor(SampleDex);
+  SoundFloat GetResampleLooped(SoundFloat TimeSeconds) {
+    SoundFloat SampleDex = TimeSeconds * this->SampleRate;
+    SoundFloat SampleDexFlat = Math::floor(SampleDex);
     int Dex0 = ((int) SampleDexFlat) % this->NumSamples;
     int Dex1 = (Dex0 + 1) % this->NumSamples;
-    ldouble amp0 = this->wave[Dex0];
-    ldouble amp1 = this->wave[Dex1];
-    ldouble FullAmpDelta = amp1 - amp0;
-    ldouble Fraction = (SampleDex - SampleDexFlat);// always in the range of 0<=Fraction<1
+    SoundFloat amp0 = this->wave[Dex0];
+    SoundFloat amp1 = this->wave[Dex1];
+    SoundFloat FullAmpDelta = amp1 - amp0;
+    SoundFloat Fraction = (SampleDex - SampleDexFlat);// always in the range of 0<=Fraction<1
     return amp0 + (Fraction * FullAmpDelta);
   }
   /* ******************************************************************* */
-  void MorphToWave(Wave& other, ldouble Factor, Wave& results) {
-    ldouble val0, val1;
-    ldouble InvFactor = 1.0 - Factor;
+  void MorphToWave(Wave& other, SoundFloat Factor, Wave& results) {
+    SoundFloat val0, val1;
+    SoundFloat InvFactor = 1.0 - Factor;
     int MinSamples = Math::min(this->NumSamples, Math::min(other.NumSamples, results.NumSamples));
     for (int cnt = 0; cnt < MinSamples; cnt++) {
       val0 = this->wave[cnt];
@@ -264,7 +264,7 @@ public:
   }
   /* ********************************************************************************* */
   void WhiteNoise_Fill() {
-    ldouble val;
+    SoundFloat val;
     for (int SampCnt = 0; SampCnt < this->NumSamples; SampCnt++) {
       val = Math::frand() * 2.0 - 1.0;// white noise
       this->wave[SampCnt] = val;
@@ -273,23 +273,23 @@ public:
   }
   /* ********************************************************************************* */
   void Sawtooth_Fill() {
-    ldouble val;
-    ldouble FractAlong = 0;
+    SoundFloat val;
+    SoundFloat FractAlong = 0;
     for (int SampCnt = 0; SampCnt < this->NumSamples; SampCnt++) {
-      FractAlong = ((ldouble) SampCnt) / (ldouble) this->NumSamples;
+      FractAlong = ((SoundFloat) SampCnt) / (SoundFloat) this->NumSamples;
       val = 1.0 - (FractAlong * 2.0);
       this->wave[SampCnt] = val;
     }
     this->Center();
   }
   /* ********************************************************************************* */
-  ldouble* GetWave() {
+  SoundFloat* GetWave() {
     //return this->wave;
     return &this->wave[0];
   }
   /* ********************************************************************************* */
   void SaveWaveToCsv(String& filename, Wave& wave) {
-    ldouble val;
+    SoundFloat val;
     std::ofstream outfile;
     outfile.open(filename);
     outfile << std::fixed << std::setprecision(6);// DecimalFormat("#.######");
@@ -335,26 +335,26 @@ public:
     f << "data----";  // (chunk size to be filled in later)
 
     if (true){
-      ldouble amplitude = 32000;// whatever
+      SoundFloat amplitude = 32000;// whatever
       for (int n = 0; n < clone.wave.size(); n++){
-        ldouble value     = clone.wave.at(n);
+        SoundFloat value     = clone.wave.at(n);
         //write_word( f, (int)(amplitude * value), 2 );// stereo
         write_word( f, (int)(amplitude * value), 2 );
       }
     }else{
       // Write the audio samples
       // (We'll generate a single C4 note with a sine wave, fading from left to right)
-      constexpr ldouble two_pi = 6.283185307179586476925286766559;
-      constexpr ldouble max_amplitude = 32760;  // "volume"
+      constexpr SoundFloat two_pi = 6.283185307179586476925286766559;
+      constexpr SoundFloat max_amplitude = 32760;  // "volume"
 
-      ldouble hz        = 44100;    // samples per second
-      ldouble frequency = 261.626;  // middle C
-      ldouble seconds   = 2.5;      // time
+      SoundFloat hz        = 44100;    // samples per second
+      SoundFloat frequency = 261.626;  // middle C
+      SoundFloat seconds   = 2.5;      // time
 
       int N = hz * seconds;  // total number of samples
       for (int n = 0; n < N; n++){
-        ldouble amplitude = (ldouble)n / N * max_amplitude;
-        ldouble value     = sin( (two_pi * n * frequency) / hz );
+        SoundFloat amplitude = (SoundFloat)n / N * max_amplitude;
+        SoundFloat value     = sin( (two_pi * n * frequency) / hz );
         write_word( f, (int)(                 amplitude  * value), 2 );
         write_word( f, (int)((max_amplitude - amplitude) * value), 2 );
       }

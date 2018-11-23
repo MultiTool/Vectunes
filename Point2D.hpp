@@ -18,25 +18,25 @@ typedef Point2D *Point2DPtr;
 typedef std::vector<Point2DPtr> Point2DVec;
 class Point2D : public IDeletable {
 public:
-  ldouble x, y;
+  SoundFloat x, y;
   //Point2D* Zero;
   Point2D() {}
   Point2D(const Point2D& donor) : Point2D(donor.x, donor.y) {
   }
-  Point2D(ldouble XLoc, ldouble YLoc) {
+  Point2D(SoundFloat XLoc, SoundFloat YLoc) {
     this->Assign(XLoc, YLoc);
     //this->Zero = neuvo Point2D(0, 0);
   }
   ~Point2D() {
     this->Delete_Me();
   }
-  void SetLocation(ldouble XLoc, ldouble YLoc) {
+  void SetLocation(SoundFloat XLoc, SoundFloat YLoc) {
     this->x = XLoc; this->y = YLoc;
   }
   void SetLocation(const Point2D& pd) {
     this->x = pd.x; this->y = pd.y;
   }
-  void Assign(ldouble XLoc, ldouble YLoc) {
+  void Assign(SoundFloat XLoc, SoundFloat YLoc) {
     this->x = XLoc; this->y = YLoc;
   }
   void Assign(const Point2D& other) {
@@ -51,16 +51,16 @@ public:
   void Subtract(const Point2D& other) {
     this->x -= other.x; this->y -= other.y;
   }
-  void Multiply(ldouble factor) {
+  void Multiply(SoundFloat factor) {
     this->x *= factor; this->y *= factor;
   }
   void Normalize() {
     if (this->x != 0 || this->y != 0) {
-      ldouble magnitude = Math::sqrt((this->x * this->x) + (this->y * this->y));
+      SoundFloat magnitude = Math::sqrt((this->x * this->x) + (this->y * this->y));
       this->x /= magnitude; this->y /= magnitude;
     }
   }
-  ldouble GetMagnitude() {
+  SoundFloat GetMagnitude() {
     if (this->x == 0 && this->y == 0) { return 0; }
     return Math::sqrt((this->x * this->x) + (this->y * this->y));
   }

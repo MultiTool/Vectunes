@@ -38,21 +38,21 @@ public:
     MonkeyBox::Copy_From(donor);
   }
   /* ********************************************************************************* */
-//  ldouble Get_Max_Amplitude() override {
+//  SoundFloat Get_Max_Amplitude() override {
 //    return 0;
 //  }
-  ldouble Get_Max_Amplitude() override {// always override this
+  SoundFloat Get_Max_Amplitude() override {// always override this
     return this->LoudnessFactor;
   }
   /* ********************************************************************************* */
-  virtual void Rebase_Time(ldouble Time) {}
+  virtual void Rebase_Time(SoundFloat Time) {}
   /* ********************************************************************************* */
   virtual SingerBase* Spawn_Singer() {// always always always override this
     throw std::runtime_error("Not supported yet.");
     return nullptr;
   }
   /* ********************************************************************************* */
-  virtual void Rescale_TimeX(ldouble Factor) {
+  virtual void Rescale_TimeX(SoundFloat Factor) {
     this->ScaleX = Factor;
   }
   /* ********************************************************************************* */
@@ -76,13 +76,13 @@ public:
   void UpdateBoundingBox() override {}
   void UpdateBoundingBoxLocal() override {}
   void GoFishing(IGrabber& Scoop) override {}
-  void MoveTo(ldouble XLoc, ldouble YLoc) override {}
-  ldouble GetX() override {return this->TimeX;}
-  ldouble GetY() override {return this->OctaveY;}
-  boolean HitsMe(ldouble XLoc, ldouble YLoc) override {// IDrawable.IMoveable
+  void MoveTo(SoundFloat XLoc, SoundFloat YLoc) override {}
+  SoundFloat GetX() override {return this->TimeX;}
+  SoundFloat GetY() override {return this->OctaveY;}
+  boolean HitsMe(SoundFloat XLoc, SoundFloat YLoc) override {// IDrawable.IMoveable
     //System.out.print("HitsMe:");
     if (this->MyBounds.Contains(XLoc, YLoc)) {// redundant test
-      ldouble dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
+      SoundFloat dist = Math::hypot(XLoc - this->TimeX, YLoc - this->OctaveY);
       if (dist <= this->OctavesPerRadius) {
         //System.out.println("true");
         return true;

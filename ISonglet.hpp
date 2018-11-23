@@ -25,9 +25,9 @@ public:
   virtual SingerBase* Spawn_Singer() = 0;// for render time
 
   /* ********************************************************************************* */
-  virtual ldouble Get_Duration() = 0;
+  virtual SoundFloat Get_Duration() = 0;
   /* ********************************************************************************* */
-  virtual ldouble Get_Max_Amplitude() = 0;
+  virtual SoundFloat Get_Max_Amplitude() = 0;
   /* ********************************************************************************* */
   virtual void Update_Guts(MetricsPacket& metrics) = 0;
   /* ********************************************************************************* */
@@ -72,7 +72,7 @@ public:
 /* ********************************************************************************* */
 class MetricsPacket {
 public:
-  ldouble MaxDuration = 0.0;
+  SoundFloat MaxDuration = 0.0;
   Config* MyProject = nullptr;
   int FreshnessTimeStamp = 1;
   void Reset(){
@@ -85,7 +85,7 @@ public:
 class SingerBase: public IDeletable {// Cantante
 public:// Cantante
   Config *MyProject;
-  ldouble Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
+  SoundFloat Inherited_OctaveRate = 0.0;// bend context, change dynamically while rendering. not used yet.
   /*
   InheritedMap breakdown:
   Inherited_Time = 0.0, Inherited_Octave = 0.0, Inherited_Loudness = 1.0;// time, octave, and loudness context
@@ -105,9 +105,9 @@ public:// Cantante
   /* ********************************************************************************* */
   virtual void Start() = 0;
   /* ********************************************************************************* */
-  virtual void Skip_To(ldouble EndTime) = 0;
+  virtual void Skip_To(SoundFloat EndTime) = 0;
   /* ********************************************************************************* */
-  virtual void Render_To(ldouble EndTime, Wave& wave) = 0;
+  virtual void Render_To(SoundFloat EndTime, Wave& wave) = 0;
   /* ********************************************************************************* */
   virtual void Skip_To_Sample(int EndSample) = 0;
   /* ********************************************************************************* */

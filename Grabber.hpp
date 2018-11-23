@@ -54,13 +54,13 @@ public:
 /* ********************************************************************************* */
 class Grabber: public IGrabber {
 public:
-  ldouble XHit, YHit;// exact mouse click point
+  SoundFloat XHit, YHit;// exact mouse click point
   StackItem *CurrentContext = null;
   int Stack_Depth = 0, Stack_Depth_Best = 0;
   ArrayList<StackItem> Explore_Stack;
   ArrayList<StackItem> Best_Stack;
   IMoveable *Leaf;// thing we hit and are going to move or copy or whatever
-  ldouble Radius = 5;
+  SoundFloat Radius = 5;
   /* ********************************************************************************* */
   virtual void ConsiderLeaf(IMoveable& CandidateLeaf) {
     if (CandidateLeaf.HitsMe(this->CurrentContext->Loc.x, this->CurrentContext->Loc.y)) {
@@ -78,7 +78,7 @@ public:
     return (this->CurrentContext->SearchBounds.Intersects(*Candidate.GetBoundingBox()));
   }
   /* ********************************************************************************* */
-  void Init(OffsetBoxBase& starter, ldouble XLoc, ldouble YLoc) {// add first space map at start of search
+  void Init(OffsetBoxBase& starter, SoundFloat XLoc, SoundFloat YLoc) {// add first space map at start of search
 //    OffsetBoxBase child = neuvo OffsetBoxBase();// first layer place holder.  not a great solution.
 //    child.MyBounds.Assign(Double_NEGATIVE_INFINITY, Double_NEGATIVE_INFINITY, Double_POSITIVE_INFINITY, Double_POSITIVE_INFINITY);
 //    StackItem next = neuvo StackItem();
@@ -91,7 +91,7 @@ public:
 //    Stack_Depth = 1;// Now we have one element, whee!
   }
   /* ********************************************************************************* */
-  virtual void AddFirstBox(OffsetBoxBase& starter, ldouble XLoc, ldouble YLoc) {// add first space map at start of search
+  virtual void AddFirstBox(OffsetBoxBase& starter, SoundFloat XLoc, SoundFloat YLoc) {// add first space map at start of search
 //    this->Leaf = null;
 //    this->Stack_Depth_Best = 0;
 //    this->Stack_Depth = 0;
@@ -122,11 +122,11 @@ public:
   /* ********************************************************************************* */
   void Copy_Stack(ArrayList<StackItem>& StackPrev, ArrayList<StackItem>& StackNext) {}
   /* ********************************************************************************* */
-  void UnMapThroughStack(ldouble XLoc, ldouble YLoc, Point2D& results) {}
+  void UnMapThroughStack(SoundFloat XLoc, SoundFloat YLoc, Point2D& results) {}
   /* ********************************************************************************* */
-  void MapThroughStack(ldouble XLoc, ldouble YLoc, Point2D& results) {}
+  void MapThroughStack(SoundFloat XLoc, SoundFloat YLoc, Point2D& results) {}
   /* ********************************************************************************* */
-  void MapThroughStack(ldouble XLoc, ldouble YLoc, MonkeyBox& startplace, Point2D& results) {}
+  void MapThroughStack(SoundFloat XLoc, SoundFloat YLoc, MonkeyBox& startplace, Point2D& results) {}
   /* ********************************************************************************* */
   void CompoundStack(MonkeyBox& startplace, MonkeyBox& results) {}
   /* ********************************************************************************* */
@@ -142,8 +142,8 @@ class DestinationGrabber: public Grabber {// this class searches for containers 
 public:
   OffsetBoxBase* Floater = null;
   GroupSong* PossibleDestination = null;
-  ldouble ClosestDistance = Double_POSITIVE_INFINITY;
-  void AddFirstBox(OffsetBoxBase& starter, ldouble XLoc, ldouble YLoc) override {}
+  SoundFloat ClosestDistance = Double_POSITIVE_INFINITY;
+  void AddFirstBox(OffsetBoxBase& starter, SoundFloat XLoc, SoundFloat YLoc) override {}
   /* ********************************************************************************* */
   void ConsiderLeaf(IMoveable& CandidateLeaf) override {}
   /* ********************************************************************************* */

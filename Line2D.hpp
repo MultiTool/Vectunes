@@ -15,7 +15,7 @@ public:
   Line2D(Point2D& p0, Point2D& p1) {
     this->Assign(p0, p1);
   }
-  void Assign(ldouble X0, ldouble Y0, ldouble X1, ldouble Y1) {
+  void Assign(SoundFloat X0, SoundFloat Y0, SoundFloat X1, SoundFloat Y1) {
     this->pnt[0].Assign(X0, Y0); this->pnt[1].Assign(X1, Y1);
     this->CompDelta();
   }
@@ -26,9 +26,9 @@ public:
   void CompDelta() {
     this->delta.Assign(this->pnt[1].x - this->pnt[0].x, this->pnt[1].y - this->pnt[0].y);
   }
-  void FractAlong(ldouble Fract, Point2D& results) {
-    ldouble dx = this->delta.x * Fract;
-    ldouble dy = this->delta.y * Fract;
+  void FractAlong(SoundFloat Fract, Point2D& results) {
+    SoundFloat dx = this->delta.x * Fract;
+    SoundFloat dy = this->delta.y * Fract;
     results.x = this->pnt[0].x + dx;
     results.y = this->pnt[0].y + dy;
     //System.out.println("Fract:" + Fract + " dx:" + this->delta.x + " dy:" + this->delta.y);

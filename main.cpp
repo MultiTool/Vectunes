@@ -74,7 +74,7 @@ void TestVector(){// crashes
 void MegaChop(SingerBase *singer, const String& FileName){// test random chops
   Wave chunk, whole;
   singer->Start();
-  ldouble Time = 0;
+  SoundFloat Time = 0;
   while (!singer->IsFinished){
     Time += 0.01;// * Math::frand();
     singer->Render_To(Time, chunk);
@@ -89,7 +89,7 @@ void MegaChop_Add(SingerBase *singer, const String& FileName){// test random cho
   Chopped.SampleRate = Globals::SampleRate;
   Whole.SampleRate = Globals::SampleRate;
   singer->Start();
-  ldouble Time = 0;
+  SoundFloat Time = 0;
   bool TimeRender = true;
   while (!singer->IsFinished){
     Time += 0.01;
@@ -120,7 +120,7 @@ void MegaChop_Add(SingerBase *singer, const String& FileName){// test random cho
   Whole.SaveToWav(FileName + ".Diff.wav");
 }
 /* ********************************************************************************* */
-void FillVoice(Voice *voz, ldouble Duration){// add voice bend points
+void FillVoice(Voice *voz, SoundFloat Duration){// add voice bend points
   VoicePoint *vp0 = new VoicePoint();
   vp0->OctaveY = 5.0; vp0->TimeX = 0;
   voz->Add_Note(vp0);
@@ -161,7 +161,7 @@ GroupSong* MakeChord(ISonglet *songlet){
 /* ********************************************************************************* */
 void TestSpeed(ISonglet& song, int NumTrials){
   using namespace std::chrono;
-  ldouble Time, Duration;
+  SoundFloat Time, Duration;
   Wave Chunk, Chopped;
 
   Duration = song.Get_Duration();
@@ -188,8 +188,8 @@ void TestSpeed(ISonglet& song, int NumTrials){
   delete obox;
 
   duration<double> elapsed_seconds = end-start;
-  // elapsed_seconds /= (ldouble)NumTrials;
-  ldouble TestTime = elapsed_seconds.count() / (ldouble)NumTrials;
+  // elapsed_seconds /= (SoundFloat)NumTrials;
+  SoundFloat TestTime = elapsed_seconds.count() / (SoundFloat)NumTrials;
   std::time_t end_time = system_clock::to_time_t(end);
   std::cout << "finished speed test at " << std::ctime(&end_time) << "render time: " << TestTime << "s\n";
   std::cout << "Ratio:" << (TestTime / Duration) << " seconds per second\n";
@@ -233,19 +233,25 @@ void ComparePowers(){// Test for iterative render, faster than integral but accu
   int Divisions = 12;
   Divisions = 44100;
   Divisions = 100;
-  ldouble OctaveStart = 0.2;
+  ldouble OctaveStart = 0.2;//0.0;//
   ldouble OctaveEnd = OctaveStart+2.0; OctaveEnd = OctaveStart+1.5;
   ldouble OctaveRange = OctaveEnd - OctaveStart;
 
-  ldouble FrequencyStart = std::pow(OctaveRange, OctaveStart);
-  ldouble Root = std::pow(OctaveRange, 1.0/(ldouble)Divisions);
-  ldouble Snowball = 1.0;// frequency, pow(2, 0)
+  ldouble FrequencyStart = std::pow(2.0, OctaveStart);
+  ldouble FrequencyEnd = std::pow(2.0, OctaveEnd);
+  ldouble FrequencyRatio = FrequencyEnd/FrequencyStart;
+  ldouble Root = std::pow(FrequencyRatio, 1.0/(ldouble)Divisions);
+
+  ldouble Snowball = 1.0;// frequency, pow(anything, 0)
   for (int cnt=0;cnt<=Divisions;cnt++){
     ldouble FractAlong = ((ldouble)cnt)/(ldouble)Divisions;
-    ldouble Power = std::pow(OctaveRange, OctaveStart+FractAlong);
+    ldouble OctAlong = OctaveStart + (OctaveRange * FractAlong);
+    ldouble Power = std::pow(2.0, OctAlong);
     ldouble Iterative = FrequencyStart*Snowball;
     ldouble Error = Power - Iterative;
-    printf("FractAlong:%f, Power:%f, Iterative:%f, Error:%e\n", FractAlong, Power, Iterative, Error);
+    //printf("FractAlong:%f, Power:%f, Iterative:%f, Error:%e\n", FractAlong, Power, Iterative, Error);
+    printf("FractAlong:%Lf, Power:%Lf, Iterative:%Lf, Error:%Le\n", FractAlong, Power, Iterative, Error);
+    //cout << "FractAlong:"<< FractAlong <<", Power:"<< Power <<", Iterative:"<< Iterative <<", Error:"<< Error <<"\n";
     Snowball *= Root;
   }
   /*
@@ -258,6 +264,7 @@ void ComparePowers(){// Test for iterative render, faster than integral but accu
 }
 /* ********************************************************************************* */
 int main() {
+  Voice_Iterative = false;// temporary for testing
   if (false){
     ComparePowers();
     return 0;
@@ -270,7 +277,7 @@ int main() {
 
   std::srand(std::time(nullptr)); // use current time as seed for random generator
 
-  if (true){
+  if (false){
     LoopSong* tree = PatternMaker::MakeRandom();
     GroupSong *grsong = new GroupSong();
     GroupSong::Group_OffsetBox *treebox = tree->Spawn_OffsetBox();
@@ -296,7 +303,7 @@ int main() {
     return 0;
   }
 
-  if (true){
+  if (false){
     CreateBentTriad();
     //return 0;
   }
@@ -326,7 +333,7 @@ int main() {
     delete triadbox;
   }
 
-  if (false) {// Voice and  Group
+  if (true) {// Voice and  Group
     Voice *voz;
     voz = new Voice();
     voz->Update_Guts(metrics);

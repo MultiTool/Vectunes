@@ -144,7 +144,7 @@ public:
         palette.Add(grandkid);
       }
       // Set interval and beats
-      ldouble random = (Math::frand()*1.5) + 0.25;// 0.123456;//
+      SoundFloat random = (Math::frand()*1.5) + 0.25;// 0.123456;//
       lsong->Set_Interval(random);
       randex = (std::rand() % 12)+2;
       lsong->Set_Beats(randex);
@@ -180,9 +180,9 @@ public:
       }
     }
 
-    ldouble random_time = (Math::frand()*1.5) + 0.2;
-    ldouble random_octave = (Math::frand()*2.0) + 0.1;
-    ldouble random_loudness=1.0;
+    SoundFloat random_time = (Math::frand()*1.5) + 0.2;
+    SoundFloat random_octave = (Math::frand()*2.0) + 0.1;
+    SoundFloat random_loudness=1.0;
     OffsetBoxBase *obox = child->Spawn_OffsetBox();
     obox->TimeX = random_time;
     obox->OctaveY = random_octave;
@@ -212,9 +212,9 @@ public:
     MainLoop->Add_SubSong(obox);
 
     //Voice voz;
-    //MainLoop->Add_SubSong(voz, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
-    //MainLoop.Add_SubSong(*songlet, (ldouble)0.0, (ldouble)4.0, (ldouble)1.0);// this should work! inherits from GroupSong.
-    ldouble LoopInterval = obox->GetContent()->Get_Duration();// 0.123456;
+    //MainLoop->Add_SubSong(voz, (SoundFloat)0.0, (SoundFloat)4.0, (SoundFloat)1.0);// this should work! inherits from GroupSong.
+    //MainLoop.Add_SubSong(*songlet, (SoundFloat)0.0, (SoundFloat)4.0, (SoundFloat)1.0);// this should work! inherits from GroupSong.
+    SoundFloat LoopInterval = obox->GetContent()->Get_Duration();// 0.123456;
     //LoopInterval = 2.0;
     MainLoop->Set_Interval(LoopInterval);
     MainLoop->Set_Beats(9);

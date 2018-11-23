@@ -14,10 +14,16 @@
 
 #include "ArrayList.hpp"
 
-#if false
+#if true
  #define ldouble long double
 #else
  #define ldouble double
+#endif // false
+
+#if false
+ #define SoundFloat long double
+#else
+ #define SoundFloat double
 #endif // false
 
 #define boolean bool
@@ -41,8 +47,8 @@
 #define Math_abs(a) (std::abs(a))
 #define Math_hypot(a, b) (std::hypot(a, b))
 
-#define Double_POSITIVE_INFINITY std::numeric_limits<ldouble>::max()
-#define Double_NEGATIVE_INFINITY std::numeric_limits<ldouble>::min()
+#define Double_POSITIVE_INFINITY std::numeric_limits<SoundFloat>::max()
+#define Double_NEGATIVE_INFINITY std::numeric_limits<SoundFloat>::min()
 #define Integer_MIN_VALUE INT_MIN
 #define Integer_MAX_VALUE INT_MAX
 
@@ -57,11 +63,11 @@
 class Color {
 public:
   Color() {};
-  Color(ldouble R, ldouble G, ldouble B) {};
-  Color(ldouble R, ldouble G, ldouble B, ldouble A) {};
-  ldouble getRed() { return 0.0; };
-  ldouble getGreen() { return 0.0; };
-  ldouble getBlue() { return 0.0; };
+  Color(SoundFloat R, SoundFloat G, SoundFloat B) {};
+  Color(SoundFloat R, SoundFloat G, SoundFloat B, SoundFloat A) {};
+  SoundFloat getRed() { return 0.0; };
+  SoundFloat getGreen() { return 0.0; };
+  SoundFloat getBlue() { return 0.0; };
 };
 
 class Double {// more simulated Java
@@ -81,27 +87,27 @@ public:
   const static int SampleRate = 44100;
   //const int SampleRate = 44100;
   const static int SampleRateTest = 100;
-  static constexpr ldouble BaseFreqC0 = 16.3516;// hz
-  static constexpr ldouble BaseFreqA0 = 27.5000;// hz
-  //static constexpr ldouble BaseFreqC0;// hz
+  static constexpr SoundFloat BaseFreqC0 = 16.3516;// hz
+  static constexpr SoundFloat BaseFreqA0 = 27.5000;// hz
+  //static constexpr SoundFloat BaseFreqC0;// hz
   //const constexpr BaseFreqC0 = 16.3516;// hz
-  //static ldouble BaseFreqA0;// = 27.5000;// hz
-  //constexpr static ldouble usPerSec = 1000000.0;
-  // http://stackoverflow.com/questions/2777541/static-const-ldouble-in-c
-  static ldouble BaseFreqA0_G() {
+  //static SoundFloat BaseFreqA0;// = 27.5000;// hz
+  //constexpr static SoundFloat usPerSec = 1000000.0;
+  // http://stackoverflow.com/questions/2777541/static-const-SoundFloat-in-c
+  static SoundFloat BaseFreqA0_G() {
     return 27.5000;  // hz
   }
-  static ldouble BaseFreqC0_G() {
+  static SoundFloat BaseFreqC0_G() {
     return 16.3516;  // hz
   }
 
   static constexpr long double Math_PI = PIdef;
   static constexpr long double TwoPi = PI2def; //M_PI_2; // hz
-  static constexpr ldouble Fudge = 0.00000000001;
+  static constexpr SoundFloat Fudge = 0.00000000001;
   class Random {
   public:
-    ldouble NextDouble() {
-      return ((ldouble)rand()) / (ldouble)RAND_MAX;
+    SoundFloat NextDouble() {
+      return ((SoundFloat)rand()) / (SoundFloat)RAND_MAX;
     }
   };
   const static Random RandomGenerator();
@@ -125,54 +131,54 @@ class Math {
 public:
   static constexpr long double PI = PIdef;
 
-  static ldouble min(ldouble a, ldouble b) {
+  static SoundFloat min(SoundFloat a, SoundFloat b) {
     return std::min(a, b);
   }
-  static ldouble max(ldouble a, ldouble b) {
+  static SoundFloat max(SoundFloat a, SoundFloat b) {
     return std::max(a, b);
   }
-  static ldouble ceil(ldouble a) {
+  static SoundFloat ceil(SoundFloat a) {
     return std::ceil(a);
   }
-  static ldouble floor(ldouble a) {
+  static SoundFloat floor(SoundFloat a) {
     return std::floor(a);
   }
-  static ldouble round(ldouble a) {
+  static SoundFloat round(SoundFloat a) {
     return std::round(a);
   }
-  static ldouble abs(ldouble a) {
+  static SoundFloat abs(SoundFloat a) {
     return std::abs(a);
   }
-  static ldouble hypot(ldouble a, ldouble b) {
+  static SoundFloat hypot(SoundFloat a, SoundFloat b) {
     return std::hypot(a, b);
   }
-  static ldouble sqrt(ldouble a) {
+  static SoundFloat sqrt(SoundFloat a) {
     return std::sqrt(a);
   }
-  static ldouble sin(ldouble a) {
+  static SoundFloat sin(SoundFloat a) {
     return std::sin(a);
   }
-  static ldouble cos(ldouble a) {
+  static SoundFloat cos(SoundFloat a) {
     return std::cos(a);
   }
-  static ldouble log(ldouble a) {
+  static SoundFloat log(SoundFloat a) {
     return std::log(a);
   }
-  static ldouble pow(ldouble a, ldouble exp) {
+  static SoundFloat pow(SoundFloat a, SoundFloat exp) {
     return std::pow(a, exp);
   }
   //  std::srand(std::time(nullptr)); // use current time as seed for random generator
-  static ldouble frand() {
+  static SoundFloat frand() {
     int numer = std::rand();
     int denom = 9973;//117;// prime number
     int remainder = numer % denom;
-    return ((ldouble)remainder) / (ldouble)denom;
-    //return ((ldouble)std::rand()) / (ldouble)RAND_MAX;
+    return ((SoundFloat)remainder) / (SoundFloat)denom;
+    //return ((SoundFloat)std::rand()) / (SoundFloat)RAND_MAX;
   }
 };
 
 struct Example {
-  static ldouble usPerSec() {
+  static SoundFloat usPerSec() {
     return 1000000.0;
   }
 };
