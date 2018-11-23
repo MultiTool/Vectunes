@@ -429,7 +429,7 @@ public:
     void Render_To_Sample(int EndSample, Wave& wave) override {
     }
     /* ********************************************************************************* */
-    SoundFloat GetWaveForm(SoundFloat SubTimeAbsolute) {// not used currently
+    SoundFloat virtual GetWaveForm(SoundFloat SubTimeAbsolute) {// not used currently
       return Math::sin(SubTimeAbsolute * this->MyVoice->BaseFreq * Globals::TwoPi);
     }
     /* ********************************************************************************* */
@@ -504,7 +504,11 @@ public:
 
       SoundFloat TimeAlong, CurrentLoudness, Amplitude;
 
-      if (false){
+      SoundFloat CurrentOctaveLocal, CurrentFrequency, CurrentFrequencyFactorAbsolute, CurrentFrequencyFactorLocal;
+      SoundFloat SampleDuration = 1.0 / SRate;
+      SoundFloat SubTimeIterate = (pnt0.SubTime * BaseFreq * Globals::TwoPi);
+
+      if (true){
         ldouble Frequency0 = std::pow(2.0, Octave0);
         ldouble Frequency1 = std::pow(2.0, Octave1);
         ldouble FrequencyRatio = Frequency1/Frequency0;
@@ -515,25 +519,30 @@ public:
         int SampleCnt;
         for (SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++){
           TimeAlong = (SampleCnt / SRate) - Time0;
+          //TimeAlong = (SampleCnt-this->Bone_Sample_Mark) * SampleDuration;// legacy
+//          CurrentOctaveLocal = TimeAlong * OctaveRate;// legacy
+//          CurrentFrequencyFactorLocal = std::pow(2.0, CurrentOctaveLocal);// legacy, equals Snowball
+          //ldouble FractAlong = ((ldouble)(SampleCnt-NumSamples))/(ldouble)NumSamples;
           CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
-          CurrentTimeRate = Frequency0*Snowball;// SRate;
-          //CurrentTimeRate = Snowball;
+          CurrentTimeRate = Frequency0*Snowball;// / SRate;
+          CurrentTimeRate = Snowball;
+          CurrentFrequencyFactorAbsolute = (FrequencyFactorStart * Snowball);// legacy
+          CurrentFrequency = BaseFreq * CurrentFrequencyFactorAbsolute;// legacy
 
           SubTimeAbsolute = (SubTime0 + (FrequencyFactorStart * SubTimeLocal)) * FrequencyFactorInherited;
 
-          //Amplitude = std::sin(SubTimeAbsolute);
-          Amplitude = this->GetWaveForm(SubTimeAbsolute);
+          Amplitude = std::sin(SubTimeIterate);
+          //Amplitude = this->GetWaveForm(SubTimeAbsolute);
           //Amplitude = this->GetWaveForm(SubTimeLocal);
+          // GetWaveForm: return Math::sin(SubTimeAbsolute * this->MyVoice->BaseFreq * Globals::TwoPi);
           //Amplitude = Math::sin(SubTimeAbsolute * Globals::TwoPi);
           wave.Set_Abs(SampleCnt, Amplitude * CurrentLoudness);
+          SubTimeIterate += (CurrentFrequency * Globals::TwoPi) / SRate;// legacy
           SubTimeLocal += CurrentTimeRate;
           Snowball *= Root;
           this->Render_Sample_Count++;
         }
       }else{// -----------------------------------
-        SoundFloat SampleDuration = 1.0 / SRate;
-        SoundFloat SubTimeIterate = (pnt0.SubTime * BaseFreq * Globals::TwoPi);
-        SoundFloat CurrentOctaveLocal, CurrentFrequency, CurrentFrequencyFactorAbsolute, CurrentFrequencyFactorLocal;
         for (int scnt = 0; scnt < NumSamples; scnt++) {
           TimeAlong = scnt * SampleDuration;
           CurrentOctaveLocal = TimeAlong * OctaveRate;
@@ -542,7 +551,7 @@ public:
           CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
           CurrentFrequency = BaseFreq * CurrentFrequencyFactorAbsolute;// do we really need to include the base frequency in the summing?
           Amplitude = std::sin(SubTimeIterate);
-          //Amplitude = this->GetWaveForm(SubTimeIterate);
+          // Amplitude = this->GetWaveForm(SubTimeIterate);
           wave.Set(this->Render_Sample_Count, Amplitude * CurrentLoudness);
           SubTimeIterate += (CurrentFrequency * Globals::TwoPi) / SRate;
           this->Render_Sample_Count++;
