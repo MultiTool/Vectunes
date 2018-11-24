@@ -151,7 +151,7 @@ public:
       if (OctaveRate == 0.0){
         SubTimeLocal = TimeRange;// snox is using TimeRange right?
       }else{
-        SubTimeLocal = Integral(OctaveRate, TimeRange);
+        SubTimeLocal = Voice::Integral(OctaveRate, TimeRange);
       }
       Next_Point->SubTime = Prev_Point->SubTime + (FrequencyFactorStart * SubTimeLocal);
     }
@@ -470,7 +470,7 @@ public:
       if (OctaveRate == 0.0){
         SubTimeLocal = TimeAlong;
       }else{
-        SubTimeLocal = Integral(OctaveRate, TimeAlong);
+        SubTimeLocal = Voice::Integral(OctaveRate, TimeAlong);
       }
       PntMid.TimeX = RealTime;
       PntMid.SubTime = pnt0.SubTime + (FrequencyFactorStart * SubTimeLocal);
@@ -505,7 +505,7 @@ public:
       SoundFloat TimeAlong, CurrentLoudness, Amplitude;
 
       SoundFloat CurrentOctaveLocal, CurrentFrequency, CurrentFrequencyFactorAbsolute, CurrentFrequencyFactorLocal;
-      SoundFloat SubTimeIterate = pnt0.SubTime;
+      SoundFloat SubTimeIterate;
 
       if (true){
         ldouble Frequency0 = std::pow(2.0, Octave0);
@@ -513,10 +513,10 @@ public:
         ldouble FrequencyRatio = Frequency1/Frequency0;
         ldouble Root = std::pow(FrequencyRatio, 1.0/(ldouble)NumSamples);
 
-        ldouble SubTimeLocal = pnt0.SubTime;
+        ldouble SubTimeLocal = pnt0.SubTime * this->InheritedMap.ScaleX;// tempo rescale
+        SubTimeIterate = pnt0.SubTime * this->InheritedMap.ScaleX;// tempo rescale
         ldouble Snowball = 1.0;// frequency, pow(anything, 0)
-        int SampleCnt;
-        for (SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++){
+        for (int SampleCnt = this->Bone_Sample_Mark; SampleCnt < EndSample; SampleCnt++){
           TimeAlong = (SampleCnt / SRate) - Time0;
           CurrentLoudness = pnt0.LoudnessFactor + (TimeAlong * LoudnessRate);
           CurrentFrequencyFactorAbsolute = (FrequencyFactorStart * Snowball);// legacy
@@ -529,6 +529,7 @@ public:
           this->Render_Sample_Count++;
         }
       }else{// -----------------------------------
+        SubTimeIterate = (pnt0.SubTime * BaseFreq * Globals::TwoPi);
         SoundFloat SampleDuration = 1.0 / SRate;
         for (int scnt = 0; scnt < NumSamples; scnt++) {
           TimeAlong = scnt * SampleDuration;
